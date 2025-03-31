@@ -13,6 +13,8 @@ lazy val microservice = Project("universal-credit-liability-stubs", file("."))
   )
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(CodeCoverageSettings.settings: _*)
+  .settings(PlayKeys.playDefaultPort := 16108)
+
 
 lazy val it = project
   .enablePlugins(PlayScala)
