@@ -1,7 +1,7 @@
 import uk.gov.hmrc.DefaultBuildSettings
 
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "3.3.0"
 
 lazy val microservice = Project("universal-credit-liability-stubs", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
@@ -12,7 +12,7 @@ lazy val microservice = Project("universal-credit-liability-stubs", file("."))
     scalacOptions += "-Wconf:src=routes/.*:s"
   )
   .settings(resolvers += Resolver.jcenterRepo)
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings *)
   .settings(PlayKeys.playDefaultPort := 16108)
 
 lazy val it = project
