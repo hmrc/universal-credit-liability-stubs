@@ -23,6 +23,8 @@ Format all project files as follows:
 sbt scalafmtAll
 ```
 
+## Testing
+Bruno collection can be found in `bruno/SubmitLiabilityDetails.bru` for `Bruno v1.29.0` 
 
 ### License
 
