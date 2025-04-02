@@ -26,8 +26,7 @@ import javax.inject.Inject
 @Singleton
 class UCLiabilityController @Inject() (cc: ControllerComponents) extends BackendController(cc) with Logging {
 
-  def submitLiabilityDetails(nino: String): Action[AnyContent] = Action {
-    implicit request: Request[AnyContent] =>
-      NoContent
+  def submitLiabilityDetails(nino: String): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+    NoContent
   }
 }
