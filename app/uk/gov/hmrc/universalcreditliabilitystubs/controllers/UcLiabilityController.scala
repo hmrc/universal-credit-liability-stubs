@@ -17,14 +17,13 @@
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
 import jakarta.inject.Singleton
-import play.api.Logging
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
 
 @Singleton
-class UcLiabilityController @Inject() (cc: ControllerComponents) extends BackendController(cc) with Logging {
+class UcLiabilityController @Inject() (cc: ControllerComponents) extends BackendController(cc) {
 
   def submitLiabilityDetails(nino: String): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     NoContent

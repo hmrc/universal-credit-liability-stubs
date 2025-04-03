@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
+import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status
@@ -30,7 +31,7 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers {
   "POST /" should {
     "return 204" in {
       val result = controller.submitLiabilityDetails("nino")(fakeRequest)
-      status(result) shouldBe Status.NO_CONTENT
+      status(result) mustBe Status.NO_CONTENT
     }
   }
 }
