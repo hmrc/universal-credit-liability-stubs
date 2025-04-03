@@ -16,17 +16,21 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
-import jakarta.inject.Singleton
-import play.api.Logging
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import play.api.http.Status
+import play.api.test.Helpers.*
+import play.api.test.{FakeRequest, Helpers}
 
-import javax.inject.Inject
+class UcLiabilityControllerSpec extends AnyWordSpec with Matchers {
 
-@Singleton
-class UCLiabilityController @Inject() (cc: ControllerComponents) extends BackendController(cc) with Logging {
+  private val fakeRequest = FakeRequest("POST", "/")
+  private val controller  = new UcLiabilityController(Helpers.stubControllerComponents())
 
-  def submitLiabilityDetails(nino: String): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
-    NoContent
+  "POST /" should {
+    "return 204" in {
+      val result = controller.submitLiabilityDetails("nino")(fakeRequest)
+      status(result) shouldBe Status.NO_CONTENT
+    }
   }
 }

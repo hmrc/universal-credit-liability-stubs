@@ -17,16 +17,16 @@
 package uk.gov.hmrc.universalcreditliabilitystubs
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 
-class UCLiabilityEndpointIntegrationSpec
-    extends AnyWordSpec
-    with Matchers
+class UcLiabilityIntegrationSpec
+    extends PlaySpec
     with ScalaFutures
     with IntegrationPatience
     with GuiceOneServerPerSuite {
@@ -46,7 +46,7 @@ class UCLiabilityEndpointIntegrationSpec
           .execute("POST")
           .futureValue
 
-      response.status shouldBe 204
+      response.status mustBe 204
     }
   }
 }

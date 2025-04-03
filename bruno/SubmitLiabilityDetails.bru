@@ -9,3 +9,13 @@ post {
   body: none
   auth: none
 }
+
+script:pre-request {
+  
+  const number = `${Math.floor(Math.random()* 100000)}`.padStart(6, '0')
+  
+  const nino = `AA${number}`
+    
+  bru.setEnvVar("nino", nino);
+    
+}
