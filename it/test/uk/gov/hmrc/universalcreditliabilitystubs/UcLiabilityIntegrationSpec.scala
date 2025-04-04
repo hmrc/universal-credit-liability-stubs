@@ -17,31 +17,22 @@
 package uk.gov.hmrc.universalcreditliabilitystubs
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 
 class UcLiabilityIntegrationSpec
-    extends PlaySpec
+  extends PlaySpec
     with ScalaFutures
     with IntegrationPatience
     with GuiceOneServerPerSuite {
 
-  private val wsClient = app.injector.instanceOf[WSClient]
-  private val baseUrl  = s"http://localhost:$port"
-
-  override def fakeApplication(): Application =
-    GuiceApplicationBuilder()
-      .build()
+  private given WSClient = app.injector.instanceOf[WSClient]
 
   "UC Liability endpoint" must {
     "respond with 204 status" in {
       val response =
-        wsClient
-          .url(s"$baseUrl/universal-credit-liability-stubs/person/nino/liability/universal-credit")
+        wsUrl(s"/universal-credit-liability-stubs/person/nino/liability/universal-credit")
           .execute("POST")
           .futureValue
 
