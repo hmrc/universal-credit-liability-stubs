@@ -18,7 +18,6 @@ package uk.gov.hmrc.universalcreditliabilitystubs
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers.mustBe
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
@@ -38,7 +37,7 @@ class UcLiabilityIntegrationSpec
     GuiceApplicationBuilder()
       .build()
 
-  "UC Liability endpoint" should {
+  "UC Liability endpoint" must {
     "respond with 204 status" in {
       val response =
         wsClient
