@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
-import org.scalatest.matchers.must.Matchers.mustBe
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status
 import play.api.test.Helpers.*
