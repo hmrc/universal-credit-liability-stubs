@@ -21,5 +21,5 @@ import play.api.libs.json.{Json, OFormat}
 case class SubmitLiabilityRequest(universalCreditLiabilityDetail: UniversalCreditLiabilityDetail)
 
 object SubmitLiabilityRequest {
-  implicit val format: OFormat[SubmitLiabilityRequest] =  Json.format[SubmitLiabilityRequest]
+  implicit val format: OFormat[SubmitLiabilityRequest] = Json.format[SubmitLiabilityRequest]
 }

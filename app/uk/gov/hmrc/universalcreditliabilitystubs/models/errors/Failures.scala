@@ -18,8 +18,8 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.errors
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Failures (failures: Seq[ErrorDetails])
+case class Failures(failures: Seq[ErrorDetails])
 
 object Failures {
-  implicit val format: OFormat[Failures] =  Json.format[Failures]
+  implicit val format: OFormat[Failures] = Json.format[Failures]
 }

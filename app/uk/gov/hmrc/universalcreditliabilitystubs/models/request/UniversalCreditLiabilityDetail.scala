@@ -20,11 +20,14 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-case class UniversalCreditLiabilityDetail (universalCreditRecordType: String, universalCreditAction: String,
-                                           dateOfBirth: LocalDate, liabilityStartDate: LocalDate, liabilityEndDate: Option[LocalDate])
-
-
+case class UniversalCreditLiabilityDetail(
+  universalCreditRecordType: String,
+  universalCreditAction: String,
+  dateOfBirth: LocalDate,
+  liabilityStartDate: LocalDate,
+  liabilityEndDate: Option[LocalDate]
+)
 
 object UniversalCreditLiabilityDetail {
-  implicit val format: OFormat[UniversalCreditLiabilityDetail] =  Json.format[UniversalCreditLiabilityDetail]
+  implicit val format: OFormat[UniversalCreditLiabilityDetail] = Json.format[UniversalCreditLiabilityDetail]
 }
