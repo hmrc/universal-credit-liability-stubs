@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-case class UniversalCreditLiabilityDetail(
+final case class UniversalCreditLiabilityDetail(
   universalCreditRecordType: String,
   universalCreditAction: String,
   dateOfBirth: LocalDate,
