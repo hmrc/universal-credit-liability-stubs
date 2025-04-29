@@ -25,7 +25,7 @@ import java.time.LocalDate
 class SubmitLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
-    
+
     "parse request jsons correctly" in {
       val jsonString =
         """
