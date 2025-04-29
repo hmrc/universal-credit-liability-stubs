@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 
 class FailureSpec extends AnyWordSpec with Matchers {
 
-  "must write to correct json" in {
+  "Failure must write to correct json" in {
 
     val model = Failure(
       reason = "Forbidden",
