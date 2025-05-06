@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.services
 
-import play.api.libs.json.Json.toJson
+import cats.data.{EitherNec, NonEmptyChain}
+import cats.syntax.all.*
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
@@ -28,13 +29,16 @@ import scala.util.matching.Regex
 class UcLiabilityService {
 
   def validateRequest(request: Request[JsValue], nino: String): Either[Result, SubmitLiabilityRequest] =
-    for {
-      _                      <- validateCorrelationId(request.headers.get("correlationId"))
-      _                      <- validateNino(nino)
-      submitLiabilityRequest <- validateJson(request)
-    } yield submitLiabilityRequest
+    (
+      validateCorrelationId(request.headers.get("correlationId")),
+      validateNino(nino),
+      validateJson(request)
+    ).parMapN((_, _, submitLiabilityRequest) => submitLiabilityRequest)
+      .leftMap { necOfFailures =>
+        mergeFailures(necOfFailures)
+      }
 
-  private def validateCorrelationId(correlationId: Option[String]): Either[Result, Unit] = {
+  private def validateCorrelationId(correlationId: Option[String]): EitherNec[Failures, Unit] = {
     val uuidPattern: Regex =
       "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$".r
 
@@ -42,14 +46,12 @@ class UcLiabilityService {
       case Some(id) if uuidPattern.matches(id) => Right(())
       case _                                   =>
         Left(
-          BadRequest(
-            toJson(
-              Failures(
-                failures = Seq(
-                  Failure(
-                    reason = "Constraint Violation - Invalid/Missing input parameter: correlationId",
-                    code = "400.1"
-                  )
+          NonEmptyChain.one(
+            Failures(
+              failures = Seq(
+                Failure(
+                  reason = "Constraint Violation - Invalid/Missing input parameter: correlationId",
+                  code = "400.1"
                 )
               )
             )
@@ -58,7 +60,7 @@ class UcLiabilityService {
     }
   }
 
-  private def validateNino(nino: String): Either[Result, Unit] = {
+  private def validateNino(nino: String): EitherNec[Failures, Unit] = {
 
     val ninoPattern: Regex =
       "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}$".r
@@ -67,11 +69,10 @@ class UcLiabilityService {
       case Some(_) => Right(())
       case _       =>
         Left(
-          BadRequest(
-            toJson(
-              Failures(
-                failures =
-                  Seq(Failure(reason = "Constraint Violation - Invalid/Missing input parameter: nino", code = "400.1"))
+          NonEmptyChain.one(
+            Failures(
+              failures = Seq(
+                Failure(reason = "Constraint Violation - Invalid/Missing input parameter: nino", code = "400.1")
               )
             )
           )
@@ -79,7 +80,7 @@ class UcLiabilityService {
     }
   }
 
-  private def validateJson(request: Request[JsValue]): Either[Result, SubmitLiabilityRequest] =
+  private def validateJson(request: Request[JsValue]): EitherNec[Failures, SubmitLiabilityRequest] =
     request.body.validate[SubmitLiabilityRequest] match {
       case JsSuccess(validatedRequest, _) =>
         Right(validatedRequest)
@@ -95,6 +96,15 @@ class UcLiabilityService {
           }
         }.toSeq
 
-        Left(BadRequest(Json.toJson(Failures(failures))))
+        Left(
+          NonEmptyChain.one(
+            Failures(failures)
+          )
+        )
     }
+
+  private def mergeFailures(failures: NonEmptyChain[Failures]): Result = {
+    val allFailures: Seq[Failure] = failures.toList.flatMap(_.failures)
+    BadRequest(Json.toJson(Failures(allFailures)))
+  }
 }
