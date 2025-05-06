@@ -86,7 +86,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
     }
 
-    "return a BadRequest Result given an invalid nino" in {
+    "return a BadRequest Result for input parameter: nino given an invalid nino" in {
 
       val validHeaders: Seq[(String, String)] = Seq(
         "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
@@ -108,7 +108,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
     }
 
-    "return a BadRequest Result given an invalid correlationId" in {
+    "return a BadRequest Result for input parameter: correlationId given an invalid correlationId" in {
 
       val validHeaders: Seq[(String, String)] = Seq(
         "correlationId" -> "3e8dae97-b586-4cef-8511"
@@ -134,7 +134,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
     }
 
-    "return a BadRequest Result given an invalid request body" in {
+    "return a BadRequest Result for parameter: universalCreditLiabilityDetail/liabilityStartDate given an invalid request body" in {
 
       val validHeaders: Seq[(String, String)] = Seq(
         "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
@@ -149,6 +149,34 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
           Json.toJson(
             Failures(
               failures = Seq(
+                Failure(
+                  reason =
+                    "Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetail/liabilityStartDate",
+                  code = "400.1"
+                )
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
+
+      val validHeaders: Seq[(String, String)] = Seq(
+        "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+      )
+
+      val request: FakeRequest[JsValue] =
+        FakeRequest("POST", "/").withBody(Json.toJson(invalidSubmitLiabilityRequest)).withHeaders(validHeaders: _*)
+      val result                        = service.validateRequest(request, "AA1234")
+
+      result mustBe Left(
+        BadRequest(
+          Json.toJson(
+            Failures(
+              failures = Seq(
+                Failure(reason = "Constraint Violation - Invalid/Missing input parameter: nino", code = "400.1"),
                 Failure(
                   reason =
                     "Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetail/liabilityStartDate",
