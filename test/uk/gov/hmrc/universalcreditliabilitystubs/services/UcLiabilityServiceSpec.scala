@@ -24,6 +24,8 @@ import play.api.mvc.Results.BadRequest
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{SubmitLiabilityRequest, UniversalCreditLiabilityDetail}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
 import java.time.LocalDate
 
@@ -58,7 +60,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
   val validHeaders: Seq[(String, String)] =
     Seq(
-      "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+      HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
     )
 
   "validateRequest" must {
@@ -66,7 +68,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
     "return a SubmitLiabilityRequest object given an valid request body" in {
 
       val validHeaders: Seq[(String, String)] = Seq(
-        "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
       )
 
       val request: FakeRequest[JsValue] =
@@ -89,19 +91,18 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
     "return a BadRequest Result for input parameter: nino given an invalid nino" in {
 
       val validHeaders: Seq[(String, String)] = Seq(
-        "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
       )
 
       val request: FakeRequest[JsValue] =
         FakeRequest().withBody(Json.toJson(validSubmitLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, "nino")
+      val result                        = service.validateRequest(request, Nino)
 
       result mustBe Left(
         BadRequest(
           toJson(
             Failures(
-              failures =
-                Seq(Failure(reason = "Constraint Violation - Invalid/Missing input parameter: nino", code = "400.1"))
+              failures = Seq(ApplicationConstants.invalidInputFailure(Nino))
             )
           )
         )
@@ -111,7 +112,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
     "return a BadRequest Result for input parameter: correlationId given an invalid correlationId" in {
 
       val validHeaders: Seq[(String, String)] = Seq(
-        "correlationId" -> "3e8dae97-b586-4cef-8511"
+        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511"
       )
 
       val request: FakeRequest[JsValue] =
@@ -123,10 +124,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
           toJson(
             Failures(
               failures = Seq(
-                Failure(
-                  reason = "Constraint Violation - Invalid/Missing input parameter: correlationId",
-                  code = "400.1"
-                )
+                ApplicationConstants.invalidInputFailure(HeaderNames.CorrelationId)
               )
             )
           )
@@ -137,7 +135,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
     "return a BadRequest Result for parameter: universalCreditLiabilityDetail/liabilityStartDate given an invalid request body" in {
 
       val validHeaders: Seq[(String, String)] = Seq(
-        "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
       )
 
       val request: FakeRequest[JsValue] =
@@ -149,11 +147,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
           Json.toJson(
             Failures(
               failures = Seq(
-                Failure(
-                  reason =
-                    "Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetail/liabilityStartDate",
-                  code = "400.1"
-                )
+                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetail/liabilityStartDate")
               )
             )
           )
@@ -176,12 +170,8 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
           Json.toJson(
             Failures(
               failures = Seq(
-                Failure(reason = "Constraint Violation - Invalid/Missing input parameter: nino", code = "400.1"),
-                Failure(
-                  reason =
-                    "Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetail/liabilityStartDate",
-                  code = "400.1"
-                )
+                ApplicationConstants.invalidInputFailure(Nino),
+                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetail/liabilityStartDate")
               )
             )
           )

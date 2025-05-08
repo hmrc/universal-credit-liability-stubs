@@ -23,6 +23,9 @@ import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.SubmitLiabilityRequest
+import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService.*
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
 import scala.util.matching.Regex
 
@@ -30,7 +33,7 @@ class UcLiabilityService {
 
   def validateRequest(request: Request[JsValue], nino: String): Either[Result, SubmitLiabilityRequest] =
     (
-      validateCorrelationId(request.headers.get("correlationId")),
+      validateCorrelationId(request.headers.get(HeaderNames.CorrelationId)),
       validateNino(nino),
       validateJson(request)
     ).parMapN((_, _, submitLiabilityRequest) => submitLiabilityRequest)
@@ -38,47 +41,35 @@ class UcLiabilityService {
         mergeFailures(necOfFailures)
       }
 
-  private def validateCorrelationId(correlationId: Option[String]): EitherNec[Failures, Unit] = {
-    val uuidPattern: Regex =
-      "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$".r
-
+  private def validateCorrelationId(correlationId: Option[String]): EitherNec[Failures, Unit] =
     correlationId match {
-      case Some(id) if uuidPattern.matches(id) => Right(())
-      case _                                   =>
+      case Some(id) if CorrelationIdPattern.matches(id) => Right(())
+      case _                                            =>
         Left(
           NonEmptyChain.one(
             Failures(
               failures = Seq(
-                Failure(
-                  reason = "Constraint Violation - Invalid/Missing input parameter: correlationId",
-                  code = "400.1"
-                )
+                ApplicationConstants.invalidInputFailure(HeaderNames.CorrelationId)
               )
             )
           )
         )
     }
-  }
 
-  private def validateNino(nino: String): EitherNec[Failures, Unit] = {
-
-    val ninoPattern: Regex =
-      "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}$".r
-
-    ninoPattern.findFirstMatchIn(nino) match {
+  private def validateNino(nino: String): EitherNec[Failures, Unit] =
+    NinoPattern.findFirstMatchIn(nino) match {
       case Some(_) => Right(())
       case _       =>
         Left(
           NonEmptyChain.one(
             Failures(
               failures = Seq(
-                Failure(reason = "Constraint Violation - Invalid/Missing input parameter: nino", code = "400.1")
+                ApplicationConstants.invalidInputFailure(Nino)
               )
             )
           )
         )
     }
-  }
 
   private def validateJson(request: Request[JsValue]): EitherNec[Failures, SubmitLiabilityRequest] =
     request.body.validate[SubmitLiabilityRequest] match {
@@ -89,10 +80,7 @@ class UcLiabilityService {
         val failures = errors.flatMap { case (path, validationErrors) =>
           val field = path.toString().stripPrefix("/")
           validationErrors.map { err =>
-            Failure(
-              reason = s"Constraint Violation - Invalid/Missing input parameter: $field",
-              code = "400.1"
-            )
+            ApplicationConstants.invalidInputFailure(field)
           }
         }.toSeq
 
@@ -107,4 +95,12 @@ class UcLiabilityService {
     val allFailures: Seq[Failure] = failures.toList.flatMap(_.failures)
     BadRequest(Json.toJson(Failures(allFailures)))
   }
+}
+
+object UcLiabilityService {
+  private val CorrelationIdPattern: Regex =
+    "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$".r
+
+  private val NinoPattern: Regex =
+    "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}$".r
 }
