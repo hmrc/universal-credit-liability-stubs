@@ -23,7 +23,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{SubmitLiabilityRequest, UniversalCreditLiabilityDetail}
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetail}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
@@ -33,7 +33,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
   val service = new UcLiabilityService()
 
-  val validSubmitLiabilityRequest: JsValue =
+  val validInsertLiabilityRequest: JsValue =
     Json.parse("""
                  |{
                  |  "universalCreditLiabilityDetail": {
@@ -46,7 +46,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
                  |}
                  |""".stripMargin)
 
-  val invalidSubmitLiabilityRequest: JsValue =
+  val invalidInsertLiabilityRequest: JsValue =
     Json.parse("""
                  |{
                  |  "universalCreditLiabilityDetail": {
@@ -72,11 +72,11 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
 
       val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(validSubmitLiabilityRequest)).withHeaders(validHeaders: _*)
+        FakeRequest("POST", "/").withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
       val result                        = service.validateRequest(request, "AA123456")
 
       result mustBe Right(
-        SubmitLiabilityRequest(
+        InsertLiabilityRequest(
           universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
             universalCreditRecordType = "LCW/LCWRA",
             universalCreditAction = "Insert",
@@ -95,7 +95,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
 
       val request: FakeRequest[JsValue] =
-        FakeRequest().withBody(Json.toJson(validSubmitLiabilityRequest)).withHeaders(validHeaders: _*)
+        FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
       val result                        = service.validateRequest(request, Nino)
 
       result mustBe Left(
@@ -116,7 +116,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
 
       val request: FakeRequest[JsValue] =
-        FakeRequest().withBody(Json.toJson(validSubmitLiabilityRequest)).withHeaders(validHeaders: _*)
+        FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
       val result                        = service.validateRequest(request, "AA123456")
 
       result mustBe Left(
@@ -139,7 +139,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
 
       val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(invalidSubmitLiabilityRequest)).withHeaders(validHeaders: _*)
+        FakeRequest("POST", "/").withBody(Json.toJson(invalidInsertLiabilityRequest)).withHeaders(validHeaders: _*)
       val result                        = service.validateRequest(request, "AA123456")
 
       result mustBe Left(
@@ -162,7 +162,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
 
       val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(invalidSubmitLiabilityRequest)).withHeaders(validHeaders: _*)
+        FakeRequest("POST", "/").withBody(Json.toJson(invalidInsertLiabilityRequest)).withHeaders(validHeaders: _*)
       val result                        = service.validateRequest(request, "AA1234")
 
       result mustBe Left(

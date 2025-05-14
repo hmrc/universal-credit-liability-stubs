@@ -22,7 +22,7 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.*
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.SubmitLiabilityRequest
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.InsertLiabilityRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService.*
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
@@ -31,7 +31,7 @@ import scala.util.matching.Regex
 
 class UcLiabilityService {
 
-  def validateRequest(request: Request[JsValue], nino: String): Either[Result, SubmitLiabilityRequest] =
+  def validateRequest(request: Request[JsValue], nino: String): Either[Result, InsertLiabilityRequest] =
     (
       validateCorrelationId(request.headers.get(HeaderNames.CorrelationId)),
       validateNino(nino),
@@ -71,8 +71,8 @@ class UcLiabilityService {
         )
     }
 
-  private def validateJson(request: Request[JsValue]): EitherNec[Failures, SubmitLiabilityRequest] =
-    request.body.validate[SubmitLiabilityRequest] match {
+  private def validateJson(request: Request[JsValue]): EitherNec[Failures, InsertLiabilityRequest] =
+    request.body.validate[InsertLiabilityRequest] match {
       case JsSuccess(validatedRequest, _) =>
         Right(validatedRequest)
 

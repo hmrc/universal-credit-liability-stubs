@@ -18,8 +18,8 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class SubmitLiabilityRequest(universalCreditLiabilityDetail: UniversalCreditLiabilityDetail)
+final case class InsertLiabilityRequest(universalCreditLiabilityDetail: UniversalCreditLiabilityDetail)
 
-object SubmitLiabilityRequest {
-  implicit val format: OFormat[SubmitLiabilityRequest] = Json.format[SubmitLiabilityRequest]
+object InsertLiabilityRequest {
+  implicit val format: OFormat[InsertLiabilityRequest] = Json.format[InsertLiabilityRequest]
 }
