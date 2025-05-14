@@ -29,10 +29,21 @@ class UcLiabilityIntegrationSpec
 
   private given WSClient = app.injector.instanceOf[WSClient]
 
-  "UC Liability endpoint" must {
+  "Insert UC Liability endpoint" must {
     "respond with 204 status" in {
       val response =
         wsUrl(s"/universal-credit-liability-stubs/person/nino/liability/universal-credit")
+          .execute("POST")
+          .futureValue
+
+      response.status mustBe 204
+    }
+  }
+
+  "Terminate UC Liability endpoint" must {
+    "respond with 204 status" in {
+      val response =
+        wsUrl(s"/universal-credit-liability-stubs/person/nino/liability/universal-credit/termination")
           .execute("POST")
           .futureValue
 
