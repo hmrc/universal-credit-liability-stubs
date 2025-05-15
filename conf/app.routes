@@ -2,4 +2,6 @@
 
 GET        /hello-world             uk.gov.hmrc.universalcreditliabilitystubs.controllers.MicroserviceHelloWorldController.hello()
 
-POST       /person/:nino/liability/universal-credit     uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController.submitLiabilityDetails(nino: String)
+POST       /person/:nino/liability/universal-credit     uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController.insertLiabilityDetails(nino: String)
+
+POST       /person/:nino/liability/universal-credit/termination     uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController.terminateLiabilityDetails(nino: String)

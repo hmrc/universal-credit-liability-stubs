@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 
 import java.time.LocalDate
 
-class SubmitLiabilityRequestSpec extends AnyWordSpec with Matchers {
+class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
 
@@ -40,7 +40,7 @@ class SubmitLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |}
           |""".stripMargin
 
-      Json.parse(jsonString).as[SubmitLiabilityRequest] mustBe SubmitLiabilityRequest(
+      Json.parse(jsonString).as[InsertLiabilityRequest] mustBe InsertLiabilityRequest(
         universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
           universalCreditRecordType = "LCW/LCWRA",
           universalCreditAction = "Insert",
@@ -53,7 +53,7 @@ class SubmitLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
     "must write to correct json" in {
 
-      val model = SubmitLiabilityRequest(
+      val model = InsertLiabilityRequest(
         universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
           universalCreditRecordType = "LCW/LCWRA",
           universalCreditAction = "Insert",

@@ -27,9 +27,16 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers {
   private val fakeRequest = FakeRequest("POST", "/")
   private val controller  = new UcLiabilityController(Helpers.stubControllerComponents())
 
-  "POST /" must {
+  "insertLiabilityDetails" must {
     "return 204" in {
-      val result = controller.submitLiabilityDetails("nino")(fakeRequest)
+      val result = controller.insertLiabilityDetails("nino")(fakeRequest)
+      status(result) mustBe Status.NO_CONTENT
+    }
+  }
+
+  "terminateLiabilityDetails" must {
+    "return 204" in {
+      val result = controller.terminateLiabilityDetails("nino")(fakeRequest)
       status(result) mustBe Status.NO_CONTENT
     }
   }
