@@ -28,6 +28,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
 import java.time.LocalDate
+import scala.util.Random
 
 class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
@@ -63,6 +64,12 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
     )
 
+  def generateNino(): String = {
+    val number = f"${Random.nextInt(100000)}%06d"
+    val nino   = s"AA$number"
+    nino
+  }
+
   "validateRequest" must {
 
     "return a SubmitLiabilityRequest object given an valid request body" in {
@@ -73,7 +80,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
       val request: FakeRequest[JsValue] =
         FakeRequest("POST", "/").withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, "AA123456")
+      val result                        = service.validateRequest(request, generateNino())
 
       result mustBe Right(
         InsertLiabilityRequest(
@@ -117,7 +124,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
       val request: FakeRequest[JsValue] =
         FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, "AA123456")
+      val result                        = service.validateRequest(request, generateNino())
 
       result mustBe Left(
         BadRequest(
@@ -140,7 +147,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
       val request: FakeRequest[JsValue] =
         FakeRequest("POST", "/").withBody(Json.toJson(invalidInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, "AA123456")
+      val result                        = service.validateRequest(request, generateNino())
 
       result mustBe Left(
         BadRequest(
