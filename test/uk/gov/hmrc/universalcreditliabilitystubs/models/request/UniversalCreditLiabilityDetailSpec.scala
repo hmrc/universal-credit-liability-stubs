@@ -16,56 +16,33 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
+import org.scalacheck.Gen
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
+import wolfendale.scalacheck.regexp.RegexpGen
 
-import java.time.LocalDate
+class UniversalCreditLiabilityDetailSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+  val dateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
 
-class UniversalCreditLiabilityDetailSpec extends AnyWordSpec with Matchers {
+  val ucRecordTypeGen: Gen[UniversalCreditRecordType] =
+    Gen.oneOf(UniversalCreditRecordType.UC, UniversalCreditRecordType.LCW_LCWRA)
 
-  "UniversalCreditLiabilityDetail" must {
+  val ucDetailsGen: Gen[UniversalCreditLiabilityDetail] = for {
+    recordType  <- ucRecordTypeGen
+    dateOfBirth <- dateGen
+    startDate   <- dateGen
+    endDate     <- dateGen
+  } yield UniversalCreditLiabilityDetail(recordType, dateOfBirth, startDate, Some(endDate))
 
-    "parse request jsons correctly" in {
-      val jsonString =
-        """
-          |{
-          |    "universalCreditRecordType": "LCW/LCWRA",
-          |    "universalCreditAction": "Insert",
-          |    "dateOfBirth": "2002-10-10",
-          |    "liabilityStartDate": "2015-08-19",
-          |    "liabilityEndDate": "2025-01-04"
-          |}
-          |""".stripMargin
-
-      Json.parse(jsonString).as[UniversalCreditLiabilityDetail] mustBe UniversalCreditLiabilityDetail(
-        universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-        universalCreditAction = "Insert",
-        dateOfBirth = LocalDate.of(2002, 10, 10),
-        liabilityStartDate = LocalDate.of(2015, 8, 19),
-        liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
-      )
-    }
-
-    "must write to correct json" in {
-
-      val model = UniversalCreditLiabilityDetail(
-        universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-        universalCreditAction = "Insert",
-        dateOfBirth = LocalDate.of(2002, 10, 10),
-        liabilityStartDate = LocalDate.of(2015, 8, 19),
-        liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
-      )
-
-      val expectedJson = Json.obj(
-        "universalCreditRecordType" -> "LCW/LCWRA",
-        "universalCreditAction"     -> "Insert",
-        "dateOfBirth"               -> "2002-10-10",
-        "liabilityStartDate"        -> "2015-08-19",
-        "liabilityEndDate"          -> "2025-01-04"
-      )
-
-      Json.toJson(model) mustBe expectedJson
+  "UcLiabilityTerminationDetails must serialize and deserialize to the same value" in {
+    forAll(ucDetailsGen) { detail =>
+      val json   = Json.toJson(detail)
+      val parsed = json.validate[UniversalCreditLiabilityDetail]
+      parsed.isSuccess mustBe true
+      parsed.get mustEqual detail
     }
   }
 }

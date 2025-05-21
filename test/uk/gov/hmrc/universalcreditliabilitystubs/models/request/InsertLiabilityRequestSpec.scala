@@ -32,7 +32,6 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |{
           |  "universalCreditLiabilityDetail": {
           |    "universalCreditRecordType": "LCW/LCWRA",
-          |    "universalCreditAction": "Insert",
           |    "dateOfBirth": "2002-10-10",
           |    "liabilityStartDate": "2015-08-19",
           |    "liabilityEndDate": "2025-01-04"
@@ -43,10 +42,9 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
       Json.parse(jsonString).as[InsertLiabilityRequest] mustBe InsertLiabilityRequest(
         universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          universalCreditAction = "Insert",
-          dateOfBirth = LocalDate.of(2002, 10, 10),
-          liabilityStartDate = LocalDate.of(2015, 8, 19),
-          liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
+          dateOfBirth = "2002-10-10",
+          liabilityStartDate = "2015-08-19",
+          liabilityEndDate = Some("2025-01-04")
         )
       )
     }
@@ -56,17 +54,15 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
       val model = InsertLiabilityRequest(
         universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          universalCreditAction = "Insert",
-          dateOfBirth = LocalDate.of(2002, 10, 10),
-          liabilityStartDate = LocalDate.of(2015, 8, 19),
-          liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
+          dateOfBirth = "2002-10-10",
+          liabilityStartDate = "2015-08-19",
+          liabilityEndDate = Some("2025-01-04")
         )
       )
 
       val expectedJson = Json.obj(
         "universalCreditLiabilityDetail" -> Json.obj(
           "universalCreditRecordType" -> "LCW/LCWRA",
-          "universalCreditAction"     -> "Insert",
           "dateOfBirth"               -> "2002-10-10",
           "liabilityStartDate"        -> "2015-08-19",
           "liabilityEndDate"          -> "2025-01-04"

@@ -27,7 +27,6 @@ import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiability
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
-import java.time.LocalDate
 import scala.util.Random
 
 class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
@@ -39,7 +38,6 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
                  |{
                  |  "universalCreditLiabilityDetail": {
                  |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "universalCreditAction": "Insert",
                  |    "dateOfBirth": "2002-10-10",
                  |    "liabilityStartDate": "2015-08-19",
                  |    "liabilityEndDate": "2025-01-04"
@@ -52,7 +50,6 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
                  |{
                  |  "universalCreditLiabilityDetail": {
                  |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "universalCreditAction": "Insert",
                  |    "dateOfBirth": "2002-10-10",
                  |    "liabilityEndDate": "2025-01-04"
                  |  }
@@ -64,32 +61,32 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
     )
 
+  val request: FakeRequest[JsValue] =
+    FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
+
   def generateNino(): String = {
     val number = f"${Random.nextInt(100000)}%06d"
     val nino   = s"AA$number"
     nino
   }
 
+  def generateFakeRequest(requestBody: JsValue, headers: Seq[(String, String)]): FakeRequest[JsValue] =
+    FakeRequest().withBody(Json.toJson(requestBody)).withHeaders(headers: _*)
+
   "validateRequest" must {
 
     "return a SubmitLiabilityRequest object given an valid request body" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-      )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, generateNino())
+      val result =
+        service.validateRequest(generateFakeRequest(validInsertLiabilityRequest, validHeaders), generateNino())
 
       result mustBe Right(
         InsertLiabilityRequest(
           universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-            universalCreditAction = "Insert",
-            dateOfBirth = LocalDate.of(2002, 10, 10),
-            liabilityStartDate = LocalDate.of(2015, 8, 19),
-            liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
+            dateOfBirth = "2002-10-10",
+            liabilityStartDate = "2015-08-19",
+            liabilityEndDate = Some("2025-01-04")
           )
         )
       )
@@ -97,13 +94,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for input parameter: nino given an invalid nino" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-      )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, Nino)
+      val result = service.validateRequest(generateFakeRequest(validInsertLiabilityRequest, validHeaders), Nino)
 
       result mustBe Left(
         BadRequest(
@@ -118,13 +109,12 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for input parameter: correlationId given an invalid correlationId" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
+      val inValidHeaders: Seq[(String, String)] = Seq(
         HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511"
       )
 
-      val request: FakeRequest[JsValue] =
-        FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, generateNino())
+      val result =
+        service.validateRequest(generateFakeRequest(validInsertLiabilityRequest, inValidHeaders), generateNino())
 
       result mustBe Left(
         BadRequest(
@@ -141,13 +131,8 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for parameter: universalCreditLiabilityDetail/liabilityStartDate given an invalid request body" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-      )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(invalidInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, generateNino())
+      val result =
+        service.validateRequest(generateFakeRequest(invalidInsertLiabilityRequest, validHeaders), generateNino())
 
       result mustBe Left(
         BadRequest(
@@ -164,13 +149,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-      )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(invalidInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, "AA1234")
+      val result = service.validateRequest(generateFakeRequest(invalidInsertLiabilityRequest, validHeaders), "AA1234")
 
       result mustBe Left(
         BadRequest(

@@ -18,13 +18,13 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
 import org.scalacheck.Gen
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.propspec.AnyPropSpec
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 import wolfendale.scalacheck.regexp.RegexpGen
 
-class UcLiabilityTerminationDetailsSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Matchers {
+class UcLiabilityTerminationDetailsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
   val dateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
 
@@ -37,7 +37,7 @@ class UcLiabilityTerminationDetailsSpec extends AnyPropSpec with ScalaCheckPrope
     endDate    <- dateGen
   } yield UcLiabilityTerminationDetails(recordType, startDate, endDate)
 
-  property("UcLiabilityTerminationDetails should serialize and deserialize to the same value") {
+  "UcLiabilityTerminationDetails must serialize and deserialize to the same value" in {
     forAll(ucDetailsGen) { detail =>
       val json   = Json.toJson(detail)
       val parsed = json.validate[UcLiabilityTerminationDetails]
