@@ -23,8 +23,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetail}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetail, UniversalCreditRecordType}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
 import java.time.LocalDate
@@ -85,7 +85,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       result mustBe Right(
         InsertLiabilityRequest(
           universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
-            universalCreditRecordType = "LCW/LCWRA",
+            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
             universalCreditAction = "Insert",
             dateOfBirth = LocalDate.of(2002, 10, 10),
             liabilityStartDate = LocalDate.of(2015, 8, 19),

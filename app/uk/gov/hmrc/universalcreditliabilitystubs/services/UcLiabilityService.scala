@@ -24,7 +24,7 @@ import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.InsertLiabilityRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService.*
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
 import scala.util.matching.Regex

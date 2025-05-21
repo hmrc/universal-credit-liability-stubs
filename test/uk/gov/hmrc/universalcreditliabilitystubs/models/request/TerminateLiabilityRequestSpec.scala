@@ -20,54 +20,44 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 
-import java.time.LocalDate
+class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
-class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
-
-  "SubmitLiabilityRequest" must {
+  "TerminateLiabilityRequest" must {
 
     "parse request jsons correctly" in {
       val jsonString =
         """
           |{
-          |  "universalCreditLiabilityDetail": {
-          |    "universalCreditRecordType": "LCW/LCWRA",
-          |    "universalCreditAction": "Insert",
-          |    "dateOfBirth": "2002-10-10",
-          |    "liabilityStartDate": "2015-08-19",
-          |    "liabilityEndDate": "2025-01-04"
-          |  }
+          |"ucLiabilityTerminationDetails": {
+          |"universalCreditRecordType": "LCW/LCWRA",
+          |"liabilityStartDate": "2015-08-19",
+          |"liabilityEndDate": "2025-01-04"
+          |}
           |}
           |""".stripMargin
 
-      Json.parse(jsonString).as[InsertLiabilityRequest] mustBe InsertLiabilityRequest(
-        universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
+      Json.parse(jsonString).as[TerminateLiabilityRequest] mustBe TerminateLiabilityRequest(
+        ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          universalCreditAction = "Insert",
-          dateOfBirth = LocalDate.of(2002, 10, 10),
-          liabilityStartDate = LocalDate.of(2015, 8, 19),
-          liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
+          liabilityStartDate = "2015-08-19",
+          liabilityEndDate = "2025-01-04"
         )
       )
     }
 
     "must write to correct json" in {
 
-      val model = InsertLiabilityRequest(
-        universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
+      val model = TerminateLiabilityRequest(
+        ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          universalCreditAction = "Insert",
-          dateOfBirth = LocalDate.of(2002, 10, 10),
-          liabilityStartDate = LocalDate.of(2015, 8, 19),
-          liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
+          liabilityStartDate = "2015-08-19",
+          liabilityEndDate = "2025-01-04"
         )
       )
 
       val expectedJson = Json.obj(
-        "universalCreditLiabilityDetail" -> Json.obj(
+        "ucLiabilityTerminationDetails" -> Json.obj(
           "universalCreditRecordType" -> "LCW/LCWRA",
-          "universalCreditAction"     -> "Insert",
-          "dateOfBirth"               -> "2002-10-10",
           "liabilityStartDate"        -> "2015-08-19",
           "liabilityEndDate"          -> "2025-01-04"
         )

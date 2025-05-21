@@ -39,7 +39,7 @@ class UniversalCreditLiabilityDetailSpec extends AnyWordSpec with Matchers {
           |""".stripMargin
 
       Json.parse(jsonString).as[UniversalCreditLiabilityDetail] mustBe UniversalCreditLiabilityDetail(
-        universalCreditRecordType = "LCW/LCWRA",
+        universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
         universalCreditAction = "Insert",
         dateOfBirth = LocalDate.of(2002, 10, 10),
         liabilityStartDate = LocalDate.of(2015, 8, 19),
@@ -50,7 +50,7 @@ class UniversalCreditLiabilityDetailSpec extends AnyWordSpec with Matchers {
     "must write to correct json" in {
 
       val model = UniversalCreditLiabilityDetail(
-        universalCreditRecordType = "LCW/LCWRA",
+        universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
         universalCreditAction = "Insert",
         dateOfBirth = LocalDate.of(2002, 10, 10),
         liabilityStartDate = LocalDate.of(2015, 8, 19),

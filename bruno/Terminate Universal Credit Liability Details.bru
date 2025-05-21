@@ -1,0 +1,21 @@
+meta {
+  name: Terminate Universal Credit Liability Details
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit/termination
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  
+  const number = `${Math.floor(Math.random()* 100000)}`.padStart(6, '0')
+  
+  const nino = `AA${number}`
+    
+  bru.setEnvVar("nino", nino);
+    
+}
