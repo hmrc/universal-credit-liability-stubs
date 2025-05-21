@@ -16,27 +16,46 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status
+import play.api.test.Helpers
 import play.api.test.Helpers.*
-import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService
+import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 
-class UcLiabilityControllerSpec extends AnyWordSpec with Matchers {
+class UcLiabilityControllerSpec extends AnyWordSpec with TestHelpers with Matchers {
 
-  private val fakeRequest = FakeRequest("POST", "/")
-  private val controller  = new UcLiabilityController(Helpers.stubControllerComponents())
+  private val mockUcLiabilityService = mock[UcLiabilityService]
+  private val controller             = new UcLiabilityController(Helpers.stubControllerComponents(), mockUcLiabilityService)
 
   "insertLiabilityDetails" must {
     "return 204" in {
-      val result = controller.insertLiabilityDetails("nino")(fakeRequest)
+
+      val fakeRequest = generateFakeRequest(validInsertLiabilityRequest, validHeaders)
+
+      when(mockUcLiabilityService.validateInsertLiabilityRequest(any(), any()))
+        .thenReturn(Right(getInsertLiabilityRequest))
+
+      val result =
+        controller.insertLiabilityDetails(generateNino())(fakeRequest)
       status(result) mustBe Status.NO_CONTENT
     }
   }
 
   "terminateLiabilityDetails" must {
     "return 204" in {
-      val result = controller.terminateLiabilityDetails("nino")(fakeRequest)
+      val fakeRequest = generateFakeRequest(validTerminateLiabilityRequest, validHeaders)
+
+      when(mockUcLiabilityService.validateTerminateLiabilityRequest(any(), any()))
+        .thenReturn(Right(getTerminateLiabilityRequest))
+
+      val result =
+        controller.terminateLiabilityDetails(generateNino())(fakeRequest)
       status(result) mustBe Status.NO_CONTENT
     }
   }

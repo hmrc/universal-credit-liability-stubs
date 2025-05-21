@@ -19,35 +19,83 @@ package uk.gov.hmrc.universalcreditliabilitystubs
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.WSClient
+import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 
 class UcLiabilityIntegrationSpec
-  extends PlaySpec
+    extends PlaySpec
     with ScalaFutures
     with IntegrationPatience
-    with GuiceOneServerPerSuite {
+    with GuiceOneServerPerSuite
+    with TestHelpers {
 
   private given WSClient = app.injector.instanceOf[WSClient]
 
   "Insert UC Liability endpoint" must {
     "respond with 204 status" in {
-      val response =
-        wsUrl(s"/universal-credit-liability-stubs/person/nino/liability/universal-credit")
-          .execute("POST")
-          .futureValue
+      val response = wsUrl(s"/universal-credit-liability-stubs/person/${generateNino()}/liability/universal-credit")
+        .withHttpHeaders(validHeaders: _*)
+        .withBody(validInsertLiabilityRequest)
+        .execute("POST")
+        .futureValue
 
       response.status mustBe 204
+    }
+
+    "respond with 400 status" in {
+      val response = wsUrl(s"/universal-credit-liability-stubs/person/${generateNino()}/liability/universal-credit")
+        .withHttpHeaders(validHeaders: _*)
+        .withBody(invalidInsertLiabilityRequest)
+        .execute("POST")
+        .futureValue
+
+      response.status mustBe 400
+    }
+
+    "respond with 403 status" in {
+      val response = wsUrl(s"/universal-credit-liability-stubs/person/${generateNino()}/liability/universal-credit")
+        .withHttpHeaders(inValidHeaders: _*)
+        .withBody(invalidInsertLiabilityRequest)
+        .execute("POST")
+        .futureValue
+
+      response.status mustBe 403
     }
   }
 
   "Terminate UC Liability endpoint" must {
     "respond with 204 status" in {
       val response =
-        wsUrl(s"/universal-credit-liability-stubs/person/nino/liability/universal-credit/termination")
+        wsUrl(s"/universal-credit-liability-stubs/person/${generateNino()}/liability/universal-credit/termination")
+          .withHttpHeaders(validHeaders: _*)
+          .withBody(validTerminateLiabilityRequest)
           .execute("POST")
           .futureValue
 
       response.status mustBe 204
+    }
+
+    "respond with 400 status" in {
+      val response =
+        wsUrl(s"/universal-credit-liability-stubs/person/${generateNino()}/liability/universal-credit/termination")
+          .withHttpHeaders(validHeaders: _*)
+          .withBody(inValidTerminateLiabilityRequest)
+          .execute("POST")
+          .futureValue
+
+      response.status mustBe 400
+    }
+
+    "respond with 403 status" in {
+      val response =
+        wsUrl(s"/universal-credit-liability-stubs/person/${generateNino()}/liability/universal-credit/termination")
+          .withHttpHeaders(inValidHeaders: _*)
+          .withBody(inValidTerminateLiabilityRequest)
+          .execute("POST")
+          .futureValue
+
+      response.status mustBe 403
     }
   }
 }

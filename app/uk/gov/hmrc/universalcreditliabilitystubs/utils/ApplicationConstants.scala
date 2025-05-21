@@ -22,6 +22,8 @@ import scala.util.matching.Regex
 
 object ApplicationConstants {
 
+  val ForbiddenReason = "Forbidden"
+
   object PathParameter {
     val Nino = "nino"
   }
@@ -37,8 +39,9 @@ object ApplicationConstants {
       code = ErrorCodes.InvalidInput
     )
 
-  private object ErrorCodes {
-    val InvalidInput = "400.1"
+  object ErrorCodes {
+    val InvalidInput  = "400.1"
+    val ForbiddenCode = "403.2"
   }
 
   private object ErrorMessages {
@@ -49,4 +52,5 @@ object ApplicationConstants {
 
 object HeaderNames {
   val CorrelationId = "correlationId"
+  val OriginatorId  = "gov-uk-originator-id"
 }

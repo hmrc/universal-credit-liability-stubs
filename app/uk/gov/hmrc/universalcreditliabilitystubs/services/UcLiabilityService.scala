@@ -18,11 +18,11 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import cats.data.{EitherNec, NonEmptyChain}
 import cats.syntax.all.*
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
+import play.api.libs.json.*
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.*
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.InsertLiabilityRequest
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService.*
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
@@ -31,12 +31,25 @@ import scala.util.matching.Regex
 
 class UcLiabilityService {
 
-  def validateRequest(request: Request[JsValue], nino: String): Either[Result, InsertLiabilityRequest] =
+  def validateInsertLiabilityRequest(request: Request[JsValue], nino: String): Either[Result, InsertLiabilityRequest] =
     (
       validateCorrelationId(request.headers.get(HeaderNames.CorrelationId)),
       validateNino(nino),
-      validateJson(request)
+      validateJson[InsertLiabilityRequest](request)
     ).parMapN((_, _, submitLiabilityRequest) => submitLiabilityRequest)
+      .leftMap { necOfFailures =>
+        mergeFailures(necOfFailures)
+      }
+
+  def validateTerminateLiabilityRequest(
+    request: Request[JsValue],
+    nino: String
+  ): Either[Result, TerminateLiabilityRequest] =
+    (
+      validateCorrelationId(request.headers.get(HeaderNames.CorrelationId)),
+      validateNino(nino),
+      validateJson[TerminateLiabilityRequest](request)
+    ).parMapN((_, _, terminateLiabilityRequest) => terminateLiabilityRequest)
       .leftMap { necOfFailures =>
         mergeFailures(necOfFailures)
       }
@@ -71,8 +84,8 @@ class UcLiabilityService {
         )
     }
 
-  private def validateJson(request: Request[JsValue]): EitherNec[Failures, InsertLiabilityRequest] =
-    request.body.validate[InsertLiabilityRequest] match {
+  private def validateJson[T](request: Request[JsValue])(implicit reads: Reads[T]): EitherNec[Failures, T] =
+    request.body.validate[T] match {
       case JsSuccess(validatedRequest, _) =>
         Right(validatedRequest)
 

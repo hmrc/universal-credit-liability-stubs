@@ -78,7 +78,10 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
     "return a SubmitLiabilityRequest object given an valid request body" in {
 
       val result =
-        service.validateRequest(generateFakeRequest(validInsertLiabilityRequest, validHeaders), generateNino())
+        service.validateInsertLiabilityRequest(
+          generateFakeRequest(validInsertLiabilityRequest, validHeaders),
+          generateNino()
+        )
 
       result mustBe Right(
         InsertLiabilityRequest(
@@ -94,7 +97,8 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for input parameter: nino given an invalid nino" in {
 
-      val result = service.validateRequest(generateFakeRequest(validInsertLiabilityRequest, validHeaders), Nino)
+      val result =
+        service.validateInsertLiabilityRequest(generateFakeRequest(validInsertLiabilityRequest, validHeaders), Nino)
 
       result mustBe Left(
         BadRequest(
@@ -114,7 +118,10 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
 
       val result =
-        service.validateRequest(generateFakeRequest(validInsertLiabilityRequest, inValidHeaders), generateNino())
+        service.validateInsertLiabilityRequest(
+          generateFakeRequest(validInsertLiabilityRequest, inValidHeaders),
+          generateNino()
+        )
 
       result mustBe Left(
         BadRequest(
@@ -132,7 +139,10 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
     "return a BadRequest Result for parameter: universalCreditLiabilityDetail/liabilityStartDate given an invalid request body" in {
 
       val result =
-        service.validateRequest(generateFakeRequest(invalidInsertLiabilityRequest, validHeaders), generateNino())
+        service.validateInsertLiabilityRequest(
+          generateFakeRequest(invalidInsertLiabilityRequest, validHeaders),
+          generateNino()
+        )
 
       result mustBe Left(
         BadRequest(
@@ -149,7 +159,10 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
 
-      val result = service.validateRequest(generateFakeRequest(invalidInsertLiabilityRequest, validHeaders), "AA1234")
+      val result = service.validateInsertLiabilityRequest(
+        generateFakeRequest(invalidInsertLiabilityRequest, validHeaders),
+        "AA1234"
+      )
 
       result mustBe Left(
         BadRequest(
