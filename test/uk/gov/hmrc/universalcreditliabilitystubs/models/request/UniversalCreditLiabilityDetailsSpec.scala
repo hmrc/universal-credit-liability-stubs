@@ -1,0 +1,48 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.universalcreditliabilitystubs.models.request
+
+import org.scalacheck.Gen
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.libs.json.Json
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
+import wolfendale.scalacheck.regexp.RegexpGen
+
+class UniversalCreditLiabilityDetailsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+  val dateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
+
+  val ucRecordTypeGen: Gen[UniversalCreditRecordType] =
+    Gen.oneOf(UniversalCreditRecordType.UC, UniversalCreditRecordType.LCW_LCWRA)
+
+  val ucDetailsGen: Gen[UniversalCreditLiabilityDetails] = for {
+    recordType  <- ucRecordTypeGen
+    dateOfBirth <- dateGen
+    startDate   <- dateGen
+    endDate     <- dateGen
+  } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, Some(endDate))
+
+  "UcLiabilityTerminationDetails must serialize and deserialize to the same value" in {
+    forAll(ucDetailsGen) { detail =>
+      val json   = Json.toJson(detail)
+      val parsed = json.validate[UniversalCreditLiabilityDetails]
+      parsed.isSuccess mustBe true
+      parsed.get mustEqual detail
+    }
+  }
+}

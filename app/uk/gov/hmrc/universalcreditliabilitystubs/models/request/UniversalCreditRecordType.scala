@@ -16,10 +16,19 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.*
 
-final case class InsertLiabilityRequest(universalCreditLiabilityDetails: UniversalCreditLiabilityDetails)
+enum UniversalCreditRecordType(val code: String) {
+  case UC extends UniversalCreditRecordType("UC")
+  case LCW_LCWRA extends UniversalCreditRecordType("LCW/LCWRA")
+}
 
-object InsertLiabilityRequest {
-  implicit val format: OFormat[InsertLiabilityRequest] = Json.format[InsertLiabilityRequest]
+object UniversalCreditRecordType {
+  implicit val writes: Writes[UniversalCreditRecordType] = Writes(recordType => JsString(recordType.code))
+
+  implicit val reads: Reads[UniversalCreditRecordType] = Reads {
+    case JsString("UC")        => JsSuccess(UniversalCreditRecordType.UC)
+    case JsString("LCW/LCWRA") => JsSuccess(UniversalCreditRecordType.LCW_LCWRA)
+    case _                     => JsError("Unknown RecordType")
+  }
 }

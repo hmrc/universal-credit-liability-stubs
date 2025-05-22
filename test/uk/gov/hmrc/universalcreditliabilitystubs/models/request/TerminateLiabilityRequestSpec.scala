@@ -20,50 +20,44 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 
-import java.time.LocalDate
+class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
-class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
-
-  "SubmitLiabilityRequest" must {
+  "TerminateLiabilityRequest" must {
 
     "parse request jsons correctly" in {
       val jsonString =
         """
           |{
-          |  "universalCreditLiabilityDetails": {
-          |    "universalCreditRecordType": "LCW/LCWRA",
-          |    "dateOfBirth": "2002-10-10",
-          |    "liabilityStartDate": "2015-08-19",
-          |    "liabilityEndDate": "2025-01-04"
-          |  }
+          |"ucLiabilityTerminationDetails": {
+          |"universalCreditRecordType": "LCW/LCWRA",
+          |"liabilityStartDate": "2015-08-19",
+          |"liabilityEndDate": "2025-01-04"
+          |}
           |}
           |""".stripMargin
 
-      Json.parse(jsonString).as[InsertLiabilityRequest] mustBe InsertLiabilityRequest(
-        universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
+      Json.parse(jsonString).as[TerminateLiabilityRequest] mustBe TerminateLiabilityRequest(
+        ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          dateOfBirth = "2002-10-10",
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2025-01-04")
+          liabilityEndDate = "2025-01-04"
         )
       )
     }
 
     "must write to correct json" in {
 
-      val model = InsertLiabilityRequest(
-        universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
+      val model = TerminateLiabilityRequest(
+        ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          dateOfBirth = "2002-10-10",
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2025-01-04")
+          liabilityEndDate = "2025-01-04"
         )
       )
 
       val expectedJson = Json.obj(
-        "universalCreditLiabilityDetails" -> Json.obj(
+        "ucLiabilityTerminationDetails" -> Json.obj(
           "universalCreditRecordType" -> "LCW/LCWRA",
-          "dateOfBirth"               -> "2002-10-10",
           "liabilityStartDate"        -> "2015-08-19",
           "liabilityEndDate"          -> "2025-01-04"
         )

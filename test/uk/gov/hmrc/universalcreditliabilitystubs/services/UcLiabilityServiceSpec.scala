@@ -23,11 +23,10 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetail}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Nino
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetails, UniversalCreditRecordType}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
-import java.time.LocalDate
 import scala.util.Random
 
 class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
@@ -37,9 +36,8 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
   val validInsertLiabilityRequest: JsValue =
     Json.parse("""
                  |{
-                 |  "universalCreditLiabilityDetail": {
+                 |  "universalCreditLiabilityDetails": {
                  |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "universalCreditAction": "Insert",
                  |    "dateOfBirth": "2002-10-10",
                  |    "liabilityStartDate": "2015-08-19",
                  |    "liabilityEndDate": "2025-01-04"
@@ -50,9 +48,8 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
   val invalidInsertLiabilityRequest: JsValue =
     Json.parse("""
                  |{
-                 |  "universalCreditLiabilityDetail": {
+                 |  "universalCreditLiabilityDetails": {
                  |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "universalCreditAction": "Insert",
                  |    "dateOfBirth": "2002-10-10",
                  |    "liabilityEndDate": "2025-01-04"
                  |  }
@@ -64,32 +61,35 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
     )
 
+  val request: FakeRequest[JsValue] =
+    FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
+
   def generateNino(): String = {
     val number = f"${Random.nextInt(100000)}%06d"
     val nino   = s"AA$number"
     nino
   }
 
+  def generateFakeRequest(requestBody: JsValue, headers: Seq[(String, String)]): FakeRequest[JsValue] =
+    FakeRequest().withBody(Json.toJson(requestBody)).withHeaders(headers: _*)
+
   "validateRequest" must {
 
     "return a SubmitLiabilityRequest object given an valid request body" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-      )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, generateNino())
+      val result =
+        service.validateInsertLiabilityRequest(
+          generateFakeRequest(validInsertLiabilityRequest, validHeaders),
+          generateNino()
+        )
 
       result mustBe Right(
         InsertLiabilityRequest(
-          universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
-            universalCreditRecordType = "LCW/LCWRA",
-            universalCreditAction = "Insert",
-            dateOfBirth = LocalDate.of(2002, 10, 10),
-            liabilityStartDate = LocalDate.of(2015, 8, 19),
-            liabilityEndDate = Some(LocalDate.of(2025, 1, 4))
+          universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
+            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
+            dateOfBirth = "2002-10-10",
+            liabilityStartDate = "2015-08-19",
+            liabilityEndDate = Some("2025-01-04")
           )
         )
       )
@@ -97,13 +97,8 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for input parameter: nino given an invalid nino" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-      )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, Nino)
+      val result =
+        service.validateInsertLiabilityRequest(generateFakeRequest(validInsertLiabilityRequest, validHeaders), Nino)
 
       result mustBe Left(
         BadRequest(
@@ -118,13 +113,15 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for input parameter: correlationId given an invalid correlationId" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
+      val inValidHeaders: Seq[(String, String)] = Seq(
         HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511"
       )
 
-      val request: FakeRequest[JsValue] =
-        FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, generateNino())
+      val result =
+        service.validateInsertLiabilityRequest(
+          generateFakeRequest(validInsertLiabilityRequest, inValidHeaders),
+          generateNino()
+        )
 
       result mustBe Left(
         BadRequest(
@@ -139,22 +136,20 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
     }
 
-    "return a BadRequest Result for parameter: universalCreditLiabilityDetail/liabilityStartDate given an invalid request body" in {
+    "return a BadRequest Result for parameter: universalCreditLiabilityDetails/liabilityStartDate given an invalid request body" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-      )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(invalidInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, generateNino())
+      val result =
+        service.validateInsertLiabilityRequest(
+          generateFakeRequest(invalidInsertLiabilityRequest, validHeaders),
+          generateNino()
+        )
 
       result mustBe Left(
         BadRequest(
           Json.toJson(
             Failures(
               failures = Seq(
-                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetail/liabilityStartDate")
+                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetails/liabilityStartDate")
               )
             )
           )
@@ -164,13 +159,10 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
 
-      val validHeaders: Seq[(String, String)] = Seq(
-        "correlationId" -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+      val result = service.validateInsertLiabilityRequest(
+        generateFakeRequest(invalidInsertLiabilityRequest, validHeaders),
+        "AA1234"
       )
-
-      val request: FakeRequest[JsValue] =
-        FakeRequest("POST", "/").withBody(Json.toJson(invalidInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-      val result                        = service.validateRequest(request, "AA1234")
 
       result mustBe Left(
         BadRequest(
@@ -178,7 +170,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
             Failures(
               failures = Seq(
                 ApplicationConstants.invalidInputFailure(Nino),
-                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetail/liabilityStartDate")
+                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetails/liabilityStartDate")
               )
             )
           )

@@ -1,13 +1,13 @@
 meta {
-  name: Insert Universal Credit Liability Details
+  name: Terminate Universal Credit Liability Details
   type: http
-  seq: 1
+  seq: 3
 }
 
 post {
-  url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit
+  url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit/termination
   body: json
-  auth: none
+  auth: inherit
 }
 
 headers {
@@ -17,9 +17,8 @@ headers {
 
 body:json {
   {
-    "universalCreditLiabilityDetails": {
+    "ucLiabilityTerminationDetails": {
       "universalCreditRecordType": "LCW/LCWRA",
-      "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
