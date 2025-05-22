@@ -1,8 +1,6 @@
 
 # universal-credit-liability-stubs
 
-This is a placeholder README.md for a new repository
-
 ## Scalafmt
 
 Check all project files are formatted as expected as follows:
