@@ -24,23 +24,23 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 import wolfendale.scalacheck.regexp.RegexpGen
 
-class UniversalCreditLiabilityDetailSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class UniversalCreditLiabilityDetailsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
   val dateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
 
   val ucRecordTypeGen: Gen[UniversalCreditRecordType] =
     Gen.oneOf(UniversalCreditRecordType.UC, UniversalCreditRecordType.LCW_LCWRA)
 
-  val ucDetailsGen: Gen[UniversalCreditLiabilityDetail] = for {
+  val ucDetailsGen: Gen[UniversalCreditLiabilityDetails] = for {
     recordType  <- ucRecordTypeGen
     dateOfBirth <- dateGen
     startDate   <- dateGen
     endDate     <- dateGen
-  } yield UniversalCreditLiabilityDetail(recordType, dateOfBirth, startDate, Some(endDate))
+  } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, Some(endDate))
 
   "UcLiabilityTerminationDetails must serialize and deserialize to the same value" in {
     forAll(ucDetailsGen) { detail =>
       val json   = Json.toJson(detail)
-      val parsed = json.validate[UniversalCreditLiabilityDetail]
+      val parsed = json.validate[UniversalCreditLiabilityDetails]
       parsed.isSuccess mustBe true
       parsed.get mustEqual detail
     }

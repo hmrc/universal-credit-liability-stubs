@@ -17,26 +17,28 @@
 package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.*
+import play.api.libs.json.{JsPath, Json, OWrites, Reads}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 
-final case class UcLiabilityTerminationDetails(
+final case class UniversalCreditLiabilityDetails(
   universalCreditRecordType: UniversalCreditRecordType,
+  dateOfBirth: String,
   liabilityStartDate: String,
-  liabilityEndDate: String
+  liabilityEndDate: Option[String]
 )
 
-object UcLiabilityTerminationDetails {
+object UniversalCreditLiabilityDetails {
 
   private def isValidDate(value: String): Boolean = DatePattern.matches(value)
 
   private val validDate: Reads[String] = Reads.verifying[String](isValidDate)
 
-  implicit val reads: Reads[UcLiabilityTerminationDetails] = (
+  implicit val reads: Reads[UniversalCreditLiabilityDetails] = (
     (JsPath \ "universalCreditRecordType").read[UniversalCreditRecordType] and
+      (JsPath \ "dateOfBirth").read(validDate) and
       (JsPath \ "liabilityStartDate").read(validDate) and
-      (JsPath \ "liabilityEndDate").read(validDate)
-  )(UcLiabilityTerminationDetails.apply _)
+      (JsPath \ "liabilityEndDate").readNullable(validDate)
+  )(UniversalCreditLiabilityDetails.apply _)
 
-  implicit val writes: OWrites[UcLiabilityTerminationDetails] = Json.writes[UcLiabilityTerminationDetails]
+  implicit val writes: OWrites[UniversalCreditLiabilityDetails] = Json.writes[UniversalCreditLiabilityDetails]
 }

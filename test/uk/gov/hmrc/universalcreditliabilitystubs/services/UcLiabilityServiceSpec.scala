@@ -23,7 +23,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetail, UniversalCreditRecordType}
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetails, UniversalCreditRecordType}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
@@ -36,7 +36,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
   val validInsertLiabilityRequest: JsValue =
     Json.parse("""
                  |{
-                 |  "universalCreditLiabilityDetail": {
+                 |  "universalCreditLiabilityDetails": {
                  |    "universalCreditRecordType": "LCW/LCWRA",
                  |    "dateOfBirth": "2002-10-10",
                  |    "liabilityStartDate": "2015-08-19",
@@ -48,7 +48,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
   val invalidInsertLiabilityRequest: JsValue =
     Json.parse("""
                  |{
-                 |  "universalCreditLiabilityDetail": {
+                 |  "universalCreditLiabilityDetails": {
                  |    "universalCreditRecordType": "LCW/LCWRA",
                  |    "dateOfBirth": "2002-10-10",
                  |    "liabilityEndDate": "2025-01-04"
@@ -85,7 +85,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
 
       result mustBe Right(
         InsertLiabilityRequest(
-          universalCreditLiabilityDetail = UniversalCreditLiabilityDetail(
+          universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
             dateOfBirth = "2002-10-10",
             liabilityStartDate = "2015-08-19",
@@ -136,7 +136,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
       )
     }
 
-    "return a BadRequest Result for parameter: universalCreditLiabilityDetail/liabilityStartDate given an invalid request body" in {
+    "return a BadRequest Result for parameter: universalCreditLiabilityDetails/liabilityStartDate given an invalid request body" in {
 
       val result =
         service.validateInsertLiabilityRequest(
@@ -149,7 +149,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
           Json.toJson(
             Failures(
               failures = Seq(
-                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetail/liabilityStartDate")
+                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetails/liabilityStartDate")
               )
             )
           )
@@ -170,7 +170,7 @@ class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
             Failures(
               failures = Seq(
                 ApplicationConstants.invalidInputFailure(Nino),
-                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetail/liabilityStartDate")
+                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetails/liabilityStartDate")
               )
             )
           )

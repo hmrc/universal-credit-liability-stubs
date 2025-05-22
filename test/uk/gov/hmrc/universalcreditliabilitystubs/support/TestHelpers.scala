@@ -30,7 +30,7 @@ trait TestHelpers {
   val validInsertLiabilityRequest: JsValue =
     Json.parse("""
         |{
-        |  "universalCreditLiabilityDetail": {
+        |  "universalCreditLiabilityDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
         |    "dateOfBirth": "2002-10-10",
         |    "liabilityStartDate": "2015-08-19",
@@ -42,7 +42,7 @@ trait TestHelpers {
   val invalidInsertLiabilityRequest: JsValue =
     Json.parse("""
         |{
-        |  "universalCreditLiabilityDetail": {
+        |  "universalCreditLiabilityDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
         |    "dateOfBirth": "2002-10-10",
         |    "liabilityEndDate": "2025-01-04"
