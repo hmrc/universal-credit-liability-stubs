@@ -16,16 +16,32 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.support
 
+import org.scalacheck.Gen
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest}
-import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest, UniversalCreditRecordType}
+import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
+import wolfendale.scalacheck.regexp.RegexpGen
 
 import scala.util.Random
 
 trait TestHelpers {
-  val service = new UcLiabilityService()
+
+  val validDateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
+
+  val invalidDateGen: Gen[String] = RegexpGen.from("(19|20)[0-9]{2}[-][0-9]{2}[-][0-9]{2}")
+
+  val mixedDateGen: Gen[String] = Gen.frequency(
+    (8, validDateGen),
+    (2, invalidDateGen)
+  )
+
+  val ucRecordTypeGen: Gen[UniversalCreditRecordType] =
+    Gen.oneOf(UniversalCreditRecordType.UC, UniversalCreditRecordType.LCW_LCWRA)
+
+  val service = new SchemaValidationService()
 
   val validInsertLiabilityRequest: JsValue =
     Json.parse("""

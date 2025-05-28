@@ -29,9 +29,9 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, He
 
 import scala.util.Random
 
-class UcLiabilityServiceSpec extends AnyWordSpec with Matchers {
+class SchemaValidationServiceSpec extends AnyWordSpec with Matchers {
 
-  val service = new UcLiabilityService()
+  val service = new SchemaValidationService()
 
   val validInsertLiabilityRequest: JsValue =
     Json.parse("""

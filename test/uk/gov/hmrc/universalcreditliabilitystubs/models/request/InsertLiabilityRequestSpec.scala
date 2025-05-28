@@ -20,8 +20,6 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 
-import java.time.LocalDate
-
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
