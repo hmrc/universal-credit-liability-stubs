@@ -18,67 +18,23 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.libs.json.Json
 import play.api.libs.json.Json.toJson
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.BadRequest
-import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, UniversalCreditLiabilityDetails, UniversalCreditRecordType}
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.*
+import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
-import scala.util.Random
+class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
-class SchemaValidationServiceSpec extends AnyWordSpec with Matchers {
-
-  val service = new SchemaValidationService()
-
-  val validInsertLiabilityRequest: JsValue =
-    Json.parse("""
-                 |{
-                 |  "universalCreditLiabilityDetails": {
-                 |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "dateOfBirth": "2002-10-10",
-                 |    "liabilityStartDate": "2015-08-19",
-                 |    "liabilityEndDate": "2025-01-04"
-                 |  }
-                 |}
-                 |""".stripMargin)
-
-  val invalidInsertLiabilityRequest: JsValue =
-    Json.parse("""
-                 |{
-                 |  "universalCreditLiabilityDetails": {
-                 |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "dateOfBirth": "2002-10-10",
-                 |    "liabilityEndDate": "2025-01-04"
-                 |  }
-                 |}
-                 |""".stripMargin)
-
-  val validHeaders: Seq[(String, String)] =
-    Seq(
-      HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
-    )
-
-  val request: FakeRequest[JsValue] =
-    FakeRequest().withBody(Json.toJson(validInsertLiabilityRequest)).withHeaders(validHeaders: _*)
-
-  def generateNino(): String = {
-    val number = f"${Random.nextInt(100000)}%06d"
-    val nino   = s"AA$number"
-    nino
-  }
-
-  def generateFakeRequest(requestBody: JsValue, headers: Seq[(String, String)]): FakeRequest[JsValue] =
-    FakeRequest().withBody(Json.toJson(requestBody)).withHeaders(headers: _*)
-
-  "validateRequest" must {
+  "validateInsertLiabilityRequest" must {
 
     "return a SubmitLiabilityRequest object given an valid request body" in {
 
       val result =
-        service.validateInsertLiabilityRequest(
+        schemaValidationService.validateInsertLiabilityRequest(
           generateFakeRequest(validInsertLiabilityRequest, validHeaders),
           generateNino()
         )
@@ -98,7 +54,10 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers {
     "return a BadRequest Result for input parameter: nino given an invalid nino" in {
 
       val result =
-        service.validateInsertLiabilityRequest(generateFakeRequest(validInsertLiabilityRequest, validHeaders), Nino)
+        schemaValidationService.validateInsertLiabilityRequest(
+          generateFakeRequest(validInsertLiabilityRequest, validHeaders),
+          Nino
+        )
 
       result mustBe Left(
         BadRequest(
@@ -118,7 +77,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers {
       )
 
       val result =
-        service.validateInsertLiabilityRequest(
+        schemaValidationService.validateInsertLiabilityRequest(
           generateFakeRequest(validInsertLiabilityRequest, inValidHeaders),
           generateNino()
         )
@@ -139,7 +98,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers {
     "return a BadRequest Result for parameter: universalCreditLiabilityDetails/liabilityStartDate given an invalid request body" in {
 
       val result =
-        service.validateInsertLiabilityRequest(
+        schemaValidationService.validateInsertLiabilityRequest(
           generateFakeRequest(invalidInsertLiabilityRequest, validHeaders),
           generateNino()
         )
@@ -159,7 +118,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers {
 
     "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
 
-      val result = service.validateInsertLiabilityRequest(
+      val result = schemaValidationService.validateInsertLiabilityRequest(
         generateFakeRequest(invalidInsertLiabilityRequest, validHeaders),
         "AA1234"
       )
@@ -171,6 +130,114 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers {
               failures = Seq(
                 ApplicationConstants.invalidInputFailure(Nino),
                 ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetails/liabilityStartDate")
+              )
+            )
+          )
+        )
+      )
+    }
+  }
+
+  "validateTerminateLiabilityRequest" must {
+
+    "return a SubmitLiabilityRequest object given an valid request body" in {
+
+      val result =
+        schemaValidationService.validateTerminateLiabilityRequest(
+          generateFakeRequest(validTerminateLiabilityRequest, validHeaders),
+          generateNino()
+        )
+
+      result mustBe Right(
+        TerminateLiabilityRequest(
+          ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
+            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
+            liabilityStartDate = "2015-08-19",
+            liabilityEndDate = "2025-01-04"
+          )
+        )
+      )
+    }
+
+    "return a BadRequest Result for input parameter: nino given an invalid nino" in {
+
+      val result =
+        schemaValidationService.validateTerminateLiabilityRequest(
+          generateFakeRequest(validTerminateLiabilityRequest, validHeaders),
+          Nino
+        )
+
+      result mustBe Left(
+        BadRequest(
+          toJson(
+            Failures(
+              failures = Seq(ApplicationConstants.invalidInputFailure(Nino))
+            )
+          )
+        )
+      )
+    }
+
+    "return a BadRequest Result for input parameter: correlationId given an invalid correlationId" in {
+
+      val inValidHeaders: Seq[(String, String)] = Seq(
+        HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511"
+      )
+
+      val result =
+        schemaValidationService.validateTerminateLiabilityRequest(
+          generateFakeRequest(validTerminateLiabilityRequest, inValidHeaders),
+          generateNino()
+        )
+
+      result mustBe Left(
+        BadRequest(
+          toJson(
+            Failures(
+              failures = Seq(
+                ApplicationConstants.invalidInputFailure(HeaderNames.CorrelationId)
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "return a BadRequest Result for parameter: ucLiabilityTerminationDetails/liabilityEndDate given an invalid request body" in {
+
+      val result =
+        schemaValidationService.validateTerminateLiabilityRequest(
+          generateFakeRequest(inValidTerminateLiabilityRequest, validHeaders),
+          generateNino()
+        )
+
+      result mustBe Left(
+        BadRequest(
+          Json.toJson(
+            Failures(
+              failures = Seq(
+                ApplicationConstants.invalidInputFailure("ucLiabilityTerminationDetails/liabilityEndDate")
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
+
+      val result = schemaValidationService.validateTerminateLiabilityRequest(
+        generateFakeRequest(inValidTerminateLiabilityRequest, validHeaders),
+        "AA1234"
+      )
+
+      result mustBe Left(
+        BadRequest(
+          Json.toJson(
+            Failures(
+              failures = Seq(
+                ApplicationConstants.invalidInputFailure(Nino),
+                ApplicationConstants.invalidInputFailure("ucLiabilityTerminationDetails/liabilityEndDate")
               )
             )
           )

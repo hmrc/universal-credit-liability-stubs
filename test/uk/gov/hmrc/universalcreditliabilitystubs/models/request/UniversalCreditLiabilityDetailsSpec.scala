@@ -40,7 +40,7 @@ class UniversalCreditLiabilityDetailsSpec
   "UniversalCreditLiabilityDetails" must {
 
     "Serialize/deserialize valid dates correctly" in {
-      forAll(ucDetailsGen) { detail =>
+      forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
           DatePattern.matches(detail.dateOfBirth) && DatePattern.matches(detail.liabilityStartDate) &&
             detail.liabilityEndDate.exists(DatePattern.matches)
@@ -55,7 +55,7 @@ class UniversalCreditLiabilityDetailsSpec
     }
 
     "Fail deserialization for invalid dates" in {
-      forAll(ucDetailsGen) { detail =>
+      forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
           !DatePattern.matches(detail.dateOfBirth) || !DatePattern.matches(detail.liabilityStartDate) ||
             !detail.liabilityEndDate.exists(DatePattern.matches)

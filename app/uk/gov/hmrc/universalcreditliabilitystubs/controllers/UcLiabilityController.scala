@@ -34,21 +34,21 @@ class UcLiabilityController @Inject() (cc: ControllerComponents, ucLiabilityServ
 
   def insertLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
-      _      <- validateOriginatorId(request)
-      result <- ucLiabilityService.validateInsertLiabilityRequest(request, nino)
+      _ <- validateOriginatorId(request)
+      _ <- ucLiabilityService.validateInsertLiabilityRequest(request, nino)
     } yield NoContent).merge
   }
 
   def terminateLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
-      _      <- validateOriginatorId(request)
-      result <- ucLiabilityService.validateTerminateLiabilityRequest(request, nino)
+      _ <- validateOriginatorId(request)
+      _ <- ucLiabilityService.validateTerminateLiabilityRequest(request, nino)
     } yield NoContent).merge
   }
 
   private def validateOriginatorId[T](request: Request[T]) =
     request.headers
-      .get(OriginatorId) // TODO: Add business logic for originator id here
-      .filter(_ => true)
+      .get(OriginatorId)
+      .filter(_ => true) // TODO: Add business logic for originator id here
       .toRight(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
 }
