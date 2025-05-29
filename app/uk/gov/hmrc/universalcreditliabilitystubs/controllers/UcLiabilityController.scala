@@ -48,7 +48,7 @@ class UcLiabilityController @Inject() (cc: ControllerComponents, ucLiabilityServ
 
   private def validateOriginatorId[T](request: Request[T]) =
     request.headers
-      .get(OriginatorId)
+      .get(OriginatorId) // TODO: Add business logic for originator id here
       .filter(_ => true)
       .toRight(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
 }

@@ -57,7 +57,7 @@ class UniversalCreditLiabilityDetailsSpec
     "Fail deserialization for invalid dates" in {
       forAll(ucDetailsGen) { detail =>
         whenever(
-          !DatePattern.matches(detail.liabilityStartDate) ||
+          !DatePattern.matches(detail.dateOfBirth) || !DatePattern.matches(detail.liabilityStartDate) ||
             !detail.liabilityEndDate.exists(DatePattern.matches)
         ) {
           val json   = Json.toJson(detail)
