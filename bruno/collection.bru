@@ -1,0 +1,6 @@
+script:pre-request {
+  const helpers = require('./_lib/helpers');
+  
+  const nino = helpers.randomNino();
+  bru.setEnvVar("nino", nino);
+}

@@ -1,7 +1,7 @@
 meta {
-  name: Insert Universal Credit Liability Details
+  name: 400 Insert CreditRecordType
   type: http
-  seq: 1
+  seq: 6
 }
 
 post {
@@ -18,7 +18,7 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "LCW/LCWRA",
+      "universalCreditRecordType": "LCW/",
       "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
@@ -26,12 +26,8 @@ body:json {
   }
 }
 
-script:pre-request {
-  
-  const number = `${Math.floor(Math.random()* 100000)}`.padStart(6, '0')
-  
-  const nino = `AA${number}`
-    
-  bru.setEnvVar("nino", nino);
-    
+assert {
+  res.status: eq 400
+  res.body.failures[0].code: eq '400.1'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/universalCreditRecordType'
 }

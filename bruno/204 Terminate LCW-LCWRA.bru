@@ -1,7 +1,7 @@
 meta {
-  name: Terminate Universal Credit Liability Details
+  name: 204 Terminate LCW/LCWRA
   type: http
-  seq: 3
+  seq: 5
 }
 
 post {
@@ -18,19 +18,13 @@ headers {
 body:json {
   {
     "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "LCW/LCWRA",
+      "universalCreditRecordType": "UC",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
   }
 }
 
-script:pre-request {
-  
-  const number = `${Math.floor(Math.random()* 100000)}`.padStart(6, '0')
-  
-  const nino = `AA${number}`
-    
-  bru.setEnvVar("nino", nino);
-    
+assert {
+  res.status: eq 204
 }
