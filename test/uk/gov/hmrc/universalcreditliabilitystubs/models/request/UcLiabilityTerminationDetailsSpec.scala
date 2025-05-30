@@ -21,28 +21,53 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
+import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 import wolfendale.scalacheck.regexp.RegexpGen
 
-class UcLiabilityTerminationDetailsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class UcLiabilityTerminationDetailsSpec
+    extends AnyWordSpec
+    with ScalaCheckPropertyChecks
+    with Matchers
+    with TestHelpers {
 
   val dateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
 
-  val ucRecordTypeGen: Gen[UniversalCreditRecordType] =
-    Gen.oneOf(UniversalCreditRecordType.UC, UniversalCreditRecordType.LCW_LCWRA)
-
   val ucDetailsGen: Gen[UcLiabilityTerminationDetails] = for {
     recordType <- ucRecordTypeGen
-    startDate  <- dateGen
-    endDate    <- dateGen
+    startDate  <- mixedDateGen
+    endDate    <- mixedDateGen
   } yield UcLiabilityTerminationDetails(recordType, startDate, endDate)
 
-  "UcLiabilityTerminationDetails must serialize and deserialize to the same value" in {
-    forAll(ucDetailsGen) { detail =>
-      val json   = Json.toJson(detail)
-      val parsed = json.validate[UcLiabilityTerminationDetails]
-      parsed.isSuccess mustBe true
-      parsed.get mustEqual detail
+  "UcLiabilityTerminationDetails" must {
+
+    "Serialize/deserialize valid dates correctly" in {
+      forAll(ucDetailsGen) { detail =>
+        whenever(
+          DatePattern.matches(detail.liabilityStartDate) &&
+            DatePattern.matches(detail.liabilityEndDate)
+        ) {
+          val json   = Json.toJson(detail)
+          val parsed = json.validate[UcLiabilityTerminationDetails]
+
+          parsed.isSuccess mustBe true
+          parsed.get mustEqual detail
+        }
+      }
+    }
+
+    "Fail deserialization for invalid dates" in {
+      forAll(ucDetailsGen) { detail =>
+        whenever(
+          !DatePattern.matches(detail.liabilityStartDate) ||
+            !DatePattern.matches(detail.liabilityEndDate)
+        ) {
+          val json   = Json.toJson(detail)
+          val parsed = json.validate[UcLiabilityTerminationDetails]
+
+          parsed.isError mustBe true
+        }
+      }
     }
   }
 }

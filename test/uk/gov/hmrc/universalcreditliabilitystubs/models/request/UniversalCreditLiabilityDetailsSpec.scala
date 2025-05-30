@@ -21,28 +21,53 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
+import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
-import wolfendale.scalacheck.regexp.RegexpGen
 
-class UniversalCreditLiabilityDetailsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
-  val dateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
-
-  val ucRecordTypeGen: Gen[UniversalCreditRecordType] =
-    Gen.oneOf(UniversalCreditRecordType.UC, UniversalCreditRecordType.LCW_LCWRA)
+class UniversalCreditLiabilityDetailsSpec
+    extends AnyWordSpec
+    with ScalaCheckPropertyChecks
+    with Matchers
+    with TestHelpers {
 
   val ucDetailsGen: Gen[UniversalCreditLiabilityDetails] = for {
     recordType  <- ucRecordTypeGen
-    dateOfBirth <- dateGen
-    startDate   <- dateGen
-    endDate     <- dateGen
+    dateOfBirth <- mixedDateGen
+    startDate   <- mixedDateGen
+    endDate     <- mixedDateGen
   } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, Some(endDate))
 
-  "UcLiabilityTerminationDetails must serialize and deserialize to the same value" in {
-    forAll(ucDetailsGen) { detail =>
-      val json   = Json.toJson(detail)
-      val parsed = json.validate[UniversalCreditLiabilityDetails]
-      parsed.isSuccess mustBe true
-      parsed.get mustEqual detail
+  "UniversalCreditLiabilityDetails" must {
+
+    "Serialize/deserialize valid dates correctly" in {
+      forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
+        whenever(
+          DatePattern.matches(detail.dateOfBirth) && DatePattern.matches(detail.liabilityStartDate) &&
+            detail.liabilityEndDate.exists(DatePattern.matches)
+        ) {
+          val json   = Json.toJson(detail)
+          val parsed = json.validate[UniversalCreditLiabilityDetails]
+
+          parsed.isSuccess mustBe true
+          parsed.get mustEqual detail
+        }
+      }
     }
+
+    "Fail deserialization for invalid dates" in {
+      forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
+        whenever(
+          !DatePattern.matches(detail.dateOfBirth) || !DatePattern.matches(detail.liabilityStartDate) ||
+            !detail.liabilityEndDate.exists(DatePattern.matches)
+        ) {
+          val json   = Json.toJson(detail)
+          val parsed = json.validate[UniversalCreditLiabilityDetails]
+
+          parsed.isError mustBe true
+        }
+      }
+    }
+
   }
+
 }

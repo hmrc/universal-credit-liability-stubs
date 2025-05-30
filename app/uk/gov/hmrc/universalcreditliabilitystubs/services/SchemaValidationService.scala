@@ -23,13 +23,13 @@ import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest}
-import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService.*
+import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.*
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
 import scala.util.matching.Regex
 
-class UcLiabilityService {
+class SchemaValidationService {
 
   def validateInsertLiabilityRequest(request: Request[JsValue], nino: String): Either[Result, InsertLiabilityRequest] =
     (
@@ -110,7 +110,7 @@ class UcLiabilityService {
   }
 }
 
-object UcLiabilityService {
+object SchemaValidationService {
   private val CorrelationIdPattern: Regex =
     "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$".r
 

@@ -21,7 +21,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
-import uk.gov.hmrc.universalcreditliabilitystubs.services.UcLiabilityService
+import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.ForbiddenCode
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ForbiddenReason
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.OriginatorId
@@ -29,42 +29,26 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.OriginatorId
 import javax.inject.Inject
 
 @Singleton
-class UcLiabilityController @Inject() (cc: ControllerComponents, ucLiabilityService: UcLiabilityService)
+class UcLiabilityController @Inject() (cc: ControllerComponents, ucLiabilityService: SchemaValidationService)
     extends BackendController(cc) {
 
   def insertLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
-    request.headers.get(OriginatorId) match {
-      case Some(govUkOriginatorId) =>
-        // Need to determine what the OriginatorId will be and set it in config
-        ucLiabilityService.validateInsertLiabilityRequest(request, nino) match {
-          case Right(terminateRequest) =>
-            // Returning a 204 here pending when business discussions on business logic is finalized
-            NoContent
-
-          case Left(errorResult) =>
-            errorResult
-        }
-
-      case None =>
-        Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode)))
-    }
+    (for {
+      _ <- validateOriginatorId(request)
+      _ <- ucLiabilityService.validateInsertLiabilityRequest(request, nino)
+    } yield NoContent).merge
   }
 
   def terminateLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
-    request.headers.get(OriginatorId) match {
-      case Some(govUkOriginatorId) =>
-        // Need to determine what the OriginatorId will be and set it in config
-        ucLiabilityService.validateTerminateLiabilityRequest(request, nino) match {
-          case Right(terminateRequest) =>
-            // Returning a 204 here pending when business discussions on business logic is finalized
-            NoContent
-
-          case Left(errorResult) =>
-            errorResult
-        }
-
-      case None =>
-        Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode)))
-    }
+    (for {
+      _ <- validateOriginatorId(request)
+      _ <- ucLiabilityService.validateTerminateLiabilityRequest(request, nino)
+    } yield NoContent).merge
   }
+
+  private def validateOriginatorId[T](request: Request[T]) =
+    request.headers
+      .get(OriginatorId)
+      .filter(_ => true) // TODO: Add business logic for originator id here
+      .toRight(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
 }
