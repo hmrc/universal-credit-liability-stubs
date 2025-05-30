@@ -19,7 +19,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.support
 import org.scalacheck.Gen
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest, UniversalCreditRecordType}
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
 import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
