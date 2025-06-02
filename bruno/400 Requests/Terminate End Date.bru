@@ -1,7 +1,7 @@
 meta {
-  name: 400 Terminate CreditRecordType copy
+  name: Terminate End Date
   type: http
-  seq: 11
+  seq: 8
 }
 
 post {
@@ -18,9 +18,9 @@ headers {
 body:json {
   {
     "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "LCW/L",
+      "universalCreditRecordType": "UC",
       "liabilityStartDate": "2015-08-19",
-      "liabilityEndDate": "2025-01-04"
+      "liabilityEndDate": "2025-01-34"
     }
   }
 }
@@ -28,5 +28,5 @@ body:json {
 assert {
   res.status: eq 400
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails/universalCreditRecordType'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails/liabilityEndDate'
 }

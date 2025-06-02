@@ -1,7 +1,7 @@
 meta {
-  name: 400 Insert Start Date
+  name: Insert Start Date and End Date
   type: http
-  seq: 8
+  seq: 5
 }
 
 post {
@@ -21,13 +21,14 @@ body:json {
       "universalCreditRecordType": "UC",
       "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-39",
-      "liabilityEndDate": "2025-01-04"
+      "liabilityEndDate": "2025-17-04"
     }
   }
 }
 
 assert {
   res.status: eq 400
+  res.body.failures.length: eq 2
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityStartDate'
+  res.body.failures[1].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityEndDate'
 }

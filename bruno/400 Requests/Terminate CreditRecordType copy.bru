@@ -1,13 +1,13 @@
 meta {
-  name: 204 Terminate LCW/LCWRA
+  name: Terminate CreditRecordType copy
   type: http
-  seq: 5
+  seq: 6
 }
 
 post {
   url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit/termination
   body: json
-  auth: inherit
+  auth: none
 }
 
 headers {
@@ -18,7 +18,7 @@ headers {
 body:json {
   {
     "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "UC",
+      "universalCreditRecordType": "LCW/L",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
@@ -26,5 +26,7 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 400
+  res.body.failures[0].code: eq '400.1'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails/universalCreditRecordType'
 }

@@ -1,7 +1,7 @@
 meta {
-  name: 204 Terminate UC
+  name: Terminate LCW/LCWRA
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
@@ -18,7 +18,7 @@ headers {
 body:json {
   {
     "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "LCW/LCWRA",
+      "universalCreditRecordType": "UC",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }

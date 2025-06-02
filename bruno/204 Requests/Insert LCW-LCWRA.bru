@@ -1,7 +1,7 @@
 meta {
-  name: 400 Insert End Date
+  name: Insert LCW/LCWRA
   type: http
-  seq: 9
+  seq: 2
 }
 
 post {
@@ -18,16 +18,14 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "UC",
+      "universalCreditRecordType": "LCW/LCWRA",
       "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-19",
-      "liabilityEndDate": "2025-17-04"
+      "liabilityEndDate": "2025-01-04"
     }
   }
 }
 
 assert {
-  res.status: eq 400
-  res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityEndDate'
+  res.status: eq 204
 }
