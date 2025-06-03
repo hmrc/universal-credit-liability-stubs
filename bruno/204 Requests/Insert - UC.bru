@@ -1,7 +1,7 @@
 meta {
-  name: DOB
+  name: Insert - UC
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
@@ -18,8 +18,8 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "LCW/LCWRA",
-      "dateOfBirth": "2002-15-10",
+      "universalCreditRecordType": "UC",
+      "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
@@ -27,7 +27,5 @@ body:json {
 }
 
 assert {
-  res.status: eq 400
-  res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/dateOfBirth'
+  res.status: eq 204
 }

@@ -1,7 +1,7 @@
 meta {
-  name: End Date
+  name: Invalid Record Type and End Date
   type: http
-  seq: 5
+  seq: 3
 }
 
 post {
@@ -18,7 +18,7 @@ headers {
 body:json {
   {
     "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "UC",
+      "universalCreditRecordType": "UCx",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-34"
     }
@@ -27,6 +27,7 @@ body:json {
 
 assert {
   res.status: eq 400
+  res.body.failures.length: eq 2
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails/liabilityEndDate'
+  res.body.failures[1].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails/liabilityEndDate'
 }

@@ -1,7 +1,7 @@
 meta {
-  name: Insert Missing Originator Id
+  name: Invalid DOB
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
@@ -11,14 +11,15 @@ post {
 }
 
 headers {
+  gov-uk-originator-id: 
   correlationId: e470d658-99f7-4292-a4a1-ed12c72f1337
 }
 
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "UC",
-      "dateOfBirth": "2002-10-10",
+      "universalCreditRecordType": "LCW/LCWRA",
+      "dateOfBirth": "2002-15-10",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
@@ -26,6 +27,7 @@ body:json {
 }
 
 assert {
-  res.status: eq 403
-  res.body.code: eq '403.2'
+  res.status: eq 400
+  res.body.failures[0].code: eq '400.1'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/dateOfBirth'
 }

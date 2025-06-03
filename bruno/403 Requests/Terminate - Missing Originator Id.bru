@@ -1,17 +1,16 @@
 meta {
-  name: Terminate LCW/LCWRA
+  name: Terminate - Missing Originator Id
   type: http
-  seq: 4
+  seq: 2
 }
 
 post {
   url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit/termination
   body: json
-  auth: inherit
+  auth: none
 }
 
 headers {
-  gov-uk-originator-id: 
   correlationId: e470d658-99f7-4292-a4a1-ed12c72f1337
 }
 
@@ -26,5 +25,6 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 403
+  res.body.code: eq '403.2'
 }
