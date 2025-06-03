@@ -1,0 +1,30 @@
+meta {
+  name: Terminate Missing Originator Id
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit/termination
+  body: json
+  auth: none
+}
+
+headers {
+  correlationId: e470d658-99f7-4292-a4a1-ed12c72f1337
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "LCW/LCWRA",
+      "liabilityStartDate": "2015-08-19",
+      "liabilityEndDate": "2025-01-04"
+    }
+  }
+}
+
+assert {
+  res.status: eq 403
+  res.body.code: eq '403.2'
+}
