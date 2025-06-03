@@ -1,7 +1,7 @@
 meta {
-  name: Terminate Start Date
+  name: Invalid Payload
   type: http
-  seq: 7
+  seq: 4
 }
 
 post {
@@ -17,16 +17,12 @@ headers {
 
 body:json {
   {
-    "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "UC",
-      "liabilityStartDate": "2015-18-19",
-      "liabilityEndDate": "2025-01-04"
-    }
+  
   }
 }
 
 assert {
   res.status: eq 400
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails/liabilityStartDate'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails'
 }

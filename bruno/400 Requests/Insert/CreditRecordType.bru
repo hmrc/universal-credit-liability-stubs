@@ -1,7 +1,7 @@
 meta {
-  name: Insert Start Date
+  name: CreditRecordType
   type: http
-  seq: 3
+  seq: 1
 }
 
 post {
@@ -18,9 +18,9 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "UC",
+      "universalCreditRecordType": "LCW/",
       "dateOfBirth": "2002-10-10",
-      "liabilityStartDate": "2015-08-39",
+      "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
   }
@@ -29,5 +29,5 @@ body:json {
 assert {
   res.status: eq 400
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityStartDate'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/universalCreditRecordType'
 }

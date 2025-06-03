@@ -1,33 +1,32 @@
 meta {
-  name: Terminate Record Type and End Date
+  name: Invalid Correlation Id
   type: http
-  seq: 9
+  seq: 7
 }
 
 post {
   url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit/termination
   body: json
-  auth: none
+  auth: inherit
 }
 
 headers {
   gov-uk-originator-id: 
-  correlationId: e470d658-99f7-4292-a4a1-ed12c72f1337
+  correlationId: e470d658-4292-a4a1-ed12c72f1337
 }
 
 body:json {
   {
     "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "UCx",
+      "universalCreditRecordType": "LCW/LCWRA",
       "liabilityStartDate": "2015-08-19",
-      "liabilityEndDate": "2025-01-34"
+      "liabilityEndDate": "2025-01-04"
     }
   }
 }
 
 assert {
   res.status: eq 400
-  res.body.failures.length: eq 2
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[1].reason: eq 'Constraint Violation - Invalid/Missing input parameter: ucLiabilityTerminationDetails/liabilityEndDate'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: correlationId'
 }

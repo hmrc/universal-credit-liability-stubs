@@ -1,0 +1,32 @@
+meta {
+  name: Missing Correlation Id
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit
+  body: json
+  auth: none
+}
+
+headers {
+  gov-uk-originator-id: 
+}
+
+body:json {
+  {
+    "universalCreditLiabilityDetails": {
+      "universalCreditRecordType": "UC",
+      "dateOfBirth": "2002-10-10",
+      "liabilityStartDate": "2015-08-19",
+      "liabilityEndDate": "2025-01-04"
+    }
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.failures[0].code: eq '400.1'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: correlationId'
+}

@@ -1,7 +1,7 @@
 meta {
-  name: Insert End Date
+  name: Invalid Correlation Id
   type: http
-  seq: 4
+  seq: 8
 }
 
 post {
@@ -12,7 +12,7 @@ post {
 
 headers {
   gov-uk-originator-id: 
-  correlationId: e470d658-99f7-4292-a4a1-ed12c72f1337
+  correlationId: e470d658-99f7-4292-a4a1-
 }
 
 body:json {
@@ -21,7 +21,7 @@ body:json {
       "universalCreditRecordType": "UC",
       "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-19",
-      "liabilityEndDate": "2025-17-04"
+      "liabilityEndDate": "2025-01-04"
     }
   }
 }
@@ -29,5 +29,5 @@ body:json {
 assert {
   res.status: eq 400
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityEndDate'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: correlationId'
 }
