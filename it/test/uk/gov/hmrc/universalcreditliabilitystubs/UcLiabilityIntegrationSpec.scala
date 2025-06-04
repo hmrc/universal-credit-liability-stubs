@@ -23,6 +23,7 @@ import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.CorrelationIdPattern
+import uk.gov.hmrc.universalcreditliabilitystubs.helpers.OpenApiValidator
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 
@@ -31,7 +32,8 @@ class UcLiabilityIntegrationSpec
     with ScalaFutures
     with IntegrationPatience
     with GuiceOneServerPerSuite
-    with TestHelpers {
+    with TestHelpers
+    with OpenApiValidator {
 
   private given WSClient     = app.injector.instanceOf[WSClient]
   private def terminationUrl = s"/person/${generateNino()}/liability/universal-credit/termination"
@@ -39,10 +41,13 @@ class UcLiabilityIntegrationSpec
 
   "Insert UC Liability endpoint" must {
     "respond with 204 status" in {
-      val response = wsUrl(insertionUrl)
+      val request = wsUrl(insertionUrl)
         .withHttpHeaders(validHeaders: _*)
         .withBody(validInsertLiabilityRequest)
-        .execute("POST")
+        .withMethod("POST")
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
@@ -50,13 +55,19 @@ class UcLiabilityIntegrationSpec
       response.status mustBe NO_CONTENT
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val combinedValidationReport = openApiValidate(request, response)
+      combinedValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 400 status" in {
-      val response = wsUrl(insertionUrl)
+      val request = wsUrl(insertionUrl)
         .withHttpHeaders(validHeaders: _*)
         .withBody(invalidInsertLiabilityRequest)
-        .execute("POST")
+        .withMethod("POST")
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
@@ -64,13 +75,22 @@ class UcLiabilityIntegrationSpec
       response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val requestValidationReport = openApiValidateRequest(request)
+      requestValidationReport.getMessages.asScala must not be List.empty
+
+      val responseValidationReport = openApiValidateResponse(request, response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 403 status" in {
-      val response = wsUrl(insertionUrl)
+      val request = wsUrl(insertionUrl)
         .withHttpHeaders(missingOriginatorIdHeader: _*)
         .withBody(invalidInsertLiabilityRequest)
-        .execute("POST")
+        .withMethod("POST")
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
@@ -78,13 +98,22 @@ class UcLiabilityIntegrationSpec
       response.status mustBe FORBIDDEN
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val requestValidationReport = openApiValidateRequest(request)
+      requestValidationReport.getMessages.asScala must not be List.empty
+
+      val responseValidationReport = openApiValidateResponse(request, response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 400 status and return a correlationid header" in {
-      val response = wsUrl(insertionUrl)
+      val request = wsUrl(insertionUrl)
         .withHttpHeaders(missingCorrelationIdHeader: _*)
         .withBody(validInsertLiabilityRequest)
-        .execute("POST")
+        .withMethod("POST")
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
@@ -92,68 +121,107 @@ class UcLiabilityIntegrationSpec
       response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val requestValidationReport = openApiValidateRequest(request)
+      requestValidationReport.getMessages.asScala must not be List.empty
+
+      val responseValidationReport = openApiValidateResponse(request, response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
   }
 
   "Terminate UC Liability endpoint" must {
     "respond with 204 status" in {
-      val response =
+      val request =
         wsUrl(terminationUrl)
           .withHttpHeaders(validHeaders: _*)
           .withBody(validTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+          .withMethod("POST")
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe NO_CONTENT
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val combinedValidationReport = openApiValidate(request, response)
+      combinedValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 400 status" in {
-      val response =
+      val request =
         wsUrl(terminationUrl)
           .withHttpHeaders(validHeaders: _*)
           .withBody(inValidTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+          .withMethod("POST")
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val requestValidationReport = openApiValidateRequest(request)
+      requestValidationReport.getMessages.asScala must not be List.empty
+
+      val responseValidationReport = openApiValidateResponse(request, response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 403 status" in {
-      val response =
+      val request =
         wsUrl(terminationUrl)
           .withHttpHeaders(missingOriginatorIdHeader: _*)
           .withBody(inValidTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+          .withMethod("POST")
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe FORBIDDEN
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val requestValidationReport = openApiValidateRequest(request)
+      requestValidationReport.getMessages.asScala must not be List.empty
+
+      val responseValidationReport = openApiValidateResponse(request, response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 400 status and return a correlationid header" in {
-      val response =
+      val request =
         wsUrl(terminationUrl)
           .withHttpHeaders(missingCorrelationIdHeader: _*)
           .withBody(validTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+          .withMethod("POST")
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val requestValidationReport = openApiValidateRequest(request)
+      requestValidationReport.getMessages.asScala must not be List.empty
+
+      val responseValidationReport = openApiValidateResponse(request, response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
   }
 }
