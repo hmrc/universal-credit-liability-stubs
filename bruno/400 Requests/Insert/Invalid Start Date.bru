@@ -1,7 +1,7 @@
 meta {
-  name: 400 Insert Start Date and End Date
+  name: Invalid Start Date
   type: http
-  seq: 10
+  seq: 3
 }
 
 post {
@@ -12,7 +12,7 @@ post {
 
 headers {
   gov-uk-originator-id: 
-  correlationId: e470d658-99f7-4292-a4a1-ed12c72f1337
+  correlationId: {{$guid}}
 }
 
 body:json {
@@ -21,14 +21,13 @@ body:json {
       "universalCreditRecordType": "UC",
       "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-39",
-      "liabilityEndDate": "2025-17-04"
+      "liabilityEndDate": "2025-01-04"
     }
   }
 }
 
 assert {
   res.status: eq 400
-  res.body.failures.length: eq 2
   res.body.failures[0].code: eq '400.1'
-  res.body.failures[1].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityEndDate'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityStartDate'
 }

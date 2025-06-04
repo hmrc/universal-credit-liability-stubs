@@ -1,0 +1,30 @@
+meta {
+  name: Terminate - UC
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit/termination
+  body: json
+  auth: inherit
+}
+
+headers {
+  gov-uk-originator-id: 
+  correlationId: {{$guid}}
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "UC",
+      "liabilityStartDate": "2015-08-19",
+      "liabilityEndDate": "2025-01-04"
+    }
+  }
+}
+
+assert {
+  res.status: eq 204
+}

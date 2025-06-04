@@ -1,0 +1,28 @@
+meta {
+  name: Invalid Payload
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:16108/universal-credit-liability-stubs/person/{{nino}}/liability/universal-credit
+  body: json
+  auth: none
+}
+
+headers {
+  gov-uk-originator-id: 
+  correlationId: {{$guid}}
+}
+
+body:json {
+  {
+  
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.failures[0].code: eq '400.1'
+  res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails'
+}
