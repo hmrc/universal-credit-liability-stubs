@@ -31,12 +31,12 @@ class UcLiabilityIntegrationSpec
     with TestHelpers {
 
   private given WSClient   = app.injector.instanceOf[WSClient]
-  private val insertUrl    = s"/person/${generateNino()}/liability/universal-credit"
-  private val terminateUrl = s"/person/${generateNino()}/liability/universal-credit/termination"
+  private def insertUrl()    = s"/person/${generateNino()}/liability/universal-credit"
+  private def terminateUrl() = s"/person/${generateNino()}/liability/universal-credit/termination"
 
   "Insert UC Liability endpoint" must {
     "respond with 204 status" in {
-      val response = wsUrl(insertUrl)
+      val response = wsUrl(insertUrl())
         .withHttpHeaders(validHeaders: _*)
         .withBody(validInsertLiabilityRequest)
         .execute("POST")
@@ -46,7 +46,7 @@ class UcLiabilityIntegrationSpec
     }
 
     "respond with 400 status" in {
-      val response = wsUrl(insertUrl)
+      val response = wsUrl(insertUrl())
         .withHttpHeaders(validHeaders: _*)
         .withBody(invalidInsertLiabilityRequest)
         .execute("POST")
@@ -56,7 +56,7 @@ class UcLiabilityIntegrationSpec
     }
 
     "respond with 403 status" in {
-      val response = wsUrl(insertUrl)
+      val response = wsUrl(insertUrl())
         .withHttpHeaders(inValidHeaders: _*)
         .withBody(invalidInsertLiabilityRequest)
         .execute("POST")
@@ -69,7 +69,7 @@ class UcLiabilityIntegrationSpec
   "Terminate UC Liability endpoint" must {
     "respond with 204 status" in {
       val response =
-        wsUrl(terminateUrl)
+        wsUrl(terminateUrl())
           .withHttpHeaders(validHeaders: _*)
           .withBody(validTerminateLiabilityRequest)
           .execute("POST")
@@ -80,7 +80,7 @@ class UcLiabilityIntegrationSpec
 
     "respond with 400 status" in {
       val response =
-        wsUrl(terminateUrl)
+        wsUrl(terminateUrl())
           .withHttpHeaders(validHeaders: _*)
           .withBody(inValidTerminateLiabilityRequest)
           .execute("POST")
@@ -91,7 +91,7 @@ class UcLiabilityIntegrationSpec
 
     "respond with 403 status" in {
       val response =
-        wsUrl(terminateUrl)
+        wsUrl(terminateUrl())
           .withHttpHeaders(inValidHeaders: _*)
           .withBody(inValidTerminateLiabilityRequest)
           .execute("POST")
