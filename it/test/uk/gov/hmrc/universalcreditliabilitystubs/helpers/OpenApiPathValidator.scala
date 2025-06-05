@@ -28,10 +28,10 @@ import scala.collection.convert.AsScalaExtensions
 import scala.collection.convert.AsJavaExtensions
 import scala.io.Source
 
-trait OpenApiValidator extends AsScalaExtensions with AsJavaExtensions {
+trait OpenApiValidatorHelper extends AsScalaExtensions with AsJavaExtensions {
 
-  val validator: OpenApiInteractionValidator = OpenApiInteractionValidator
-    .createForInlineApiSpecification(Source.fromResource(OpenApiValidator.openApiResource).mkString)
+  private val validator: OpenApiInteractionValidator = OpenApiInteractionValidator
+    .createForInlineApiSpecification(Source.fromResource(OpenApiValidatorHelper.openApiResource).mkString)
     .withLevelResolver(
       // The key here is to use the level resolver to ignore the response validation messages
       // Without this they would be emitted at ERROR level and cause a validation failure.
@@ -42,16 +42,22 @@ trait OpenApiValidator extends AsScalaExtensions with AsJavaExtensions {
     )
     .build()
 
-  def openApiValidate(wsRequest: WSRequest, wsResponse: WSResponse): ValidationReport =
-    validator.validate(
-      buildRequest(wsRequest),
-      buildResponse(wsResponse)
-    )
+  def openApiPathValidatorFor(wsRequest: WSRequest): OpenApiPathValidator =
+    new OpenApiPathValidator(wsRequest, validator)
 
-  def openApiValidateRequest(wsRequest: WSRequest): ValidationReport =
+}
+
+object OpenApiValidatorHelper {
+  val openApiResource: String = "openapi.hip.jf18645.2.0.1.yaml"
+}
+
+class OpenApiPathValidator private[helpers](wsRequest: WSRequest, validator: OpenApiInteractionValidator)
+    extends AsJavaExtensions {
+
+  def validateRequest: ValidationReport =
     validator.validateRequest(buildRequest(wsRequest))
 
-  def openApiValidateResponse(wsRequest: WSRequest, wsResponse: WSResponse): ValidationReport =
+  def validateResponse(wsResponse: WSResponse): ValidationReport =
     validator.validateResponse(
       wsRequest.uri.getPath,
       wsRequest.method match {
@@ -97,9 +103,4 @@ trait OpenApiValidator extends AsScalaExtensions with AsJavaExtensions {
 
     builderWithHeaders.withBody(wsResponse.body[String]).build()
   }
-
-}
-
-object OpenApiValidator {
-  val openApiResource: String = "openapi.hip.jf18645.2.0.1.yaml"
 }

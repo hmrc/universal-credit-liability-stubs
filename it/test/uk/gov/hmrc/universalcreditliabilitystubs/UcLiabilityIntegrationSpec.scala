@@ -23,7 +23,7 @@ import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.CorrelationIdPattern
-import uk.gov.hmrc.universalcreditliabilitystubs.helpers.OpenApiValidator
+import uk.gov.hmrc.universalcreditliabilitystubs.helpers.OpenApiValidatorHelper
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 
@@ -33,7 +33,7 @@ class UcLiabilityIntegrationSpec
     with IntegrationPatience
     with GuiceOneServerPerSuite
     with TestHelpers
-    with OpenApiValidator {
+    with OpenApiValidatorHelper {
 
   private given WSClient     = app.injector.instanceOf[WSClient]
   private def terminationUrl = s"/person/${generateNino()}/liability/universal-credit/termination"
@@ -56,8 +56,13 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val combinedValidationReport = openApiValidate(request, response)
-      combinedValidationReport.getMessages.asScala mustBe List.empty
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala mustBe List.empty
+
+      val responseValidationReport = validator.validateResponse(response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 400 status" in {
@@ -76,10 +81,12 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val requestValidationReport = openApiValidateRequest(request)
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
       requestValidationReport.getMessages.asScala must not be List.empty
 
-      val responseValidationReport = openApiValidateResponse(request, response)
+      val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
@@ -99,10 +106,12 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val requestValidationReport = openApiValidateRequest(request)
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
       requestValidationReport.getMessages.asScala must not be List.empty
 
-      val responseValidationReport = openApiValidateResponse(request, response)
+      val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
@@ -122,10 +131,12 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val requestValidationReport = openApiValidateRequest(request)
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
       requestValidationReport.getMessages.asScala must not be List.empty
 
-      val responseValidationReport = openApiValidateResponse(request, response)
+      val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
   }
@@ -148,8 +159,13 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val combinedValidationReport = openApiValidate(request, response)
-      combinedValidationReport.getMessages.asScala mustBe List.empty
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala mustBe List.empty
+
+      val responseValidationReport = validator.validateResponse(response)
+      responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
     "respond with 400 status" in {
@@ -169,10 +185,12 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val requestValidationReport = openApiValidateRequest(request)
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
       requestValidationReport.getMessages.asScala must not be List.empty
 
-      val responseValidationReport = openApiValidateResponse(request, response)
+      val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
@@ -193,10 +211,12 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val requestValidationReport = openApiValidateRequest(request)
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
       requestValidationReport.getMessages.asScala must not be List.empty
 
-      val responseValidationReport = openApiValidateResponse(request, response)
+      val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
 
@@ -217,10 +237,12 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val requestValidationReport = openApiValidateRequest(request)
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
       requestValidationReport.getMessages.asScala must not be List.empty
 
-      val responseValidationReport = openApiValidateResponse(request, response)
+      val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
   }
