@@ -20,18 +20,17 @@ import com.atlassian.oai.validator.OpenApiInteractionValidator
 import com.atlassian.oai.validator.model.{SimpleRequest, SimpleResponse}
 import com.atlassian.oai.validator.report.ValidationReport.Level.IGNORE
 import com.atlassian.oai.validator.report.{LevelResolver, ValidationReport}
-import play.api.libs.ws.{EmptyBody, InMemoryBody, WSRequest, WSResponse}
+import play.api.libs.ws.{EmptyBody, InMemoryBody, WSClient, WSRequest, WSResponse}
 import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import com.atlassian.oai.validator.model.Request.Method
-
-import scala.collection.convert.AsScalaExtensions
-import scala.collection.convert.AsJavaExtensions
+import org.scalatestplus.play.PortNumber
+import scala.jdk.CollectionConverters._
 import scala.io.Source
 
-trait OpenApiValidatorHelper extends AsScalaExtensions with AsJavaExtensions {
+final class OpenApiValidator private (openapi: String) {
 
   private val validator: OpenApiInteractionValidator = OpenApiInteractionValidator
-    .createForInlineApiSpecification(Source.fromResource(OpenApiValidatorHelper.openApiResource).mkString)
+    .createForInlineApiSpecification(openapi)
     .withLevelResolver(
       // The key here is to use the level resolver to ignore the response validation messages
       // Without this they would be emitted at ERROR level and cause a validation failure.
@@ -42,30 +41,62 @@ trait OpenApiValidatorHelper extends AsScalaExtensions with AsJavaExtensions {
     )
     .build()
 
-  def openApiPathValidatorFor(wsRequest: WSRequest): OpenApiPathValidator =
-    new OpenApiPathValidator(wsRequest, validator)
+  def forPath(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS" | "TRACE",
+    path: String
+  ): EndpointValidator =
+    new EndpointValidator(validator)(Method.valueOf(method), path)
 
 }
 
-object OpenApiValidatorHelper {
-  val openApiResource: String = "openapi.hip.jf18645.2.0.1.yaml"
+object OpenApiValidator {
+  def fromResource(resource: String) = new OpenApiValidator(Source.fromResource(resource).mkString)
 }
 
-class OpenApiPathValidator private[helpers](wsRequest: WSRequest, validator: OpenApiInteractionValidator)
-    extends AsJavaExtensions {
+final case class ValidationError(message: String)
 
-  def validateRequest: ValidationReport =
-    validator.validateRequest(buildRequest(wsRequest))
+final class EndpointValidator private[helpers](validator: OpenApiInteractionValidator)(method: Method, path: String) {
 
-  def validateResponse(wsResponse: WSResponse): ValidationReport =
-    validator.validateResponse(
-      wsRequest.uri.getPath,
-      wsRequest.method match {
-        case "POST" => Method.POST
-        case method => throw new Error(s"Unsupported method: $method")
-      },
-      buildResponse(wsResponse)
-    )
+  def newRequestBuilder(secure: Boolean = false)(using wsClient: WSClient, portNumber: PortNumber): WSRequest =
+    wsClient.url((if (secure) "https" else "http") + "://localhost:" + portNumber.value + path).withMethod(method.name)
+
+  def validateRequest(wsRequest: WSRequest): List[ValidationError] =
+    (Method.valueOf(wsRequest.method), wsRequest.uri.getPath) match {
+      case (`method`, `path`) =>
+        validator
+          .validateRequest(buildRequest(wsRequest))
+          .getMessages
+          .asScala
+          .toList
+          .map(msg => ValidationError.apply(msg.toString))
+      case _                  =>
+        List(
+          ValidationError(
+            s"The request ${wsRequest.method} ${wsRequest.uri.getPath} is not for the configured endpoint $method $path"
+          )
+        )
+    }
+
+  def validateResponse(wsResponse: WSResponse): List[ValidationError] =
+    wsResponse.uri.getPath match {
+      case `path` =>
+        validator
+          .validateResponse(
+            path,
+            method,
+            buildResponse(wsResponse)
+          )
+          .getMessages
+          .asScala
+          .toList
+          .map(msg => ValidationError.apply(msg.toString))
+      case _      =>
+        List(
+          ValidationError(
+            s"The response $method ${wsResponse.uri.getPath} is not for the configured endpoint $method $path"
+          )
+        )
+    }
 
   private def buildRequest(wsRequest: WSRequest): SimpleRequest = {
     val initBuilder = SimpleRequest.Builder
