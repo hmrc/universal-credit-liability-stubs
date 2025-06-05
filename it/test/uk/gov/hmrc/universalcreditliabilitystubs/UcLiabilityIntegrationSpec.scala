@@ -46,6 +46,11 @@ class UcLiabilityIntegrationSpec
         .withBody(validInsertLiabilityRequest)
         .withMethod("POST")
 
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala mustBe List.empty
+
       val response = request
         .execute()
         .futureValue
@@ -55,11 +60,6 @@ class UcLiabilityIntegrationSpec
       response.status mustBe NO_CONTENT
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
-
-      val validator = openApiPathValidatorFor(request)
-
-      val requestValidationReport = validator.validateRequest
-      requestValidationReport.getMessages.asScala mustBe List.empty
 
       val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
@@ -71,6 +71,11 @@ class UcLiabilityIntegrationSpec
         .withBody(invalidInsertLiabilityRequest)
         .withMethod("POST")
 
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala must not be List.empty
+
       val response = request
         .execute()
         .futureValue
@@ -81,11 +86,6 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val validator = openApiPathValidatorFor(request)
-
-      val requestValidationReport = validator.validateRequest
-      requestValidationReport.getMessages.asScala must not be List.empty
-
       val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
@@ -95,6 +95,11 @@ class UcLiabilityIntegrationSpec
         .withHttpHeaders(missingOriginatorIdHeader: _*)
         .withBody(invalidInsertLiabilityRequest)
         .withMethod("POST")
+
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala must not be List.empty
 
       val response = request
         .execute()
@@ -131,11 +136,6 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      val validator = openApiPathValidatorFor(request)
-
-      val requestValidationReport = validator.validateRequest
-      requestValidationReport.getMessages.asScala must not be List.empty
-
       val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
     }
@@ -149,6 +149,11 @@ class UcLiabilityIntegrationSpec
           .withBody(validTerminateLiabilityRequest)
           .withMethod("POST")
 
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala mustBe List.empty
+
       val response = request
         .execute()
         .futureValue
@@ -158,11 +163,6 @@ class UcLiabilityIntegrationSpec
       response.status mustBe NO_CONTENT
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
-
-      val validator = openApiPathValidatorFor(request)
-
-      val requestValidationReport = validator.validateRequest
-      requestValidationReport.getMessages.asScala mustBe List.empty
 
       val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
@@ -175,6 +175,11 @@ class UcLiabilityIntegrationSpec
           .withBody(inValidTerminateLiabilityRequest)
           .withMethod("POST")
 
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala must not be List.empty
+
       val response = request
         .execute()
         .futureValue
@@ -184,11 +189,6 @@ class UcLiabilityIntegrationSpec
       response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
-
-      val validator = openApiPathValidatorFor(request)
-
-      val requestValidationReport = validator.validateRequest
-      requestValidationReport.getMessages.asScala must not be List.empty
 
       val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
@@ -200,6 +200,11 @@ class UcLiabilityIntegrationSpec
           .withHttpHeaders(missingOriginatorIdHeader: _*)
           .withBody(inValidTerminateLiabilityRequest)
           .withMethod("POST")
+
+      val validator = openApiPathValidatorFor(request)
+
+      val requestValidationReport = validator.validateRequest
+      requestValidationReport.getMessages.asScala must not be List.empty
 
       val response = request
         .execute()
@@ -236,11 +241,6 @@ class UcLiabilityIntegrationSpec
       response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
-
-      val validator = openApiPathValidatorFor(request)
-
-      val requestValidationReport = validator.validateRequest
-      requestValidationReport.getMessages.asScala must not be List.empty
 
       val responseValidationReport = validator.validateResponse(response)
       responseValidationReport.getMessages.asScala mustBe List.empty
