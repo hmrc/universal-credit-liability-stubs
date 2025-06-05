@@ -13,10 +13,10 @@ lazy val microservice = Project("universal-credit-liability-stubs", file("."))
   )
   .settings(CodeCoverageSettings.settings*)
   .settings(PlayKeys.playDefaultPort := 16108)
+  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 
 lazy val it = project
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test")
   .settings(DefaultBuildSettings.itSettings())
   .settings(libraryDependencies ++= AppDependencies.it)
-  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
