@@ -19,9 +19,12 @@ package uk.gov.hmrc.universalcreditliabilitystubs
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.WSClient
+import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.CorrelationIdPattern
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 
 class UcLiabilityIntegrationSpec
     extends PlaySpec
@@ -42,7 +45,11 @@ class UcLiabilityIntegrationSpec
         .execute("POST")
         .futureValue
 
-      response.status mustBe 204
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe NO_CONTENT
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
     "respond with 400 status" in {
@@ -52,7 +59,11 @@ class UcLiabilityIntegrationSpec
         .execute("POST")
         .futureValue
 
-      response.status mustBe 400
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe BAD_REQUEST
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
     "respond with 403 status" in {
@@ -62,7 +73,11 @@ class UcLiabilityIntegrationSpec
         .execute("POST")
         .futureValue
 
-      response.status mustBe 403
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe FORBIDDEN
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
     }
   }
 
@@ -75,7 +90,11 @@ class UcLiabilityIntegrationSpec
           .execute("POST")
           .futureValue
 
-      response.status mustBe 204
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe NO_CONTENT
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
     "respond with 400 status" in {
@@ -86,7 +105,11 @@ class UcLiabilityIntegrationSpec
           .execute("POST")
           .futureValue
 
-      response.status mustBe 400
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe BAD_REQUEST
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
     "respond with 403 status" in {
@@ -97,7 +120,11 @@ class UcLiabilityIntegrationSpec
           .execute("POST")
           .futureValue
 
-      response.status mustBe 403
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe FORBIDDEN
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
     }
   }
 }

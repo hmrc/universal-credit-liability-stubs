@@ -111,7 +111,7 @@ class SchemaValidationService {
 }
 
 object SchemaValidationService {
-  private val CorrelationIdPattern: Regex =
+  val CorrelationIdPattern: Regex =
     "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$".r
 
   private val NinoPattern: Regex =
