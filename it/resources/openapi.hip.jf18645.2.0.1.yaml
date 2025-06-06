@@ -1,0 +1,670 @@
+---
+openapi: 3.0.3
+info:
+  title: Universal Credit Liability Details
+  description: |-
+    # Usage Terms
+    These interfaces are business-critical interfaces for HMRC and DWP, supporting thousands of staff - all consumption, or change in consumption levels, should be registered and fully approved (see Registered Consumers below).
+
+    ## Version Log
+    | Version | Date       | Author               | Description                                                                                            |
+    |---------|------------|----------------------|--------------------------------------------------------------------------------------------------------|
+    | 0.0.1   | 05/11/2024 | NPS Development Team | Initial                                                                                                |
+    | 0.0.2   | 17/03/2025 | NPS Development Team | Updated specs for HMRC Comments and consistency across all APIs                                        |
+    | 1.0.0   | 20/03/2025 | NPS Development Team | Baselined                                                                                              |
+    | 1.1.0   | 24/04/2025 | NPS Development Team | Minor amendment to remove nps from summary, renamed response object to universalCreditLiabilityDetails |
+    | 2.0.0   | 01/05/2025 | NPS Development Team | Baselined                                                                                              |
+    | 2.0.1   | 08/05/2025 | NPS Development Team | Updated endpoints                                                                                      |
+  version: 2.0.1
+  x-integration-catalogue:
+    reviewed-date: 2025-04-25T15:10:20Z
+    short-description: Universal Credit Liability Details
+    status: BETA
+    api-type: SIMPLE
+    platform: HIP
+    backends:
+    - NI
+    domain: 2
+    sub-domain: 2.0
+servers:
+- url: https://api.ipaas.prod.eis.ns2p.corp.hmrc.gov.uk/ni
+  description: Corporate - Production
+- url: https://api.ipaas.preprod.eis.ns2p.corp.hmrc.gov.uk/ni
+  description: Corporate – Pre-Production
+- url: https://api.ipaas.test.eis.ns2n.corp.hmrc.gov.uk/ni
+  description: Corporate - Test
+- url: https://hip.ws.hmrc.gov.uk/ni
+  description: MDTP - Production
+- url: https://hip.ws.ibt.hmrc.gov.uk/ni
+  description: MDTP - QA
+security:
+- oAuth2:
+  - write:ni-universal-credit-liability-details
+tags: []
+paths:
+  /person/{nino}/liability/universal-credit:
+    post:
+      summary: Insert Universal Credit Liability Details
+      description: "# Purpose\nThis API provides the capability to insert Universal\
+        \ Credit Liability details for a given individual. This endpoint requires\
+        \ Mutual Authentication over TLS 1.2 \n\n# Volumes & Registered Consumers\n\
+        This API is consumed by the following 'Registered Consumers' who would all\
+        \ need to be impacted when a new consumer with an associated new load first\
+        \ registers to use the service, or an uplift is required to the API. Each\
+        \ 'Registered Consumer' below will receive an additional Security Spec. document\
+        \ that outlines how to connect to the various environments as well as any\
+        \ consumer-specific authorisation/authentication details - this is unique\
+        \ to their connection.\n\n| Consumer | Average API Calls Per Hour | Peak API\
+        \ Calls Per Hour | Peak TPS |\n|----------|----------------------------|-------------------------|----------|\n\
+        | XXXX XXX | xxx                        | xxx                     | xxx  \
+        \    |\n\n*TPS = Transactions per second\n\n## Request Data Structure & Payload\
+        \ Details"
+      operationId: postUniversalCreditLiabilityDetails
+      parameters:
+      - $ref: '#/components/parameters/correlationId'
+      - $ref: '#/components/parameters/govUkOriginatorId'
+      - $ref: '#/components/parameters/NationalInsuranceNumberParameter'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUniversalCreditLiabilityRequest'
+            examples:
+              populatedRequest:
+                summary: With all request properties
+                value:
+                  universalCreditLiabilityDetails:
+                    universalCreditRecordType: LCW/LCWRA
+                    dateOfBirth: 2002-10-10
+                    liabilityStartDate: 2015-08-19
+                    liabilityEndDate: 2025-01-04
+        required: true
+      responses:
+        "204":
+          description: Successful - No Content
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+        "400":
+          description: Bad Request
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                required:
+                - origin
+                - response
+                type: object
+                properties:
+                  origin:
+                    $ref: '#/components/schemas/HIP-originEnum'
+                  response:
+                    oneOf:
+                    - $ref: '#/components/schemas/HIP-failureResponse'
+                    - $ref: '#/components/schemas/errorResponse_400'
+                additionalProperties: false
+              examples:
+                Actual_Response:
+                  value:
+                    origin: HoD
+                    response:
+                      failures:
+                      - reason: HTTP message not readable
+                        code: "400.2"
+                      - reason: "Constraint Violation - Invalid/Missing input parameter:\
+                          \ <parameter>"
+                        code: "400.1"
+                HIP-originResponse:
+                  description: HIP-originResponse
+                  value:
+                    origin: HIP
+                    response:
+                    - type: Type of Failure
+                      reason: Reason for Failure
+        "403":
+          description: Forbidden
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/errorResourceObj_403_Forbidden'
+              examples:
+                Forbidden_Response:
+                  value:
+                    reason: Forbidden
+                    code: "403.2"
+        "404":
+          $ref: '#/components/responses/notFoundErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/errorResponse_422'
+              examples:
+                "422_StartDateBefore29042013":
+                  value:
+                    failures:
+                    - reason: Start date before 29/04/2013
+                      code: "65536"
+                "422_EndDateBeforeStartDate":
+                  value:
+                    failures:
+                    - reason: End date before start date
+                      code: "65537"
+                "422_PseudoAccount":
+                  value:
+                    failures:
+                    - reason: The NINO input matches a Pseudo Account
+                      code: "65541"
+                "422_NonLiveAccount":
+                  value:
+                    failures:
+                    - reason: "The NINO input matches a non-live account (including\
+                        \ redundant, amalgamated and administrative account types)"
+                      code: "65542"
+                "422_AccountTransferredIsleOfMan":
+                  value:
+                    failures:
+                    - reason: The NINO input matches an account that has been transferred
+                        to the Isle of Man
+                      code: "65543"
+                "422_StartDateBefore16thBirthday":
+                  value:
+                    failures:
+                    - reason: Start date must not be before 16th birthday
+                      code: "65026"
+                "422_StartDateAfterSPA":
+                  value:
+                    failures:
+                    - reason: Start Date later than SPA
+                      code: "55029"
+                "422_StartDateAfterDeath":
+                  value:
+                    failures:
+                    - reason: Start Date is not before date of death
+                      code: "64996"
+                "422_EndDateAfterSPA":
+                  value:
+                    failures:
+                    - reason: End Date must be earlier than State Pension Age
+                      code: "55008"
+                "422_EndDateAfterDeath":
+                  value:
+                    failures:
+                    - reason: End Date later than Date of Death
+                      code: "55027"
+                "422_ConflictingLiability":
+                  value:
+                    failures:
+                    - reason: A conflicting or identical Liability is already recorded
+                      code: "55038"
+                "422_NotWithinUCPeriod":
+                  value:
+                    failures:
+                    - reason: LCW/LCWRA not within a period of UC
+                      code: "64997"
+                "422_LCWLCWRAOverride":
+                  value:
+                    failures:
+                    - reason: LCW/LCWRA Override not within a period of LCW/LCWRA
+                      code: "64998"
+                "422_NoMatchingLiability":
+                  value:
+                    failures:
+                    - reason: NO corresponding liability found
+                      code: "55039"
+        "500":
+          $ref: '#/components/responses/internalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/HIP-originResponse'
+  /person/{nino}/liability/universal-credit/termination:
+    post:
+      summary: Terminate Universal Credit Liability Details
+      description: "# Purpose\nThis API provides the capability to terminate Universal\
+        \ Credit Liability details for a given individual. This endpoint requires\
+        \ Mutual Authentication over TLS 1.2 \n\n# Volumes & Registered Consumers\n\
+        This API is consumed by the following 'Registered Consumers' who would all\
+        \ need to be impacted when a new consumer with an associated new load first\
+        \ registers to use the service, or an uplift is required to the API. Each\
+        \ 'Registered Consumer' below will receive an additional Security Spec. document\
+        \ that outlines how to connect to the various environments as well as any\
+        \ consumer-specific authorisation/authentication details - this is unique\
+        \ to their connection.\n\n| Consumer | Average API Calls Per Hour | Peak API\
+        \ Calls Per Hour | Peak TPS |\n|----------|----------------------------|-------------------------|----------|\n\
+        | XXXX XXX | xxx                        | xxx                     | xxx  \
+        \    |\n\n*TPS = Transactions per second\n\n## Request Data Structure & Payload\
+        \ Details"
+      operationId: postUniversalCreditTerminationDetails
+      parameters:
+      - $ref: '#/components/parameters/correlationId'
+      - $ref: '#/components/parameters/govUkOriginatorId'
+      - $ref: '#/components/parameters/NationalInsuranceNumberParameter'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUCLiabilityTerminationRequest'
+            examples:
+              populatedRequest:
+                summary: With all request properties
+                value:
+                  ucLiabilityTerminationDetails:
+                    universalCreditRecordType: LCW/LCWRA
+                    liabilityStartDate: 2015-08-19
+                    liabilityEndDate: 2025-01-04
+        required: true
+      responses:
+        "204":
+          description: Successful - No Content
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+        "400":
+          description: Bad Request
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                required:
+                - origin
+                - response
+                type: object
+                properties:
+                  origin:
+                    $ref: '#/components/schemas/HIP-originEnum'
+                  response:
+                    oneOf:
+                    - $ref: '#/components/schemas/HIP-failureResponse'
+                    - $ref: '#/components/schemas/errorResponse_400'
+                additionalProperties: false
+              examples:
+                Actual_Response:
+                  value:
+                    origin: HoD
+                    response:
+                      failures:
+                      - reason: HTTP message not readable
+                        code: "400.2"
+                      - reason: "Constraint Violation - Invalid/Missing input parameter:\
+                          \ <parameter>"
+                        code: "400.1"
+                HIP-originResponse:
+                  description: HIP-originResponse
+                  value:
+                    origin: HIP
+                    response:
+                    - type: Type of Failure
+                      reason: Reason for Failure
+        "403":
+          description: Forbidden
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/errorResourceObj_403_Forbidden'
+              examples:
+                Forbidden_Response:
+                  value:
+                    reason: Forbidden
+                    code: "403.2"
+        "404":
+          $ref: '#/components/responses/notFoundErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/errorResponse_422'
+              examples:
+                "422_StartDateBefore29042013":
+                  value:
+                    failures:
+                    - reason: Start date before 29/04/2013
+                      code: "65536"
+                "422_EndDateBeforeStartDate":
+                  value:
+                    failures:
+                    - reason: End date before start date
+                      code: "65537"
+                "422_EndDateMissingTermination":
+                  value:
+                    failures:
+                    - reason: End date missing but the input was a Termination
+                      code: "65538"
+                "422_PseudoAccount":
+                  value:
+                    failures:
+                    - reason: The NINO input matches a Pseudo Account
+                      code: "65541"
+                "422_NonLiveAccount":
+                  value:
+                    failures:
+                    - reason: "The NINO input matches a non-live account (including\
+                        \ redundant, amalgamated and administrative account types)"
+                      code: "65542"
+                "422_AccountTransferredIsleOfMan":
+                  value:
+                    failures:
+                    - reason: The NINO input matches an account that has been transferred
+                        to the Isle of Man
+                      code: "65543"
+                "422_StartDateBefore16thBirthday":
+                  value:
+                    failures:
+                    - reason: Start date must not be before 16th birthday
+                      code: "65026"
+                "422_StartDateAfterSPA":
+                  value:
+                    failures:
+                    - reason: Start Date later than SPA
+                      code: "55029"
+                "422_StartDateAfterDeath":
+                  value:
+                    failures:
+                    - reason: Start Date is not before date of death
+                      code: "64996"
+                "422_EndDateAfterSPA":
+                  value:
+                    failures:
+                    - reason: End Date must be earlier than State Pension Age
+                      code: "55008"
+                "422_EndDateAfterDeath":
+                  value:
+                    failures:
+                    - reason: End Date later than Date of Death
+                      code: "55027"
+                "422_ConflictingLiability":
+                  value:
+                    failures:
+                    - reason: A conflicting or identical Liability is already recorded
+                      code: "55038"
+                "422_NotWithinUCPeriod":
+                  value:
+                    failures:
+                    - reason: LCW/LCWRA not within a period of UC
+                      code: "64997"
+                "422_LCWLCWRAOverride":
+                  value:
+                    failures:
+                    - reason: LCW/LCWRA Override not within a period of LCW/LCWRA
+                      code: "64998"
+                "422_NoMatchingLiability":
+                  value:
+                    failures:
+                    - reason: NO corresponding liability found
+                      code: "55039"
+        "500":
+          $ref: '#/components/responses/internalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/HIP-originResponse'
+components:
+  schemas:
+    correlationId:
+      format: uuid
+      description: Correlation ID - used for traceability purposes - note that this
+        value in the response matches that received in the request to allow correlation.
+      type: string
+      example: e470d658-99f7-4292-a4a1-ed12c72f1337
+    govUkOriginatorId:
+      description: Identity of the Originating System that made the API call
+      maxLength: 40
+      minLength: 4
+      type: string
+    PostUniversalCreditLiabilityRequest:
+      required:
+      - universalCreditLiabilityDetails
+      type: object
+      properties:
+        universalCreditLiabilityDetails:
+          $ref: '#/components/schemas/UniversalCreditLiabilityDetails'
+    PostUCLiabilityTerminationRequest:
+      required:
+      - ucLiabilityTerminationDetails
+      type: object
+      properties:
+        ucLiabilityTerminationDetails:
+          $ref: '#/components/schemas/UCLiabilityTerminationDetails'
+    UniversalCreditLiabilityDetails:
+      description: Request body for this API.
+      required:
+      - universalCreditRecordType
+      - dateOfBirth
+      - liabilityStartDate
+      type: object
+      properties:
+        universalCreditRecordType:
+          $ref: '#/components/schemas/universalCreditRecordType'
+        dateOfBirth:
+          $ref: '#/components/schemas/dateOfBirth'
+        liabilityStartDate:
+          $ref: '#/components/schemas/liabilityStartDate'
+        liabilityEndDate:
+          $ref: '#/components/schemas/liabilityEndDate'
+    UCLiabilityTerminationDetails:
+      description: Request body for this API.
+      required:
+      - universalCreditRecordType
+      - liabilityStartDate
+      - liabilityEndDate
+      type: object
+      properties:
+        universalCreditRecordType:
+          $ref: '#/components/schemas/universalCreditRecordType'
+        liabilityStartDate:
+          $ref: '#/components/schemas/liabilityStartDate'
+        liabilityEndDate:
+          $ref: '#/components/schemas/liabilityEndDate'
+    errorResponse_400:
+      title: Error Response
+      description: Array of Error Response Failure Object in Error Response.
+      type: object
+      properties:
+        failures:
+          type: array
+          items:
+            $ref: '#/components/schemas/errorResourceObj_400'
+    errorResourceObj_400:
+      required:
+      - code
+      - reason
+      type: object
+      properties:
+        reason:
+          description: Displays the reason of the failure.
+          maxLength: 120
+          minLength: 1
+          type: string
+        code:
+          description: |-
+            The error code representing the error that has occurred. Valid values are
+            400.1 - Constraint violation (Followed by 'Invalid/Missing input parameter path.to.field'
+            400.2 - HTTP message not readable;
+          enum:
+          - "400.1"
+          - "400.2"
+          type: string
+    errorResourceObj_403_Forbidden:
+      title: 403_Forbidden
+      required:
+      - code
+      - reason
+      type: object
+      properties:
+        reason:
+          description: Displays the reason of the failure.
+          enum:
+          - Forbidden
+          type: string
+        code:
+          description: The error code representing the Forbidden Error.
+          enum:
+          - "403.2"
+          type: string
+    errorResponse_422:
+      title: Error Response
+      description: Error Response Payload for this API
+      type: object
+      properties:
+        failures:
+          $ref: '#/components/schemas/errorResponseFailure_422'
+    errorResponseFailure_422:
+      title: Failure Object in Error Response
+      description: Array of Error Response Failure Object in Error Response.
+      type: array
+      items:
+        $ref: '#/components/schemas/errorResourceObj_422'
+    errorResourceObj_422:
+      required:
+      - code
+      - reason
+      type: object
+      properties:
+        reason:
+          description: Displays the reason of the failure.
+          maxLength: 120
+          minLength: 1
+          type: string
+        code:
+          description: The error code representing the error that has occurred.
+          maxLength: 10
+          minLength: 1
+          type: string
+    universalCreditRecordType:
+      $ref: '#/components/schemas/EnumUniversalCreditRecordType'
+    EnumUniversalCreditRecordType:
+      enum:
+      - UC
+      - LCW/LCWRA
+      type: string
+    dateOfBirth:
+      format: date
+      description: The individual's date of birth.
+      pattern: "^(((19|20)([2468][048]|[13579][26]|0[48])|2000)[-]02[-]29|((19|20)[0-9]{2}[-](0[469]|11)[-](0[1-9]|1[0-9]|2[0-9]|30)|(19|20)[0-9]{2}[-](0[13578]|1[02])[-](0[1-9]|[12][0-9]|3[01])|(19|20)[0-9]{2}[-]02[-](0[1-9]|1[0-9]|2[0-8])))$"
+      type: string
+    liabilityStartDate:
+      format: date
+      description: Start date of Universal Credit entitlement.
+      pattern: "^(((19|20)([2468][048]|[13579][26]|0[48])|2000)[-]02[-]29|((19|20)[0-9]{2}[-](0[469]|11)[-](0[1-9]|1[0-9]|2[0-9]|30)|(19|20)[0-9]{2}[-](0[13578]|1[02])[-](0[1-9]|[12][0-9]|3[01])|(19|20)[0-9]{2}[-]02[-](0[1-9]|1[0-9]|2[0-8])))$"
+      type: string
+    liabilityEndDate:
+      format: date
+      description: End date of Universal Credit entitlement.
+      pattern: "^(((19|20)([2468][048]|[13579][26]|0[48])|2000)[-]02[-]29|((19|20)[0-9]{2}[-](0[469]|11)[-](0[1-9]|1[0-9]|2[0-9]|30)|(19|20)[0-9]{2}[-](0[13578]|1[02])[-](0[1-9]|[12][0-9]|3[01])|(19|20)[0-9]{2}[-]02[-](0[1-9]|1[0-9]|2[0-8])))$"
+      type: string
+    nationalInsuranceNumber:
+      description: National Insurance Number - unique for an individual - note not
+        all individuals qualify to be issued with one.
+      maxLength: 8
+      minLength: 8
+      pattern: "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}$"
+      type: string
+      example: AA123456
+    HIP-originEnum:
+      enum:
+      - HIP
+      - HoD
+      type: string
+    HIP-failureResponse:
+      required:
+      - failures
+      type: object
+      properties:
+        failures:
+          minItems: 1
+          uniqueItems: true
+          type: array
+          items:
+            required:
+            - type
+            - reason
+            type: object
+            properties:
+              type:
+                type: string
+              reason:
+                type: string
+            additionalProperties: false
+    HIP-originResponse:
+      required:
+      - origin
+      - response
+      type: object
+      properties:
+        origin:
+          $ref: '#/components/schemas/HIP-originEnum'
+        response:
+          $ref: '#/components/schemas/HIP-failureResponse'
+      additionalProperties: false
+  responses:
+    internalServerErrorResponse:
+      description: Internal Server Error
+      headers:
+        correlationId:
+          $ref: '#/components/headers/correlationId'
+    notFoundErrorResponse:
+      description: The requested resource could not be found
+      headers:
+        correlationId:
+          $ref: '#/components/headers/correlationId'
+  parameters:
+    correlationId:
+      name: correlationId
+      in: header
+      description: Correlation ID - used for traceability purposes - note that this
+        value in the response matches that received in the request to allow correlation.
+      required: true
+      schema:
+        $ref: '#/components/schemas/correlationId'
+    govUkOriginatorId:
+      name: gov-uk-originator-id
+      in: header
+      description: Identity of the Originating System that made the API call.
+      required: true
+      schema:
+        $ref: '#/components/schemas/govUkOriginatorId'
+    NationalInsuranceNumberParameter:
+      name: nino
+      in: path
+      description: National Insurance Number - unique for an individual - note not
+        all individuals qualify to be issued with one.
+      required: true
+      schema:
+        $ref: '#/components/schemas/nationalInsuranceNumber'
+  headers:
+    correlationId:
+      required: true
+      schema:
+        $ref: '#/components/schemas/correlationId'
+  securitySchemes:
+    oAuth2:
+      type: oauth2
+      description: OAuth2 Client Credentials Flow
+      flows:
+        clientCredentials:
+          tokenUrl: /tokenUrl/not-required
+          scopes:
+            write:ni-universal-credit-liability-details: Universal Credit Liability
+              Details

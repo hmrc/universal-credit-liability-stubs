@@ -15,8 +15,15 @@ lazy val microservice = Project("universal-credit-liability-stubs", file("."))
   .settings(PlayKeys.playDefaultPort := 16108)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 
-lazy val it = project
+lazy val it         = project
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test")
   .settings(DefaultBuildSettings.itSettings())
-  .settings(libraryDependencies ++= AppDependencies.it)
+  .settings(
+    libraryDependencies ++= AppDependencies.it,
+    // dependencyOverrides for "swagger-request-validator-core" % "2.44.8"
+    // Scala module 2.14.3 requires Jackson Databind version >= 2.14.0 and < 2.15.0
+    dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.3",
+    compile / unmanagedResourceDirectories := Seq(baseDirectory.value / "resources"),
+    Runtime / unmanagedResourceDirectories := Seq(baseDirectory.value / "resources")
+  )
