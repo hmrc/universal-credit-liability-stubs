@@ -102,9 +102,14 @@ trait TestHelpers {
       HeaderNames.OriginatorId  -> "gov-uk-originator-id"
     )
 
-  val inValidHeaders: Seq[(String, String)] =
+  val missingOriginatorIdHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+    )
+
+  val missingCorrelationIdHeader: Seq[(String, String)] =
+    Seq(
+      HeaderNames.OriginatorId -> "gov-uk-originator-id"
     )
 
   def generateNino(): String = {

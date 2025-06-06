@@ -27,4 +27,5 @@ body:json {
 assert {
   res.status: eq 403
   res.body.code: eq '403.2'
+  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
 }
