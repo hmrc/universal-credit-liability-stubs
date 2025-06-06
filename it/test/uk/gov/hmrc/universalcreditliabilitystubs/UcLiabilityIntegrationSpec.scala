@@ -68,7 +68,7 @@ class UcLiabilityIntegrationSpec
 
     "respond with 403 status" in {
       val response = wsUrl(insertionUrl)
-        .withHttpHeaders(inValidHeaders: _*)
+        .withHttpHeaders(missingOriginatorIdHeader: _*)
         .withBody(invalidInsertLiabilityRequest)
         .execute("POST")
         .futureValue
@@ -76,6 +76,20 @@ class UcLiabilityIntegrationSpec
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe FORBIDDEN
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 400 status and return a correlationid header" in {
+      val response = wsUrl(insertionUrl)
+        .withHttpHeaders(missingCorrelationIdHeader: _*)
+        .withBody(validInsertLiabilityRequest)
+        .execute("POST")
+        .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
@@ -115,7 +129,7 @@ class UcLiabilityIntegrationSpec
     "respond with 403 status" in {
       val response =
         wsUrl(terminationUrl)
-          .withHttpHeaders(inValidHeaders: _*)
+          .withHttpHeaders(missingOriginatorIdHeader: _*)
           .withBody(inValidTerminateLiabilityRequest)
           .execute("POST")
           .futureValue
@@ -123,6 +137,21 @@ class UcLiabilityIntegrationSpec
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe FORBIDDEN
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 400 status and return a correlationid header" in {
+      val response =
+        wsUrl(terminationUrl)
+          .withHttpHeaders(missingCorrelationIdHeader: _*)
+          .withBody(validTerminateLiabilityRequest)
+          .execute("POST")
+          .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe BAD_REQUEST
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
