@@ -29,4 +29,5 @@ assert {
   res.status: eq 400
   res.body.failures[0].code: eq '400.1'
   res.body.failures[0].reason: eq 'Constraint Violation - Invalid/Missing input parameter: correlationId'
+  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
 }
