@@ -17,6 +17,6 @@ object AppDependencies {
   )
 
   val it: Seq[ModuleID] = Seq(
-    "com.atlassian.oai" % "swagger-request-validator-core" % "2.44.8"
+    "com.atlassian.oai" % "swagger-request-validator-core" % "2.44.9"
   )
 }
