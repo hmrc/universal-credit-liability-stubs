@@ -21,7 +21,8 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, readableAsString}
+import uk.gov.hmrc.universalcreditliabilitystubs.helpers.OpenApiValidator
 import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.CorrelationIdPattern
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
@@ -37,12 +38,22 @@ class UcLiabilityIntegrationSpec
   private def terminationUrl = s"/person/${generateNino()}/liability/universal-credit/termination"
   private def insertionUrl   = s"/person/${generateNino()}/liability/universal-credit"
 
+  private val openApiValidator = OpenApiValidator.fromResource("openapi.hip.jf18645.2.0.1.yaml")
+
   "Insert UC Liability endpoint" must {
-    "respond with 204 status" in {
-      val response = wsUrl(insertionUrl)
+    "respond with 204 status when the request is valid" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
         .withHttpHeaders(validHeaders: _*)
         .withBody(validInsertLiabilityRequest)
-        .execute("POST")
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+      requestValidationErrors mustBe List.empty
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
@@ -50,27 +61,47 @@ class UcLiabilityIntegrationSpec
       response.status mustBe NO_CONTENT
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = insertionPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
     }
 
-    "respond with 400 status" in {
-      val response = wsUrl(insertionUrl)
+    "respond with 400 status with no body when the request is bad" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
         .withHttpHeaders(validHeaders: _*)
         .withBody(invalidInsertLiabilityRequest)
-        .execute("POST")
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe BAD_REQUEST
+      response.body[String] mustBe ""
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
-    "respond with 403 status" in {
-      val response = wsUrl(insertionUrl)
+    "respond with 403 status when originator id is missing" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
         .withHttpHeaders(missingOriginatorIdHeader: _*)
         .withBody(invalidInsertLiabilityRequest)
-        .execute("POST")
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
@@ -78,80 +109,133 @@ class UcLiabilityIntegrationSpec
       response.status mustBe FORBIDDEN
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
-    }
 
-    "respond with 400 status and return a correlationid header" in {
-      val response = wsUrl(insertionUrl)
+      val responseValidationErrors = insertionPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
+     }
+
+    "respond with 400 status with no body and an auto generated correlationid header when request correlationid is missing" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
         .withHttpHeaders(missingCorrelationIdHeader: _*)
         .withBody(validInsertLiabilityRequest)
-        .execute("POST")
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
         .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe BAD_REQUEST
+      response.body[String] mustBe ""
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
   }
 
   "Terminate UC Liability endpoint" must {
-    "respond with 204 status" in {
-      val response =
-        wsUrl(terminationUrl)
+
+    "respond with 204 status when the request is valid" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
+
+      val request =
+        terminationPathValidator
+          .newRequestBuilder()
           .withHttpHeaders(validHeaders: _*)
           .withBody(validTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors mustBe List.empty
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe NO_CONTENT
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = terminationPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
     }
 
-    "respond with 400 status" in {
-      val response =
-        wsUrl(terminationUrl)
+    "respond with 400 status with no body when the request is bad" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
+
+      val request =
+        terminationPathValidator
+          .newRequestBuilder()
           .withHttpHeaders(validHeaders: _*)
           .withBody(inValidTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe BAD_REQUEST
+      response.body[String] mustBe ""
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
     "respond with 403 status" in {
-      val response =
-        wsUrl(terminationUrl)
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
+
+      val request =
+        terminationPathValidator
+          .newRequestBuilder()
           .withHttpHeaders(missingOriginatorIdHeader: _*)
           .withBody(inValidTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe FORBIDDEN
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = terminationPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
     }
 
-    "respond with 400 status and return a correlationid header" in {
-      val response =
-        wsUrl(terminationUrl)
+    "respond with 400 status with no body and an auto generated correlationid header when request correlationid is missing" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
+
+      val request =
+        terminationPathValidator
+          .newRequestBuilder()
           .withHttpHeaders(missingCorrelationIdHeader: _*)
           .withBody(validTerminateLiabilityRequest)
-          .execute("POST")
-          .futureValue
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
+        .futureValue
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe BAD_REQUEST
+      response.body[String] mustBe ""
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }

@@ -18,10 +18,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.Json
-import play.api.libs.json.Json.toJson
 import play.api.mvc.Results.BadRequest
-import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.*
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
@@ -59,15 +56,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
           Nino
         )
 
-      result mustBe Left(
-        BadRequest(
-          toJson(
-            Failures(
-              failures = Seq(ApplicationConstants.invalidInputFailure(Nino))
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
 
     "return a BadRequest Result for input parameter: correlationId given an invalid correlationId" in {
@@ -82,17 +71,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
           generateNino()
         )
 
-      result mustBe Left(
-        BadRequest(
-          toJson(
-            Failures(
-              failures = Seq(
-                ApplicationConstants.invalidInputFailure(HeaderNames.CorrelationId)
-              )
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
 
     "return a BadRequest Result for parameter: universalCreditLiabilityDetails/liabilityStartDate given an invalid request body" in {
@@ -103,17 +82,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
           generateNino()
         )
 
-      result mustBe Left(
-        BadRequest(
-          Json.toJson(
-            Failures(
-              failures = Seq(
-                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetails/liabilityStartDate")
-              )
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
 
     "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
@@ -123,18 +92,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
         "AA1234"
       )
 
-      result mustBe Left(
-        BadRequest(
-          Json.toJson(
-            Failures(
-              failures = Seq(
-                ApplicationConstants.invalidInputFailure(Nino),
-                ApplicationConstants.invalidInputFailure("universalCreditLiabilityDetails/liabilityStartDate")
-              )
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
   }
 
@@ -167,15 +125,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
           Nino
         )
 
-      result mustBe Left(
-        BadRequest(
-          toJson(
-            Failures(
-              failures = Seq(ApplicationConstants.invalidInputFailure(Nino))
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
 
     "return a BadRequest Result for input parameter: correlationId given an invalid correlationId" in {
@@ -190,17 +140,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
           generateNino()
         )
 
-      result mustBe Left(
-        BadRequest(
-          toJson(
-            Failures(
-              failures = Seq(
-                ApplicationConstants.invalidInputFailure(HeaderNames.CorrelationId)
-              )
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
 
     "return a BadRequest Result for parameter: ucLiabilityTerminationDetails/liabilityEndDate given an invalid request body" in {
@@ -211,17 +151,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
           generateNino()
         )
 
-      result mustBe Left(
-        BadRequest(
-          Json.toJson(
-            Failures(
-              failures = Seq(
-                ApplicationConstants.invalidInputFailure("ucLiabilityTerminationDetails/liabilityEndDate")
-              )
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
 
     "return a BadRequest Result for multiple missing parameter given an invalid request body and invalid nino" in {
@@ -231,18 +161,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
         "AA1234"
       )
 
-      result mustBe Left(
-        BadRequest(
-          Json.toJson(
-            Failures(
-              failures = Seq(
-                ApplicationConstants.invalidInputFailure(Nino),
-                ApplicationConstants.invalidInputFailure("ucLiabilityTerminationDetails/liabilityEndDate")
-              )
-            )
-          )
-        )
-      )
+      result mustBe Left(BadRequest)
     }
   }
 }

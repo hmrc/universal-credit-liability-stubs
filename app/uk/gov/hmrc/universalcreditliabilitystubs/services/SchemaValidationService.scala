@@ -18,6 +18,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import cats.data.{EitherNec, NonEmptyChain}
 import cats.syntax.all.*
+import play.api.Logger
 import play.api.libs.json.*
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
@@ -106,7 +107,8 @@ class SchemaValidationService {
 
   private def mergeFailures(failures: NonEmptyChain[Failures]): Result = {
     val allFailures: Seq[Failure] = failures.toList.flatMap(_.failures)
-    BadRequest(Json.toJson(Failures(allFailures)))
+    Logger(this.getClass).warn(Json.stringify(Json.toJson(Failures(allFailures))))
+    BadRequest
   }
 }
 
