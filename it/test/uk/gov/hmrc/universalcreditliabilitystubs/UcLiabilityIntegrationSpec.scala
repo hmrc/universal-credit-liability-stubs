@@ -317,6 +317,9 @@ class UcLiabilityIntegrationSpec
 
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = terminationPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
     }
   }
 
