@@ -1,7 +1,7 @@
 import uk.gov.hmrc.DefaultBuildSettings
 
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "3.3.5"
+ThisBuild / scalaVersion := "3.3.7"
 
 lazy val microservice = Project("universal-credit-liability-stubs", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
@@ -23,6 +23,6 @@ lazy val it = project
   .settings(
     libraryDependencies ++= AppDependencies.it,
     // dependencyOverrides for "swagger-request-validator-core" % "2.44.8"
-    // Scala module 2.14.3 requires Jackson Databind version >= 2.14.0 and < 2.15.0
-    dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.3"
+    // Scala module 2.15.3 requires Jackson Databind version >= 2.15.0 and < 2.16.0
+    dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.0"
   )
