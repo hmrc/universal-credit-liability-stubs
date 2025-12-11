@@ -4,6 +4,7 @@ resolvers += Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefact
 )
 resolvers += Resolver.typesafeRepo("releases")
 
+addSbtPlugin("ch.epfl.scala"     % "sbt-scalafix"           % "0.14.4")
 addSbtPlugin("org.jmotor.sbt"    % "sbt-dependency-updates" % "1.2.9")
 addSbtPlugin("org.playframework" % "sbt-plugin"             % "3.0.9")
 addSbtPlugin("org.scalameta"     % "sbt-scalafmt"           % "2.5.6")
