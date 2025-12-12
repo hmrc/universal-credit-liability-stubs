@@ -19,10 +19,11 @@ package uk.gov.hmrc.universalcreditliabilitystubs
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT}
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, UNPROCESSABLE_ENTITY}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.libs.ws.{WSClient, readableAsString}
-import uk.gov.hmrc.universalcreditliabilitystubs.helpers.OpenApiValidator
+import play.api.libs.ws.{WSClient, readableAsJson, readableAsString}
+import uk.gov.hmrc.universalcreditliabilitystubs.helpers.{OpenApiValidator, ValidationError}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.CorrelationIdPattern
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
@@ -34,9 +35,20 @@ class UcLiabilityIntegrationSpec
     with GuiceOneServerPerSuite
     with TestHelpers {
 
-  private given WSClient     = app.injector.instanceOf[WSClient]
-  private def terminationUrl = s"/person/${generateNino()}/liability/universal-credit/termination"
-  private def insertionUrl   = s"/person/${generateNino()}/liability/universal-credit"
+  private given WSClient = app.injector.instanceOf[WSClient]
+
+  private val validNino: String             = generateNino()
+  private val faultyInsertionNino: String   = generateNinoWithPrefix("AA01")
+  private val faultyTerminationNino: String = generateNinoWithPrefix("AA15")
+
+  private def buildInsertionUrl(nino: String)   = s"/person/$nino/liability/universal-credit"
+  private def buildTerminationUrl(nino: String) = s"/person/$nino/liability/universal-credit/termination"
+
+  private def insertionUrl   = buildInsertionUrl(validNino)
+  private def terminationUrl = buildTerminationUrl(validNino)
+
+  private def insertionUrlWithFaultyNino   = buildInsertionUrl(faultyInsertionNino)
+  private def terminationUrlWithFaultyNino = buildTerminationUrl(faultyTerminationNino)
 
   private val openApiValidator = OpenApiValidator.fromResource("openapi.hip.jf18645.2.0.1.yaml")
 
@@ -112,9 +124,41 @@ class UcLiabilityIntegrationSpec
 
       val responseValidationErrors = insertionPathValidator.validateResponse(response)
       responseValidationErrors mustBe List.empty
-     }
+    }
 
-    "respond with 400 status with no body and an auto generated correlationid header when request correlationid is missing" in {
+    "respond with 422 status when NINO matches the criteria any of the 422 cases" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrlWithFaultyNino)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(validHeaders: _*)
+        .withBody(validInsertLiabilityRequest)
+
+      val requestValidationErrors: List[ValidationError] = insertionPathValidator.validateRequest(request)
+
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response = request.execute().futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe UNPROCESSABLE_ENTITY
+      response.body[JsValue] mustBe Json.parse("""
+          |{
+          |  "failures": [
+          |    {
+          |      "reason": "Start Date and End Date must be earlier than Date of Death",
+          |      "code": "55006"
+          |    }
+          |  ]
+          |}
+          |""".stripMargin)
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 400 status with no body and an auto generated correlationId header when request correlationId is missing" in {
       val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
 
       val request = insertionPathValidator
@@ -216,7 +260,7 @@ class UcLiabilityIntegrationSpec
       responseValidationErrors mustBe List.empty
     }
 
-    "respond with 400 status with no body and an auto generated correlationid header when request correlationid is missing" in {
+    "respond with 400 status with no body and an auto generated correlationId header when request correlationId is missing" in {
       val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
 
       val request =
@@ -239,5 +283,41 @@ class UcLiabilityIntegrationSpec
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
+
+    "respond with 422 status when NINO matches the criteria for any of the 422 cases" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrlWithFaultyNino)
+
+      val request =
+        terminationPathValidator
+          .newRequestBuilder()
+          .withHttpHeaders(validHeaders: _*)
+          .withBody(validTerminateLiabilityRequest)
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response = request
+        .execute()
+        .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe UNPROCESSABLE_ENTITY
+      response.body[JsValue] mustBe Json.parse("""
+          |{
+          |  "failures": [
+          |    {
+          |      "reason": "The NINO input matches an account that has been transferred to the Isle of Man",
+          |      "code": "65543"
+          |    }
+          |  ]
+          |}
+          |""".stripMargin)
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
   }
+
 }

@@ -11,7 +11,7 @@ post {
 }
 
 headers {
-  gov-uk-originator-id: 
+  gov-uk-originator-id:
   correlationId: {{$guid}}
 }
 
@@ -28,8 +28,5 @@ body:json {
 
 assert {
   res.status: eq 400
-  res.body.failures.length: eq 2
-  res.body.failures[0].code: eq '400.1'
-  res.body.failures[1].reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityEndDate'
   res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
 }

@@ -20,12 +20,13 @@ import org.scalacheck.Gen
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
-import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService
+import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 import wolfendale.scalacheck.regexp.RegexpGen
 
 import scala.util.Random
+import scala.util.matching.Regex
 
 trait TestHelpers {
 
@@ -51,6 +52,8 @@ trait TestHelpers {
     Gen.oneOf(UniversalCreditRecordType.UC, UniversalCreditRecordType.LCW_LCWRA)
 
   val schemaValidationService = new SchemaValidationService()
+
+  val mappingService = new MappingService()
 
   val validInsertLiabilityRequest: JsValue =
     Json.parse("""
@@ -114,7 +117,20 @@ trait TestHelpers {
 
   def generateNino(): String = {
     val number = f"${Random.nextInt(100000)}%06d"
-    val nino   = s"AA$number"
+    val nino   = s"AE$number"
+    nino
+  }
+
+  def generateNinoWithPrefix(prefix: String): String = {
+    val prefixPattern: Regex = "^[A-Za-z]{2}[0-9]{2}$".r
+
+    require(
+      prefixPattern.matches(prefix),
+      s"Invalid prefix provided '$prefix'. Prefix must be 2 letters followed by 2 digits."
+    )
+
+    val number = f"${Random.nextInt(1000)}%04d"
+    val nino   = s"$prefix$number"
     nino
   }
 
