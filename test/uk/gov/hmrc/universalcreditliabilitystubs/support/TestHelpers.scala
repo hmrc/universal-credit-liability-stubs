@@ -130,7 +130,7 @@ trait TestHelpers {
     )
 
     val number = f"${Random.nextInt(1000)}%04d"
-    val nino = s"$prefix$number"
+    val nino   = s"$prefix$number"
     nino
   }
 

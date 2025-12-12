@@ -18,8 +18,8 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
+import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 
 class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
@@ -92,12 +92,19 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
     "return a 65542 failure when a NINO starts with AA14" in {
       val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("AA14"))
-      result mustBe Some(Failure("The NINO input matches a non-live account (including redundant, amalgamated and administrative account types)", "65542"))
+      result mustBe Some(
+        Failure(
+          "The NINO input matches a non-live account (including redundant, amalgamated and administrative account types)",
+          "65542"
+        )
+      )
     }
 
     "return a 65543 failure when a NINO starts with AA15" in {
       val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("AA15"))
-      result mustBe Some(Failure("The NINO input matches an account that has been transferred to the Isle of Man", "65543"))
+      result mustBe Some(
+        Failure("The NINO input matches an account that has been transferred to the Isle of Man", "65543")
+      )
     }
 
     "return a 99999 failure when a NINO starts with AA16" in {

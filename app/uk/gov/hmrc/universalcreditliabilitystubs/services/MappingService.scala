@@ -35,8 +35,15 @@ class MappingService {
       case "AA11" => Some(Failure("Start date before 29/04/2013", "65536"))
       case "AA12" => Some(Failure("End date before start date", "65537"))
       case "AA13" => Some(Failure("The NINO input matches a Pseudo Account", "65541"))
-      case "AA14" => Some(Failure("The NINO input matches a non-live account (including redundant, amalgamated and administrative account types)", "65542"))
-      case "AA15" => Some(Failure("The NINO input matches an account that has been transferred to the Isle of Man", "65543"))
+      case "AA14" =>
+        Some(
+          Failure(
+            "The NINO input matches a non-live account (including redundant, amalgamated and administrative account types)",
+            "65542"
+          )
+        )
+      case "AA15" =>
+        Some(Failure("The NINO input matches an account that has been transferred to the Isle of Man", "65543"))
       case "AA16" => Some(Failure("Start Date after Death", "99999"))
       case _      => None
     }

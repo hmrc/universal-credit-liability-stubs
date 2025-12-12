@@ -39,7 +39,7 @@ class UniversalCreditLiabilityDetailsSpec
 
   "UniversalCreditLiabilityDetails" must {
 
-    "Serialize/deserialize valid dates correctly" in {
+    "Serialize/deserialize valid dates correctly" in
       forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
           DatePattern.matches(detail.dateOfBirth) && DatePattern.matches(detail.liabilityStartDate) &&
@@ -52,9 +52,8 @@ class UniversalCreditLiabilityDetailsSpec
           parsed.get mustEqual detail
         }
       }
-    }
 
-    "Fail deserialization for invalid dates" in {
+    "Fail deserialization for invalid dates" in
       forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
           !DatePattern.matches(detail.dateOfBirth) || !DatePattern.matches(detail.liabilityStartDate) ||
@@ -66,7 +65,6 @@ class UniversalCreditLiabilityDetailsSpec
           parsed.isError mustBe true
         }
       }
-    }
 
   }
 
