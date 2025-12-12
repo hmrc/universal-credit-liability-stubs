@@ -20,8 +20,8 @@ import jakarta.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
-import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService
+import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
+import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.ForbiddenCode
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ForbiddenReason
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.OriginatorId
@@ -29,21 +29,30 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.OriginatorId
 import javax.inject.Inject
 
 @Singleton
-class UcLiabilityController @Inject() (cc: ControllerComponents, ucLiabilityService: SchemaValidationService)
-    extends BackendController(cc) {
+class UcLiabilityController @Inject() (
+  cc: ControllerComponents,
+  schemaValidationService: SchemaValidationService,
+  mappingService: MappingService
+) extends BackendController(cc) {
 
   def insertLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
       _ <- validateOriginatorId(request)
-      _ <- ucLiabilityService.validateInsertLiabilityRequest(request, nino)
-    } yield NoContent).merge
+      _ <- schemaValidationService.validateInsertLiabilityRequest(request, nino)
+    } yield mappingService.map422ErrorResponses(nino) match {
+      case Some(failure) => UnprocessableEntity(Json.toJson(Failures(Seq(failure))))
+      case None          => NoContent
+    }).merge
   }
 
   def terminateLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
       _ <- validateOriginatorId(request)
-      _ <- ucLiabilityService.validateTerminateLiabilityRequest(request, nino)
-    } yield NoContent).merge
+      _ <- schemaValidationService.validateTerminateLiabilityRequest(request, nino)
+    } yield mappingService.map422ErrorResponses(nino) match {
+      case Some(failure) => UnprocessableEntity(Json.toJson(Failures(Seq(failure))))
+      case None          => NoContent
+    }).merge
   }
 
   private def validateOriginatorId[T](request: Request[T]) =

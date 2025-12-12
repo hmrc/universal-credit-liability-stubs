@@ -117,7 +117,7 @@ trait TestHelpers {
 
   def generateNino(): String = {
     val number = f"${Random.nextInt(100000)}%06d"
-    val nino   = s"AA$number"
+    val nino   = s"AE$number"
     nino
   }
 
@@ -129,7 +129,7 @@ trait TestHelpers {
       s"Invalid prefix provided '$prefix'. Prefix must be 2 letters followed by 2 digits."
     )
 
-    val number = f"${Random.nextInt(100000)}%05d"
+    val number = f"${Random.nextInt(1000)}%04d"
     val nino = s"$prefix$number"
     nino
   }
