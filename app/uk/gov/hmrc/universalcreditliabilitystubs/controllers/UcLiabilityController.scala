@@ -20,23 +20,27 @@ import jakarta.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.ForbiddenCode
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ForbiddenReason
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.OriginatorId
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, InvalidAuth}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.{ForbiddenReason, InvalidAuthReason}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, OriginatorId}
 
+import java.util.Base64
 import javax.inject.Inject
 
 @Singleton
 class UcLiabilityController @Inject() (
   cc: ControllerComponents,
   schemaValidationService: SchemaValidationService,
-  mappingService: MappingService
+  mappingService: MappingService,
+  appConfig: AppConfig
 ) extends BackendController(cc) {
 
   def insertLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
+      _ <- validateAuthorization(request)
       _ <- validateOriginatorId(request)
       _ <- schemaValidationService.validateInsertLiabilityRequest(request, nino)
     } yield mappingService.map422ErrorResponses(nino) match {
@@ -47,12 +51,24 @@ class UcLiabilityController @Inject() (
 
   def terminateLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
+      - <- validateAuthorization(request)
       _ <- validateOriginatorId(request)
       _ <- schemaValidationService.validateTerminateLiabilityRequest(request, nino)
     } yield mappingService.map422ErrorResponses(nino) match {
       case Some(failure) => UnprocessableEntity(Json.toJson(Failures(Seq(failure))))
       case None          => NoContent
     }).merge
+  }
+
+  private def validateAuthorization[T](request: Request[T]): Either[Result, String] = {
+    val credentials: String  = s"${appConfig.hipClientId}:${appConfig.hipClientSecret}"
+    val encoded: String      = Base64.getEncoder.encodeToString(credentials.getBytes("UTF-8"))
+    val expectedAuth: String = s"Basic $encoded"
+
+    request.headers
+      .get(Authorization)
+      .filter(_ == expectedAuth)
+      .toRight(Unauthorized(Json.toJson(Failure(reason = InvalidAuthReason, code = InvalidAuth))))
   }
 
   private def validateOriginatorId[T](request: Request[T]) =
