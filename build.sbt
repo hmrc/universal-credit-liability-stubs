@@ -26,6 +26,6 @@ lazy val it = project
     dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.4"
   )
 
-addCommandAlias("runPrePullRequestChecks", "; scalafmtCheckAll; scalafmtSbtCheck; scalafixAll --check")
+addCommandAlias("prePrChecks", "; scalafmtCheckAll; scalafmtSbtCheck; scalafixAll --check")
 addCommandAlias("checkCodeCoverage", "; clean; coverage; test; it/test; coverageReport")
 addCommandAlias("lintCode", "; scalafmtAll; scalafmtSbt; scalafixAll")
