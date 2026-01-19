@@ -1,6 +1,95 @@
 # universal-credit-liability-stubs
 
-## 422 Errors
+The Universal Credit Liability Stubs service provides stubs for the HIP/NPS downstream, to mock the responses.
+
+## Table of Contents
+
+<!-- TOC -->
+* [universal-credit-liability-stubs](#universal-credit-liability-stubs)
+  * [Table of Contents](#table-of-contents)
+  * [Running Locally](#running-locally)
+  * [Running with Service Manager](#running-with-service-manager)
+  * [Testing](#testing)
+  * [Endpoints](#endpoints)
+    * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
+    * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
+  * [422 Unprocessable Entity Errors](#422-unprocessable-entity-errors)
+  * [Scalafmt](#scalafmt)
+  * [Testing](#testing-1)
+  * [License](#license)
+<!-- TOC -->
+
+## Running Locally
+
+Compile the project with:
+
+```shell
+sbt clean compile update
+```
+
+Run the project locally with:
+
+```shell
+sbt run
+```
+
+By default, the service runs on port **16108**.
+
+## Running with Service Manager
+
+Use [Service Manager](https://github.com/hmrc/sm2) to start all the services required to run and test Universal Credit
+Liability service locally.
+
+Start the **UNIVERSAL_CREDIT_LIABILITY_ALL** profile, responsible for starting up all the services required, with:
+
+```shell
+sm2 --start UNIVERSAL_CREDIT_LIABILITY_ALL
+```
+
+## Testing
+
+Run unit tests with:
+
+```shell
+sbt test
+```
+
+Run integration tests with:
+
+```shell
+sbt it/test
+```
+
+Check code coverage with:
+
+```shell
+sbt clean coverage test it/test coverageReport
+```
+
+## Endpoints
+
+### Insert Universal Credit Liability Details
+
+**Endpoint**: `POST /person/{nino}/liability/universal-credit`
+
+**Description**: Provides the capability to insert Universal Credit Liability details for a given individual. This
+endpoint requires Mutual Authentication over TLS 1.2
+
+**Path Parameters**: National Insurance Number (NINO)
+
+### Terminate Universal Credit Liability Details
+
+**Endpoint**: `POST /person/{nino}/liability/universal-credit/termination`
+
+**Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This endpoint requires Mutual Authentication over TLS 1.2
+
+**Path Parameters**: National Insurance Number (NINO)
+
+
+---
+
+
+## 422 Unprocessable Entity Errors
 
 | NINO     | HTTP Status              | Code  | Description                                                                                                   |
 |:---------|--------------------------|-------|---------------------------------------------------------------------------------------------------------------|
@@ -45,7 +134,7 @@ sbt scalafmtAll
 
 Bruno collection can be found in `bruno/SubmitLiabilityDetails.bru` for `Bruno v2.1.0`
 
-### License
+## License
 
 This code is open source software licensed under
 the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
