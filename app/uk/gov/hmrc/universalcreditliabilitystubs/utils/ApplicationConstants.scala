@@ -22,7 +22,8 @@ import scala.util.matching.Regex
 
 object ApplicationConstants {
 
-  val ForbiddenReason = "Forbidden"
+  val ForbiddenReason: String   = "Forbidden"
+  val InvalidAuthReason: String = "Invalid or missing Authorization header"
 
   object PathParameter {
     val Nino = "nino"
@@ -40,8 +41,9 @@ object ApplicationConstants {
     )
 
   object ErrorCodes {
-    val InvalidInput  = "400.1"
-    val ForbiddenCode = "403.2"
+    val InvalidInput: String  = "400.1"
+    val InvalidAuth: String   = "401.1"
+    val ForbiddenCode: String = "403.2"
   }
 
   private object ErrorMessages {
@@ -51,6 +53,7 @@ object ApplicationConstants {
 }
 
 object HeaderNames {
+  val Authorization = "Authorization"
   val CorrelationId = "correlationId"
   val OriginatorId  = "gov-uk-originator-id"
 }

@@ -93,7 +93,7 @@ class SchemaValidationService {
       case JsError(errors) =>
         val failures = errors.flatMap { case (path, validationErrors) =>
           val field = path.toString().stripPrefix("/")
-          validationErrors.map { err =>
+          validationErrors.map { _ =>
             ApplicationConstants.invalidInputFailure(field)
           }
         }.toSeq
