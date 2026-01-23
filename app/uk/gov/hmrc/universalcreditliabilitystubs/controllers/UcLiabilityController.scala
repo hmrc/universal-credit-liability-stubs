@@ -25,7 +25,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failure
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, InvalidAuth}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.{ForbiddenReason, InvalidAuthReason}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, OriginatorId}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, GovUkOriginatorId}
 
 import java.util.Base64
 import javax.inject.Inject
@@ -41,22 +41,26 @@ class UcLiabilityController @Inject() (
   def insertLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
       _ <- validateAuthorization(request)
-      _ <- validateOriginatorId(request)
+      _ <- validateGovUkOriginatorId(request)
       _ <- schemaValidationService.validateInsertLiabilityRequest(request, nino)
-    } yield mappingService.map422ErrorResponses(nino) match {
-      case Some(failure) => UnprocessableEntity(Json.toJson(Failures(Seq(failure))))
-      case None          => NoContent
+    } yield mappingService.mapSystemErrors(nino).getOrElse {
+      mappingService.map422ErrorResponses(nino) match {
+        case Some(failure) => UnprocessableEntity(Json.toJson(Failures(Seq(failure))))
+        case None          => NoContent
+      }
     }).merge
   }
 
   def terminateLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
-      - <- validateAuthorization(request)
-      _ <- validateOriginatorId(request)
+      _ <- validateAuthorization(request)
+      _ <- validateGovUkOriginatorId(request)
       _ <- schemaValidationService.validateTerminateLiabilityRequest(request, nino)
-    } yield mappingService.map422ErrorResponses(nino) match {
-      case Some(failure) => UnprocessableEntity(Json.toJson(Failures(Seq(failure))))
-      case None          => NoContent
+    } yield mappingService.mapSystemErrors(nino).getOrElse {
+      mappingService.map422ErrorResponses(nino) match {
+        case Some(failure) => UnprocessableEntity(Json.toJson(Failures(Seq(failure))))
+        case None          => NoContent
+      }
     }).merge
   }
 
@@ -68,12 +72,14 @@ class UcLiabilityController @Inject() (
     request.headers
       .get(Authorization)
       .filter(_ == expectedAuth)
-      .toRight(Unauthorized(Json.toJson(Failure(reason = InvalidAuthReason, code = InvalidAuth))))
+      .toRight(
+        Unauthorized(Json.toJson(Failure(reason = InvalidAuthReason, code = InvalidAuth)))
+      )
   }
 
-  private def validateOriginatorId[T](request: Request[T]) =
+  private def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
     request.headers
-      .get(OriginatorId)
+      .get(GovUkOriginatorId)
       .filter(_ => true) // TODO: Add business logic for originator id here
       .toRight(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
 }

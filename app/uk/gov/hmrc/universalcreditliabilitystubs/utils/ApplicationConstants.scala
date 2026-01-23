@@ -53,7 +53,7 @@ object ApplicationConstants {
 }
 
 object HeaderNames {
-  val Authorization = "Authorization"
-  val CorrelationId = "correlationId"
-  val OriginatorId  = "gov-uk-originator-id"
+  val Authorization: String     = "Authorization"
+  val CorrelationId: String     = "correlationId"
+  val GovUkOriginatorId: String = "gov-uk-originator-id"
 }

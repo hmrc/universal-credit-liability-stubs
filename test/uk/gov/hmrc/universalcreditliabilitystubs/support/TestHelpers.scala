@@ -101,44 +101,44 @@ trait TestHelpers {
 
   val validHeaders: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0", // Base64 for test-id:test-secret
-      HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.OriginatorId  -> "gov-uk-originator-id"
+      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=", // Base64 for local-client-id:local-client-secret
+      HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
+      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
   val missingAuthorizationHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.OriginatorId  -> "gov-uk-originator-id"
+      HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
+      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
   val missingOriginatorIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0",
+      HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
       HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
     )
 
   val missingCorrelationIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0",
-      HeaderNames.OriginatorId  -> "gov-uk-originator-id"
+      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
   def generateNino(): String = {
-    val number = f"${Random.nextInt(100000)}%06d"
-    val nino   = s"AE$number"
+    val number = f"${Random.nextInt(1000)}%03d"
+    val nino   = s"KZ000$number"
     nino
   }
 
   def generateNinoWithPrefix(prefix: String): String = {
-    val prefixPattern: Regex = "^[A-Za-z]{2}[0-9]{2}$".r
+    val prefixPattern: Regex = "^[A-Za-z]{2}[0-9]{3}$".r
 
     require(
       prefixPattern.matches(prefix),
-      s"Invalid prefix provided '$prefix'. Prefix must be 2 letters followed by 2 digits."
+      s"Invalid prefix provided '$prefix'. Prefix must be 2 letters followed by 3 digits."
     )
 
-    val number = f"${Random.nextInt(1000)}%04d"
+    val number = f"${Random.nextInt(1000)}%03d"
     val nino   = s"$prefix$number"
     nino
   }
