@@ -101,15 +101,15 @@ trait TestHelpers {
 
   val validHeaders: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0", // Base64 for test-id:test-secret
-      HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId  -> "gov-uk-originator-id"
+      HeaderNames.Authorization     -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0", // Base64 for test-id:test-secret
+      HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
+      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
   val missingAuthorizationHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId  -> "gov-uk-originator-id"
+      HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
+      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
   val missingOriginatorIdHeader: Seq[(String, String)] =
@@ -120,8 +120,8 @@ trait TestHelpers {
 
   val missingCorrelationIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0",
-      HeaderNames.GovUkOriginatorId  -> "gov-uk-originator-id"
+      HeaderNames.Authorization     -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0",
+      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
   def generateNino(): String = {

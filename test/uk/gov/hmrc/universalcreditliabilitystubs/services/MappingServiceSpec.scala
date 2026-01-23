@@ -18,8 +18,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.mvc.Results.{BadRequest, Forbidden, InternalServerError, NotFound, ServiceUnavailable, Unauthorized}
-import uk.gov.hmrc.http.UnauthorizedException
+import play.api.mvc.Results.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 

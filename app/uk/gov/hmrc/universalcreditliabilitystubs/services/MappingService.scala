@@ -17,7 +17,7 @@
 package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import play.api.mvc.Result
-import play.api.mvc.Results.{BadRequest, Forbidden, InternalServerError, NotFound, ServiceUnavailable, Unauthorized}
+import play.api.mvc.Results.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
 
 class MappingService {
