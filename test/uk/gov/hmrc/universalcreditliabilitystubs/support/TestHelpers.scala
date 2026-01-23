@@ -101,7 +101,7 @@ trait TestHelpers {
 
   val validHeaders: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization     -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0", // Base64 for test-id:test-secret
+      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=", // Base64 for local-client-id:local-client-secret
       HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
       HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
