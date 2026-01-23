@@ -114,13 +114,13 @@ trait TestHelpers {
 
   val missingOriginatorIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0",
+      HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
       HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
     )
 
   val missingCorrelationIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization     -> "Basic dGVzdC1jbGllbnQtaWQ6dGVzdC1jbGllbnQtc2VjcmV0",
+      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
       HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 

@@ -19,7 +19,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, UNAUTHORIZED, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.{WSClient, readableAsJson, readableAsString}
@@ -97,6 +97,28 @@ class UcLiabilityIntegrationSpec
 
       response.status mustBe BAD_REQUEST
       response.body[String] mustBe ""
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 401 status when Authorization header is missing" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(missingAuthorizationHeader: _*)
+        .withBody(invalidInsertLiabilityRequest)
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
+        .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe UNAUTHORIZED
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
@@ -234,14 +256,35 @@ class UcLiabilityIntegrationSpec
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
-    "respond with 403 status" in {
+    "respond with 401 status when Authorization header is missing" in {
       val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
 
-      val request =
-        terminationPathValidator
-          .newRequestBuilder()
-          .withHttpHeaders(missingOriginatorIdHeader: _*)
-          .withBody(inValidTerminateLiabilityRequest)
+      val request = terminationPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(missingAuthorizationHeader: _*)
+        .withBody(inValidTerminateLiabilityRequest)
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors must not be List.empty
+
+      val response = request
+        .execute()
+        .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe UNAUTHORIZED
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 403 status when originator id is missing" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
+
+      val request = terminationPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(missingOriginatorIdHeader: _*)
+        .withBody(inValidTerminateLiabilityRequest)
 
       val requestValidationErrors = terminationPathValidator.validateRequest(request)
       requestValidationErrors must not be List.empty
