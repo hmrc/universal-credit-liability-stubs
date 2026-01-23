@@ -38,8 +38,8 @@ class UcLiabilityIntegrationSpec
   private given WSClient = app.injector.instanceOf[WSClient]
 
   private val validNino: String             = generateNino()
-  private val faultyInsertionNino: String   = generateNinoWithPrefix("AA01")
-  private val faultyTerminationNino: String = generateNinoWithPrefix("AA15")
+  private val faultyInsertionNino: String   = generateNinoWithPrefix("BE001")
+  private val faultyTerminationNino: String = generateNinoWithPrefix("BE015")
 
   private def buildInsertionUrl(nino: String)   = s"/person/$nino/liability/universal-credit"
   private def buildTerminationUrl(nino: String) = s"/person/$nino/liability/universal-credit/termination"

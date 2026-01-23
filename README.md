@@ -5,18 +5,20 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 ## Table of Contents
 
 <!-- TOC -->
+
 * [universal-credit-liability-stubs](#universal-credit-liability-stubs)
-  * [Table of Contents](#table-of-contents)
-  * [Running Locally](#running-locally)
-  * [Running with Service Manager](#running-with-service-manager)
-  * [Testing](#testing)
-  * [Endpoints](#endpoints)
-    * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
-    * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
-  * [422 Unprocessable Entity Errors](#422-unprocessable-entity-errors)
-  * [Scalafmt](#scalafmt)
-  * [Testing](#testing-1)
-  * [License](#license)
+    * [Table of Contents](#table-of-contents)
+    * [Running Locally](#running-locally)
+    * [Running with Service Manager](#running-with-service-manager)
+    * [Testing](#testing)
+    * [Endpoints](#endpoints)
+        * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
+        * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
+    * [422 Unprocessable Entity Errors](#422-unprocessable-entity-errors)
+    * [Scalafmt](#scalafmt)
+    * [Testing](#testing-1)
+    * [License](#license)
+
 <!-- TOC -->
 
 ## Running Locally
@@ -81,34 +83,50 @@ endpoint requires Mutual Authentication over TLS 1.2
 
 **Endpoint**: `POST /person/{nino}/liability/universal-credit/termination`
 
-**Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This endpoint requires Mutual Authentication over TLS 1.2
+**Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This
+endpoint requires Mutual Authentication over TLS 1.2
 
 **Path Parameters**: National Insurance Number (NINO)
 
-
 ---
-
 
 ## 422 Unprocessable Entity Errors
 
-| NINO     | HTTP Status              | Code  | Description                                                                                                   |
-|:---------|--------------------------|-------|---------------------------------------------------------------------------------------------------------------|
-| AA010000 | 422 Unprocessable Entity | 55006 | Start Date and End Date must be earlier than Date of Death                                                    |
-| AA020000 | 422 Unprocessable Entity | 55008 | End Date must be earlier than State Pension Age                                                               |
-| AA030000 | 422 Unprocessable Entity | 55027 | End Date later than Date of Death                                                                             |
-| AA040000 | 422 Unprocessable Entity | 55029 | Start Date later than SPA                                                                                     |
-| AA050000 | 422 Unprocessable Entity | 55038 | A conflicting or identical Liability is already recorded                                                      |
-| AA060000 | 422 Unprocessable Entity | 55039 | NO corresponding liability found                                                                              |
-| AA070000 | 422 Unprocessable Entity | 64996 | Start Date is not before date of death                                                                        |
-| AA080000 | 422 Unprocessable Entity | 64997 | LCW/LCWRA not within a period of UC                                                                           |
-| AA090000 | 422 Unprocessable Entity | 64998 | LCW/LCWRA Override not within a period of LCW/LCWRA                                                           |
-| AA100000 | 422 Unprocessable Entity | 65026 | Start date must not be before 16th birthday                                                                   |
-| AA110000 | 422 Unprocessable Entity | 65536 | Start date before 29/04/2013                                                                                  |
-| AA120000 | 422 Unprocessable Entity | 65537 | End date before start date                                                                                    |
-| AA130000 | 422 Unprocessable Entity | 65541 | The NINO input matches a Pseudo Account                                                                       |
-| AA140000 | 422 Unprocessable Entity | 65542 | The NINO input matches a non-live account (including redundant, amalgamated and administrative account types) |
-| AA150000 | 422 Unprocessable Entity | 65543 | The NINO input matches an account that has been transferred to the Isle of Man                                |
-| AA160000 | 422 Unprocessable Entity | 99999 | Start Date after Death                                                                                        |
+To get an Unprocessable Entity Error (422) use a National Insurance Number (NINO) with any of the following 5-character
+prefixes.
+
+| NINO PREFIX | HTTP Status              | Code  | Description                                                                                                   |
+|:------------|--------------------------|-------|---------------------------------------------------------------------------------------------------------------|
+| BE001       | 422 Unprocessable Entity | 55006 | Start Date and End Date must be earlier than Date of Death                                                    |
+| BE002       | 422 Unprocessable Entity | 55008 | End Date must be earlier than State Pension Age                                                               |
+| BE003       | 422 Unprocessable Entity | 55027 | End Date later than Date of Death                                                                             |
+| BE004       | 422 Unprocessable Entity | 55029 | Start Date later than SPA                                                                                     |
+| BE005       | 422 Unprocessable Entity | 55038 | A conflicting or identical Liability is already recorded                                                      |
+| BE006       | 422 Unprocessable Entity | 55039 | NO corresponding liability found                                                                              |
+| BE007       | 422 Unprocessable Entity | 64996 | Start Date is not before date of death                                                                        |
+| BE008       | 422 Unprocessable Entity | 64997 | LCW/LCWRA not within a period of UC                                                                           |
+| BE009       | 422 Unprocessable Entity | 64998 | LCW/LCWRA Override not within a period of LCW/LCWRA                                                           |
+| BE010       | 422 Unprocessable Entity | 65026 | Start date must not be before 16th birthday                                                                   |
+| BE011       | 422 Unprocessable Entity | 65536 | Start date before 29/04/2013                                                                                  |
+| BE012       | 422 Unprocessable Entity | 65537 | End date before start date                                                                                    |
+| BE013       | 422 Unprocessable Entity | 65541 | The NINO input matches a Pseudo Account                                                                       |
+| BE014       | 422 Unprocessable Entity | 65542 | The NINO input matches a non-live account (including redundant, amalgamated and administrative account types) |
+| BE015       | 422 Unprocessable Entity | 65543 | The NINO input matches an account that has been transferred to the Isle of Man                                |
+| BE016       | 422 Unprocessable Entity | 99999 | Start Date after Death                                                                                        |
+
+## System Errors
+
+To get a system error use a National Insurance Number (NINO) with any of the following 5-character
+prefixes.
+
+| NINO PREFIX | HTTP Status               |
+|:------------|---------------------------|
+| AE400       | 400 Bad Request           |
+| AE401       | 401 Unauthorized          |
+| AE403       | 403 Forbidden             |
+| AE404       | 404 NotFound              |
+| AE500       | 500 Internal Server Error |
+| AE503       | 503 Service Unavailable   |
 
 ## Scalafmt
 
