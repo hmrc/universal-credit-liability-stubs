@@ -5,20 +5,19 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 ## Table of Contents
 
 <!-- TOC -->
-
 * [universal-credit-liability-stubs](#universal-credit-liability-stubs)
-    * [Table of Contents](#table-of-contents)
-    * [Running Locally](#running-locally)
-    * [Running with Service Manager](#running-with-service-manager)
-    * [Testing](#testing)
-    * [Endpoints](#endpoints)
-        * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
-        * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
-    * [422 Unprocessable Entity Errors](#422-unprocessable-entity-errors)
-    * [Scalafmt](#scalafmt)
-    * [Testing](#testing-1)
-    * [License](#license)
-
+  * [Table of Contents](#table-of-contents)
+  * [Running Locally](#running-locally)
+  * [Running with Service Manager](#running-with-service-manager)
+  * [Testing](#testing)
+  * [Endpoints](#endpoints)
+    * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
+    * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
+  * [422 Unprocessable Entity Errors](#422-unprocessable-entity-errors)
+  * [System Errors](#system-errors)
+  * [Scalafmt](#scalafmt)
+  * [Testing](#testing-1)
+  * [License](#license)
 <!-- TOC -->
 
 ## Running Locally
@@ -114,7 +113,7 @@ prefixes.
 | BE015       | 422 Unprocessable Entity | 65543 | The NINO input matches an account that has been transferred to the Isle of Man                                |
 | BE016       | 422 Unprocessable Entity | 99999 | Start Date after Death                                                                                        |
 
-## System Errors
+## Other Error Responses
 
 To get a system error use a National Insurance Number (NINO) with any of the following 5-character
 prefixes.
