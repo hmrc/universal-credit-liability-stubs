@@ -19,7 +19,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, UNAUTHORIZED, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, NO_CONTENT, SERVICE_UNAVAILABLE, UNAUTHORIZED, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.{WSClient, readableAsJson, readableAsString}
@@ -41,6 +41,9 @@ class UcLiabilityIntegrationSpec
   private val faultyInsertionNino: String   = generateNinoWithPrefix("BE001")
   private val faultyTerminationNino: String = generateNinoWithPrefix("BE015")
 
+  private val internalServerErrorNino: String = generateNinoWithPrefix("AE500")
+  private val serviceUnavailableNino: String  = generateNinoWithPrefix("AE503")
+
   private def buildInsertionUrl(nino: String)   = s"/person/$nino/liability/universal-credit"
   private def buildTerminationUrl(nino: String) = s"/person/$nino/liability/universal-credit/termination"
 
@@ -49,6 +52,12 @@ class UcLiabilityIntegrationSpec
 
   private def insertionUrlWithFaultyNino   = buildInsertionUrl(faultyInsertionNino)
   private def terminationUrlWithFaultyNino = buildTerminationUrl(faultyTerminationNino)
+
+  private def insertionUrlWith500Nino   = buildInsertionUrl(internalServerErrorNino)
+  private def terminationUrlWith500Nino = buildTerminationUrl(internalServerErrorNino)
+
+  private def insertionUrlWith503Nino   = buildInsertionUrl(serviceUnavailableNino)
+  private def terminationUrlWith503Nino = buildTerminationUrl(serviceUnavailableNino)
 
   private val openApiValidator = OpenApiValidator.fromResource("openapi.hip.jf18645.2.0.1.yaml")
 
@@ -199,6 +208,60 @@ class UcLiabilityIntegrationSpec
 
       response.status mustBe BAD_REQUEST
       response.body[String] mustBe ""
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 500 status when NINO matches the criteria for a 500 case" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrlWith500Nino)
+
+      val request =
+        insertionPathValidator
+          .newRequestBuilder()
+          .withHttpHeaders(validHeaders: _*)
+          .withBody(validInsertLiabilityRequest)
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response = request
+        .execute()
+        .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = insertionPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
+    }
+
+    "respond with 503 status when NINO matches the criteria for a 503 case" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrlWith503Nino)
+
+      val request =
+        insertionPathValidator
+          .newRequestBuilder()
+          .withHttpHeaders(validHeaders: _*)
+          .withBody(validInsertLiabilityRequest)
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response =
+        request
+          .execute()
+          .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe SERVICE_UNAVAILABLE
+
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
@@ -357,6 +420,64 @@ class UcLiabilityIntegrationSpec
           |  ]
           |}
           |""".stripMargin)
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = terminationPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
+    }
+
+    "respond with 500 status when NINO matches the criteria for a 500 case" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrlWith500Nino)
+
+      val request =
+        terminationPathValidator
+          .newRequestBuilder()
+          .withHttpHeaders(validHeaders: _*)
+          .withBody(validTerminateLiabilityRequest)
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response =
+        request
+          .execute()
+          .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = terminationPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
+    }
+
+    "respond with 503 status when NINO matches the criteria for a 503 case" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrlWith503Nino)
+
+      val request =
+        terminationPathValidator
+          .newRequestBuilder()
+          .withHttpHeaders(validHeaders: _*)
+          .withBody(validTerminateLiabilityRequest)
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response =
+        request
+          .execute()
+          .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe SERVICE_UNAVAILABLE
 
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
