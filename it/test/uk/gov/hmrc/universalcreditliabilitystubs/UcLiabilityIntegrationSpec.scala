@@ -45,8 +45,8 @@ class UcLiabilityIntegrationSpec
   private val internalServerErrorNino: String = generateNinoWithPrefix("AE500")
   private val serviceUnavailableNino: String  = generateNinoWithPrefix("AE503")
 
-  private def buildInsertionUrl(nino: String)   = s"/person/$nino/liability/universal-credit"
-  private def buildTerminationUrl(nino: String) = s"/person/$nino/liability/universal-credit/termination"
+  private def buildInsertionUrl(nino: String)   = s"/ni/person/$nino/liability/universal-credit"
+  private def buildTerminationUrl(nino: String) = s"/ni/person/$nino/liability/universal-credit/termination"
 
   private def insertionUrl   = buildInsertionUrl(validNino)
   private def terminationUrl = buildTerminationUrl(validNino)
