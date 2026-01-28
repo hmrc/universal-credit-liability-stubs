@@ -1,5 +1,5 @@
 # microservice specific routes
 
-POST        /person/:nino/liability/universal-credit                    uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController.insertLiabilityDetails(nino: String)
+POST        /ni/person/:nino/liability/universal-credit                    uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController.insertLiabilityDetails(nino: String)
 
-POST        /person/:nino/liability/universal-credit/termination        uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController.terminateLiabilityDetails(nino: String)
+POST        /ni/person/:nino/liability/universal-credit/termination        uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController.terminateLiabilityDetails(nino: String)
