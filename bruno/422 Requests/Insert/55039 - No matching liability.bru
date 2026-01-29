@@ -1,13 +1,13 @@
 meta {
-  name: Terminate - UC
+  name: 55039 - No matching liability
   type: http
-  seq: 3
+  seq: 5
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit/termination
+  url: http://localhost:16108/person/{{nino}}/liability/universal-credit
   body: json
-  auth: inherit
+  auth: none
 }
 
 headers {
@@ -17,15 +17,20 @@ headers {
 
 body:json {
   {
-    "ucLiabilityTerminationDetails": {
+    "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "UC",
+      "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
   }
 }
 
+vars:pre-request {
+  nino: AA060000
+}
+
 assert {
-  res.status: eq 204
+  res.status: eq 422
   res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
 }

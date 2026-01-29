@@ -1,0 +1,35 @@
+meta {
+  name: 64998 - LCW/LCWRA Override
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:16108/person/{{nino}}/liability/universal-credit/termination
+  body: json
+  auth: inherit
+}
+
+headers {
+  gov-uk-originator-id: 
+  correlationId: {{$guid}}
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "LCW/LCWRA",
+      "liabilityStartDate": "2025-04-15",
+      "liabilityEndDate": "2025-01-04"
+    }
+  }
+}
+
+vars:pre-request {
+  nino: AA090000
+}
+
+assert {
+  res.status: eq 422
+  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+}

@@ -1,13 +1,13 @@
 meta {
-  name: Terminate - LCW/LCWRA
+  name: LCW/LCWRA without End date
   type: http
-  seq: 4
+  seq: 2
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit/termination
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
   body: json
-  auth: inherit
+  auth: none
 }
 
 headers {
@@ -17,10 +17,10 @@ headers {
 
 body:json {
   {
-    "ucLiabilityTerminationDetails": {
+    "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "LCW/LCWRA",
-      "liabilityStartDate": "2015-08-19",
-      "liabilityEndDate": "2025-01-04"
+      "dateOfBirth": "2002-10-10",
+      "liabilityStartDate": "2015-08-19"
     }
   }
 }

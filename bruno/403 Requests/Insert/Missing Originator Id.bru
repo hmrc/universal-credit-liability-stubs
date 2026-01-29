@@ -1,11 +1,11 @@
 meta {
-  name: Terminate - Missing Originator Id
+  name: Missing Originator Id
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit/termination
+  url: http://localhost:16108/person/{{nino}}/liability/universal-credit
   body: json
   auth: none
 }
@@ -16,8 +16,9 @@ headers {
 
 body:json {
   {
-    "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "LCW/LCWRA",
+    "universalCreditLiabilityDetails": {
+      "universalCreditRecordType": "UC",
+      "dateOfBirth": "2002-10-10",
       "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2025-01-04"
     }
@@ -28,4 +29,5 @@ assert {
   res.status: eq 403
   res.body.code: eq '403.2'
   res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+  res.body.message: eq 'Forbidden'
 }

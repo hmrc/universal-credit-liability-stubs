@@ -1,0 +1,35 @@
+meta {
+  name: 65537 - End Date before start Date
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:16108/person/{{nino}}/liability/universal-credit/termination
+  body: json
+  auth: inherit
+}
+
+headers {
+  gov-uk-originator-id: 
+  correlationId: {{$guid}}
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "LCW/LCWRA",
+      "liabilityStartDate": "2015-08-10",
+      "liabilityEndDate": "2015-08-09"
+    }
+  }
+}
+
+vars:pre-request {
+  nino: AA120000
+}
+
+assert {
+  res.status: eq 422
+  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+}

@@ -1,0 +1,31 @@
+meta {
+  name: UC
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit/termination
+  body: json
+  auth: inherit
+}
+
+headers {
+  gov-uk-originator-id: 
+  correlationId: {{$guid}}
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "UC",
+      "liabilityStartDate": "2015-08-19",
+      "liabilityEndDate": "2025-01-04"
+    }
+  }
+}
+
+assert {
+  res.status: eq 204
+  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+}

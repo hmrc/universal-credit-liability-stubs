@@ -1,0 +1,36 @@
+meta {
+  name: 65541 - Pseudo Account
+  type: http
+  seq: 12
+}
+
+post {
+  url: http://localhost:16108/person/{{nino}}/liability/universal-credit
+  body: json
+  auth: none
+}
+
+headers {
+  gov-uk-originator-id: 
+  correlationId: {{$guid}}
+}
+
+body:json {
+  {
+    "universalCreditLiabilityDetails": {
+      "universalCreditRecordType": "UC",
+      "dateOfBirth": "2002-10-10",
+      "liabilityStartDate": "2015-08-19",
+      "liabilityEndDate": "2025-01-04"
+    }
+  }
+}
+
+vars:pre-request {
+  nino: AA130000
+}
+
+assert {
+  res.status: eq 422
+  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+}
