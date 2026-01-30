@@ -18,6 +18,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.support
 
 import org.scalacheck.Gen
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
@@ -25,6 +26,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Vali
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 import wolfendale.scalacheck.regexp.RegexpGen
 
+import scala.concurrent.Future
 import scala.util.Random
 import scala.util.matching.Regex
 
@@ -124,6 +126,16 @@ trait TestHelpers {
       HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
+  def buildFakeRequest(payload: JsValue, headers: (String, String)*): Request[JsValue] =
+    FakeRequest()
+      .withHeaders(headers: _*)
+      .withBody(payload)
+
+  def extractLeftOrFail(result: Either[Future[Result], _]): Future[Result] = result match {
+    case Left(errorFuture) => errorFuture
+    case Right(success) => fail(s"Expected Left (Failure), but got Right: $success")
+  }  
+  
   def generateNino(): String = {
     val number = f"${Random.nextInt(1000)}%03d"
     val nino   = s"KZ000$number"

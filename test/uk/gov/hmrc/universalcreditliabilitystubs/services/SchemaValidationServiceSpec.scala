@@ -16,15 +16,38 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.services
 
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.test.Helpers._
+import play.api.mvc.Result
 import play.api.mvc.Results.BadRequest
+import play.api.libs.json.Json
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.*
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.GovUkOriginatorId
 
-class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
+import scala.concurrent.Future
+
+class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHelpers with ScalaFutures{
+
+  val testSchemaValidationService = new SchemaValidationService()
+
+  private def assertForbidden(result: Either[Result, _]): Unit =
+    result match {
+      case Left(actualResult) =>
+        actualResult.header.status mustBe FORBIDDEN
+
+        val body = contentAsJson(Future.successful(actualResult))
+
+        (body \ "code").as[String] mustBe ApplicationConstants.ErrorCodes.ForbiddenCode
+        (body \ "reason").as[String] mustBe ApplicationConstants.ForbiddenReason
+
+      case Right(value) =>
+        fail(s"Expected Left but got Right($value)")
+    }
 
   "validateInsertLiabilityRequest" must {
 
@@ -164,4 +187,5 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
       result mustBe Left(BadRequest)
     }
   }
+
 }
