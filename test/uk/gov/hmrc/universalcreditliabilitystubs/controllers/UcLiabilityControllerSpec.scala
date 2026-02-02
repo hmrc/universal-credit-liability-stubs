@@ -22,37 +22,54 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers.*
+import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
+import uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController
+import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.GovUkOriginatorId
 
 import scala.concurrent.Future
 
-class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpers with ScalaFutures{
+class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpers with ScalaFutures {
 
-  val testUcLiabilityController = new UcLiabilityControllerSpec()
+  private val testUcLiabilityController = new UcLiabilityController(
+    stubControllerComponents(),
+    new SchemaValidationService(),
+    new MappingService(),
+    new AppConfig(
+      play.api.Configuration.from(
+        Map(
+          "appName"          -> "uc-liability-stubs",
+          "hip.clientId"     -> "id",
+          "hip.clientSecret" -> "secret"
+        )
+      )
+    )
+  )
 
-  private def assertForbidden(result: Either[Future[Result], _]): Unit =
-    whenReady(extractLeftOrFail(result)) { actualResult =>
-      actualResult.header.status mustBe FORBIDDEN
+  private def assertForbidden(result: Either[Result, _]): Unit = {
+    val actualResult = extractLeftOrFail(result)
 
-      val body = contentAsJson(Future.successful(actualResult))
-      (body \ "code").as[String] mustBe ApplicationConstants.ErrorCodes.ForbiddenCode
-      (body \ "reason").as[String] mustBe ApplicationConstants.ForbiddenReason
-    }
+    actualResult.header.status mustBe FORBIDDEN
 
-  "UcLiabilityController.validateGovUkOriginatorId" must {
+    val body = contentAsJson(Future.successful(actualResult))
+    (body \ "code").as[String] mustBe ApplicationConstants.ErrorCodes.ForbiddenCode
+    (body \ "reason").as[String] mustBe ApplicationConstants.ForbiddenReason
+  }
+
+  "return Left (403 Forbidden)" when {
     "return Forbidden when originatorId is shorter than 3 characters" in {
-      val json = Json.obj()
-      val request = buildFakeRequest(payload = json, headers = GovUkOriginatorId -> "AA")
-      val result = testUcLiabilityController.validateGovUkOriginatorId(request) 
-      assertForbidden (result)
+      val json    = Json.obj()
+      val request = buildFakeRequest(payload = json, headers = GovUkOriginatorId -> ("A" * 2))
+      val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+      assertForbidden(result)
     }
     "return Forbidden when originatorId is longer than 40 characters" in {
-      val json = Json.obj()
+      val json    = Json.obj()
       val request = buildFakeRequest(payload = json, headers = GovUkOriginatorId -> ("A" * 41))
-      val result = testUcLiabilityController.validateGovUkOriginatorId(request) a
-        ssertForbidden (result)
+      val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+      assertForbidden(result)
     }
   }
 }

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.universalcreditliabilitystubs.support
 
 import org.scalacheck.Gen
+import org.scalatest.Assertions.fail
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
@@ -26,7 +27,6 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Vali
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 import wolfendale.scalacheck.regexp.RegexpGen
 
-import scala.concurrent.Future
 import scala.util.Random
 import scala.util.matching.Regex
 
@@ -126,16 +126,6 @@ trait TestHelpers {
       HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
     )
 
-  def buildFakeRequest(payload: JsValue, headers: (String, String)*): Request[JsValue] =
-    FakeRequest()
-      .withHeaders(headers: _*)
-      .withBody(payload)
-
-  def extractLeftOrFail(result: Either[Future[Result], _]): Future[Result] = result match {
-    case Left(errorFuture) => errorFuture
-    case Right(success) => fail(s"Expected Left (Failure), but got Right: $success")
-  }  
-  
   def generateNino(): String = {
     val number = f"${Random.nextInt(1000)}%03d"
     val nino   = s"KZ000$number"
@@ -153,6 +143,23 @@ trait TestHelpers {
     val number = f"${Random.nextInt(1000)}%03d"
     val nino   = s"$prefix$number"
     nino
+  }
+
+  def buildFakeRequest(payload: JsValue, headers: (String, String)*): Request[JsValue] =
+    FakeRequest()
+      .withHeaders(headers: _*)
+      .withBody(payload)
+
+//  // Extracts the error message of a JsError
+//  def extractJsErrorMessage(jsResult: JsResult[_]): Option[String] =
+//    jsResult match {
+//      case JsError(errors) => errors.headOption.flatMap(_._2.headOption.map(_.message))
+//      case _ => None
+//  }
+
+  def extractLeftOrFail(result: Either[Result, _]): Result = result match {
+    case Left(error)    => error
+    case Right(success) => fail(s"Expected Left (Failure), but got Right: $success")
   }
 
   def generateFakeRequest(requestBody: JsValue, headers: Seq[(String, String)]): FakeRequest[JsValue] =
