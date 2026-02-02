@@ -31,7 +31,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.GovUkOriginat
 
 import scala.concurrent.Future
 
-class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHelpers with ScalaFutures{
+class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHelpers with ScalaFutures {
 
   val testSchemaValidationService = new SchemaValidationService()
 
