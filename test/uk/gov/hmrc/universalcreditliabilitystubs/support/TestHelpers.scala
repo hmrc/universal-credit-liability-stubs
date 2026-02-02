@@ -150,13 +150,6 @@ trait TestHelpers {
       .withHeaders(headers: _*)
       .withBody(payload)
 
-//  // Extracts the error message of a JsError
-//  def extractJsErrorMessage(jsResult: JsResult[_]): Option[String] =
-//    jsResult match {
-//      case JsError(errors) => errors.headOption.flatMap(_._2.headOption.map(_.message))
-//      case _ => None
-//  }
-
   def extractLeftOrFail(result: Either[Result, _]): Result = result match {
     case Left(error)    => error
     case Right(success) => fail(s"Expected Left (Failure), but got Right: $success")
