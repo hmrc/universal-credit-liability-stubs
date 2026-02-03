@@ -55,20 +55,31 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
     (body \ "reason").as[String] mustBe ApplicationConstants.ForbiddenReason
   }
 
-  "return Left (403 Forbidden)" when {
+  "UcLiabilityNotificationController" must {
 
-    "return Forbidden when originatorId is shorter than 3 characters" in {
-      val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 2)))
-      val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+    "return right" when {
+      "given a valid originatorId" in {
+        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 3)))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
-      assertForbidden(result)
+        result mustBe Right("A" * 3)
+      }
     }
 
-    "return Forbidden when originatorId is longer than 40 characters" in {
-      val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 41)))
-      val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+    "return Left (403 Forbidden)" when {
+      "given an originatorId shorter than 3 characters" in {
+        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 2)))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
-      assertForbidden(result)
+        assertForbidden(result)
+      }
+
+      "given an originatorId longer than 40 characters" in {
+        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 41)))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        assertForbidden(result)
+      }
     }
   }
 }
