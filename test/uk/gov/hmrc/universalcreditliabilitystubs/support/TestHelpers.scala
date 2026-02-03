@@ -17,7 +17,9 @@
 package uk.gov.hmrc.universalcreditliabilitystubs.support
 
 import org.scalacheck.Gen
+import org.scalatest.Assertions.fail
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
@@ -141,6 +143,11 @@ trait TestHelpers {
     val number = f"${Random.nextInt(1000)}%03d"
     val nino   = s"$prefix$number"
     nino
+  }
+
+  def extractLeftOrFail(result: Either[Result, _]): Result = result match {
+    case Left(error)    => error
+    case Right(success) => fail(s"Expected Left (Failure), but got Right: $success")
   }
 
   def generateFakeRequest(requestBody: JsValue, headers: Seq[(String, String)]): FakeRequest[JsValue] =
