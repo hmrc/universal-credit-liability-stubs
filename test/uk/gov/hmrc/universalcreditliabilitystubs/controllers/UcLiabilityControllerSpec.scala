@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+package uk.gov.hmrc.universalcreditliabilitystubs.controllers
+
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
-import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController
@@ -36,8 +37,6 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   private val mockSchemaValidationService = mock[SchemaValidationService]
   private val mockMappingService          = mock[MappingService]
   private val mockAppConfig               = mock[AppConfig]
-
-  stubControllerComponents()
 
   private val testUcLiabilityController = new UcLiabilityController(
     stubControllerComponents(),
@@ -59,18 +58,16 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   "return Left (403 Forbidden)" when {
 
     "return Forbidden when originatorId is shorter than 3 characters" in {
-      val request = FakeRequest("POST", "/test")
-        .withHeaders(GovUkOriginatorId -> ("A" * 2))
-        .withBody(Json.obj())
+      val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 2)))
       val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
       assertForbidden(result)
     }
 
     "return Forbidden when originatorId is longer than 40 characters" in {
-      val request = FakeRequest("POST", "/test")
-        .withHeaders(GovUkOriginatorId -> ("A" * 41))
-        .withBody(Json.obj())
+      val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 41)))
       val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
       assertForbidden(result)
     }
   }
