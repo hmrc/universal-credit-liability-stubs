@@ -23,9 +23,8 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, InvalidAuth}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.{ForbiddenReason, InvalidAuthReason}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.{ForbiddenReason, InvalidAuthReason, ValidationPatterns}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, GovUkOriginatorId}
 
 import java.util.Base64
@@ -81,6 +80,6 @@ class UcLiabilityController @Inject() (
   def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
     request.headers
       .get(GovUkOriginatorId)
-      .filter(originatorId => ApplicationConstants.ValidationPatterns.isValidGovUkOriginatorId(originatorId))
+      .filter(originatorId => ValidationPatterns.isValidGovUkOriginatorId(originatorId))
       .toRight(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
 }

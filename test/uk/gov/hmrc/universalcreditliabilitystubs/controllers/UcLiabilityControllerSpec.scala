@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.universalcreditliabilityapi.services
-
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
+import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController
@@ -33,19 +33,17 @@ import scala.concurrent.Future
 
 class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpers with ScalaFutures {
 
+  private val mockSchemaValidationService = mock[SchemaValidationService]
+  private val mockMappingService          = mock[MappingService]
+  private val mockAppConfig               = mock[AppConfig]
+
+  stubControllerComponents()
+
   private val testUcLiabilityController = new UcLiabilityController(
     stubControllerComponents(),
-    new SchemaValidationService(),
-    new MappingService(),
-    new AppConfig(
-      play.api.Configuration.from(
-        Map(
-          "appName"          -> "uc-liability-stubs",
-          "hip.clientId"     -> "id",
-          "hip.clientSecret" -> "secret"
-        )
-      )
-    )
+    schemaValidationService = mockSchemaValidationService,
+    mappingService = mockMappingService,
+    appConfig = mockAppConfig
   )
 
   private def assertForbidden(result: Either[Result, _]): Unit = {
@@ -59,15 +57,19 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   }
 
   "return Left (403 Forbidden)" when {
+
     "return Forbidden when originatorId is shorter than 3 characters" in {
-      val json    = Json.obj()
-      val request = buildFakeRequest(payload = json, headers = GovUkOriginatorId -> ("A" * 2))
+      val request = FakeRequest("POST", "/test")
+        .withHeaders(GovUkOriginatorId -> ("A" * 2))
+        .withBody(Json.obj())
       val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
       assertForbidden(result)
     }
+
     "return Forbidden when originatorId is longer than 40 characters" in {
-      val json    = Json.obj()
-      val request = buildFakeRequest(payload = json, headers = GovUkOriginatorId -> ("A" * 41))
+      val request = FakeRequest("POST", "/test")
+        .withHeaders(GovUkOriginatorId -> ("A" * 41))
+        .withBody(Json.obj())
       val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
       assertForbidden(result)
     }
