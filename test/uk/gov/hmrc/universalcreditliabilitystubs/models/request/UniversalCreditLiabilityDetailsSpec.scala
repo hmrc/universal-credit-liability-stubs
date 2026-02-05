@@ -35,14 +35,14 @@ class UniversalCreditLiabilityDetailsSpec
     dateOfBirth <- mixedDateGen
     startDate   <- mixedDateGen
     endDate     <- mixedDateGen
-  } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, Some(endDate))
+  } yield UniversalCreditLiabilityDetails(recordType, Some(dateOfBirth), startDate, Some(endDate))
 
   "UniversalCreditLiabilityDetails" must {
 
     "Serialize/deserialize valid dates correctly" in
       forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
-          DatePattern.matches(detail.dateOfBirth) && DatePattern.matches(detail.liabilityStartDate) &&
+          detail.dateOfBirth.exists(DatePattern.matches) && DatePattern.matches(detail.liabilityStartDate) &&
             detail.liabilityEndDate.exists(DatePattern.matches)
         ) {
           val json   = Json.toJson(detail)
@@ -56,7 +56,7 @@ class UniversalCreditLiabilityDetailsSpec
     "Fail deserialization for invalid dates" in
       forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
-          !DatePattern.matches(detail.dateOfBirth) || !DatePattern.matches(detail.liabilityStartDate) ||
+          !detail.dateOfBirth.exists(DatePattern.matches)|| !DatePattern.matches(detail.liabilityStartDate) ||
             !detail.liabilityEndDate.exists(DatePattern.matches)
         ) {
           val json   = Json.toJson(detail)

@@ -22,7 +22,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Vali
 
 final case class UniversalCreditLiabilityDetails(
   universalCreditRecordType: UniversalCreditRecordType,
-  dateOfBirth: String,
+  dateOfBirth: Option[String],
   liabilityStartDate: String,
   liabilityEndDate: Option[String]
 )
@@ -35,7 +35,7 @@ object UniversalCreditLiabilityDetails {
 
   implicit val reads: Reads[UniversalCreditLiabilityDetails] = (
     (JsPath \ "universalCreditRecordType").read[UniversalCreditRecordType] and
-      (JsPath \ "dateOfBirth").read(validDate) and
+      (JsPath \ "dateOfBirth").readNullable(validDate) and
       (JsPath \ "liabilityStartDate").read(validDate) and
       (JsPath \ "liabilityEndDate").readNullable(validDate)
   )(UniversalCreditLiabilityDetails.apply _)
