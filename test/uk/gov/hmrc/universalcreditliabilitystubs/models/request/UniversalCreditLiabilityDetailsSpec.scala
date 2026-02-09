@@ -21,7 +21,6 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
-import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType.LCW_LCWRA
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 
@@ -33,18 +32,18 @@ class UniversalCreditLiabilityDetailsSpec
 
   val ucDetailsGen: Gen[UniversalCreditLiabilityDetails] = for {
     recordType  <- ucRecordTypeGen
-    dateOfBirth <- mixedDateGen
+    dateOfBirth <- Gen.option(mixedDateGen)
     startDate   <- mixedDateGen
-    endDate     <- mixedDateGen
-  } yield UniversalCreditLiabilityDetails(recordType, Some(dateOfBirth), startDate, Some(endDate))
+    endDate     <- Gen.option(mixedDateGen)
+  } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, endDate)
 
   "UniversalCreditLiabilityDetails" must {
 
     "Serialize/deserialize valid dates correctly" in
       forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
-          detail.dateOfBirth.exists(DatePattern.matches) && DatePattern.matches(detail.liabilityStartDate) &&
-            detail.liabilityEndDate.exists(DatePattern.matches)
+          detail.dateOfBirth.forall(DatePattern.matches) && DatePattern.matches(detail.liabilityStartDate) &&
+            detail.liabilityEndDate.forall(DatePattern.matches)
         ) {
           val json   = Json.toJson(detail)
           val parsed = json.validate[UniversalCreditLiabilityDetails]
@@ -57,8 +56,8 @@ class UniversalCreditLiabilityDetailsSpec
     "Fail deserialization for invalid dates" in
       forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
         whenever(
-          !detail.dateOfBirth.exists(DatePattern.matches) || !DatePattern.matches(detail.liabilityStartDate) ||
-            !detail.liabilityEndDate.exists(DatePattern.matches)
+          !detail.dateOfBirth.forall(DatePattern.matches) || !DatePattern.matches(detail.liabilityStartDate) ||
+            !detail.liabilityEndDate.forall(DatePattern.matches)
         ) {
           val json   = Json.toJson(detail)
           val parsed = json.validate[UniversalCreditLiabilityDetails]
@@ -67,38 +66,6 @@ class UniversalCreditLiabilityDetailsSpec
         }
       }
 
-    "Handle optional dateOfBirth" when {
-
-      "dateOfBirth is None" in {
-        val detail = UniversalCreditLiabilityDetails(
-          universalCreditRecordType = LCW_LCWRA,
-          dateOfBirth = None,
-          liabilityStartDate = "2024-01-15",
-          liabilityEndDate = Some("2024-12-31")
-        )
-
-        val json   = Json.toJson(detail)
-        val parsed = json.validate[UniversalCreditLiabilityDetails]
-
-        parsed.isSuccess mustBe true
-        parsed.get.dateOfBirth mustBe None
-      }
-
-      "dateOfBirth is valid" in {
-        val detail = UniversalCreditLiabilityDetails(
-          universalCreditRecordType = LCW_LCWRA,
-          dateOfBirth = Some("1990-05-20"),
-          liabilityStartDate = "2024-01-15",
-          liabilityEndDate = Some("2024-12-31")
-        )
-
-        val json   = Json.toJson(detail)
-        val parsed = json.validate[UniversalCreditLiabilityDetails]
-
-        parsed.isSuccess mustBe true
-        parsed.get.dateOfBirth mustBe Some("1990-05-20")
-      }
-    }
   }
 
 }
