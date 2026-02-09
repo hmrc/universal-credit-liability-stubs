@@ -1,0 +1,37 @@
+meta {
+  name: Local
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8585/application/session/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "clientId": "{{$guid}}",
+    "authProvider": "PrivilegedApplication",
+    "applicationId": "{{$guid}}",
+    "applicationName": "Universal Credit Liability API",
+    "enrolments": [],
+    "ttl": 5000
+  }
+}
+
+script:pre-request {
+  if (bru.getEnvVar("ENVIRONMENT") !== 'local') {
+    throw new Error('Environment must be set to Local');
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    const authToken = res.getHeader('authorization');
+    bru.setEnvVar('authorization', authToken);
+  } else {
+      throw new Error('Authentication failed');
+  }
+}
