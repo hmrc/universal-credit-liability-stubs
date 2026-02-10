@@ -1,0 +1,12 @@
+{
+  "name": "universal-credit-liability-stubs",
+  "version": "1.0.0",
+  "description": "Bruno tests for Universal Credit Liability Stubs",
+  "license": "ISC",
+  "dependencies": {
+    "totp-generator": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
