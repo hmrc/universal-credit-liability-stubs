@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{api-host}}/ni/person/:nino/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
   body: json
   auth: none
 }
@@ -25,7 +25,6 @@ body:json {
   {
     "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "{{universalCreditRecordType}}",
-      "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }

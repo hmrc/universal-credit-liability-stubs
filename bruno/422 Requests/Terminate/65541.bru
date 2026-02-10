@@ -1,17 +1,17 @@
 meta {
-  name: 65543 - NINO matches account transferred to Isle of Man
+  name: 65541 - NINO matches Pseudo Account
   type: http
-  seq: 15
+  seq: 13
 }
 
 post {
-  url: {{api-host}}/ni/person/:nino/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
   body: json
   auth: none
 }
 
 params:path {
-  nino: BZ230000
+  nino: BX100000
 }
 
 headers {
@@ -25,7 +25,6 @@ body:json {
   {
     "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "{{universalCreditRecordType}}",
-      "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }
@@ -36,6 +35,6 @@ assert {
   res.status: eq 204
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
-  res.body.code: eq '65543'
-  res.body.message: eq 'The NINO input matches an account that has been transferred to the Isle of Man'
+  res.body.code: eq '65541'
+  res.body.message: eq 'The NINO input matches a Pseudo Account'
 }

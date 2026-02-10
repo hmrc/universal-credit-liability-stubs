@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
+}
+
+params:path {
+  nino: BW130000
 }
 
 headers {
@@ -34,4 +38,18 @@ assert {
   res.body: isJson
   res.body.code: eq '55006'
   res.body.message: eq 'Start Date and End Date must be earlier than Date of Death'
+  req.url: matches \/ni\/person/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+  req.url: matches ^{{api-host}}\/ni\/person/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+}
+
+script:pre-request {
+  let urlRequestNino = req.getUrl().split("/")[3];
+  let ninoPrefix = urlRequestNino.substring(0, 5);
+  
+  console.log(urlRequestNino);
+  console.log(ninoPrefix);
+  
+  if (ninoPrefix != "BW130") {
+    throw new Error('The NINO URL parameter should start with "BW130" to trigger a 55006.');
+  }
 }
