@@ -1,18 +1,20 @@
 meta {
   name: Invalid DOB
   type: http
-  seq: 2
+  seq: 5
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
   body: json
   auth: none
 }
 
 headers {
-  gov-uk-originator-id: 
-  correlationId: {{$guid}}
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
@@ -20,7 +22,7 @@ body:json {
     "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "LCW/LCWRA",
       "dateOfBirth": "2002-15-10",
-      "liabilityStartDate": "2015-08-19",
+      "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }
   }

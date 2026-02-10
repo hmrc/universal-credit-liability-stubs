@@ -20,39 +20,40 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.libs.json.{JsSuccess, JsValue}
+import play.api.libs.json.{JsSuccess, Json}
 
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
     "parse request jsons correctly" in {
-      val testInsertLiabilityRequest: InsertLiabilityRequest =
-        InsertLiabilityRequest(
-          universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
-            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-            dateOfBirth = Some("2002-04-27"),
-            liabilityStartDate = "2015-08-19",
-            liabilityEndDate = Some("2026-06-30")
-          )
-        )
-
-      val expectedJson: JsValue = Json.parse("""
+      val testJson: JsValue = Json.parse("""
           |{
           |  "universalCreditLiabilityDetails": {
           |    "universalCreditRecordType": "LCW/LCWRA",
           |    "dateOfBirth": "2002-04-27",
-          |    "liabilityStartDate": "2015-08-19",
+          |    "liabilityStartDate": "2025-08-19",
           |    "liabilityEndDate": "2026-06-30"
           |  }
           |}
           |""".stripMargin)
 
-      val result = expectedJson.validate[InsertLiabilityRequest]
+      val expectedLiabilityRequest: InsertLiabilityRequest =
+        InsertLiabilityRequest(
+          UniversalCreditLiabilityDetails(
+            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
+            dateOfBirth = Some("2002-04-27"),
+            liabilityStartDate = "2025-08-19",
+            liabilityEndDate = Some("2026-06-30")
+          )
+        )
 
-      result mustBe JsSuccess(testInsertLiabilityRequest)
+      val result = testJson.validate[InsertLiabilityRequest]
+
+      result mustBe JsSuccess(expectedLiabilityRequest)
     }
 
     "must write to correct json" in {
-      val testInsertLiabilityRequest = InsertLiabilityRequest(
+      val testInsertLiabilityRequest: InsertLiabilityRequest = InsertLiabilityRequest(
         universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
           dateOfBirth = Some("2002-04-27"),

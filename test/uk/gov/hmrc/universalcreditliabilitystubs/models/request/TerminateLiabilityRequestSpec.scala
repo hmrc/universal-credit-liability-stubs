@@ -30,7 +30,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |{
           |"ucLiabilityTerminationDetails": {
           |"universalCreditRecordType": "LCW/LCWRA",
-          |"liabilityStartDate": "2015-08-19",
+          |"liabilityStartDate": "2025-08-19",
           |"liabilityEndDate": "2026-06-30"
           |}
           |}

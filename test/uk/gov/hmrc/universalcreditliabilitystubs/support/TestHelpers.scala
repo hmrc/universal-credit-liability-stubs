@@ -63,7 +63,7 @@ trait TestHelpers {
         |  "universalCreditLiabilityDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
         |    "dateOfBirth": "2002-04-27",
-        |    "liabilityStartDate": "2015-08-19",
+        |    "liabilityStartDate": "2025-08-19",
         |    "liabilityEndDate": "2026-06-30"
         |  }
         |}
@@ -74,7 +74,7 @@ trait TestHelpers {
         |{
         |  "universalCreditLiabilityDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "dateOfBirth": "2002-10-10",
+        |    "dateOfBirth": "2002-04-27",
         |    "liabilityEndDate": "2026-06-30"
         |  }
         |}
@@ -85,7 +85,7 @@ trait TestHelpers {
         |{
         |  "ucLiabilityTerminationDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "liabilityStartDate": "2015-08-19",
+        |    "liabilityStartDate": "2025-08-19",
         |    "liabilityEndDate": "2026-06-30"
         |  }
         |}
@@ -96,7 +96,7 @@ trait TestHelpers {
         |{
         |  "ucLiabilityTerminationDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "liabilityStartDate": "2015-08-19"
+        |    "liabilityStartDate": "2025-08-19"
         |  }
         |}
         |""".stripMargin)

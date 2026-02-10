@@ -5,20 +5,20 @@ meta {
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit/termination
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit/termination
   body: json
   auth: none
 }
 
 headers {
-  gov-uk-originator-id: 
-  correlationId: {{$guid}}
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
-  {
-  
-  }
+  { INVALID: INVALID }
 }
 
 assert {

@@ -1,25 +1,26 @@
 meta {
-  name: Invalid Correlation Id
+  name: Missing Liability Start Date
   type: http
-  seq: 7
+  seq: 6
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit/termination
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit/termination
   body: json
   auth: inherit
 }
 
 headers {
-  gov-uk-originator-id: 
-  correlationId: e470d658-4292-a4a1-ed12c72f1337
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
   {
     "ucLiabilityTerminationDetails": {
       "universalCreditRecordType": "LCW/LCWRA",
-      "liabilityStartDate": "2015-08-19",
       "liabilityEndDate": "2026-06-30"
     }
   }

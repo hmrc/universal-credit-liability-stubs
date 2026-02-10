@@ -15,7 +15,7 @@ body:json {
     "clientId": "{{$guid}}",
     "authProvider": "PrivilegedApplication",
     "applicationId": "{{$guid}}",
-    "applicationName": "Universal Credit Liability API",
+    "applicationName": "Universal Credit Liability Stubs",
     "enrolments": [],
     "ttl": 5000
   }
@@ -25,6 +25,19 @@ script:pre-request {
   if (bru.getEnvVar("ENVIRONMENT") !== 'local') {
     throw new Error('Environment must be set to Local');
   }
+  
+  const clientId = bru.getEnvVar("hipClientId");
+  const clientSecret = bru.getEnvVar("hipClientSecret");
+  
+  if (clientId && clientSecret) {
+    const credentials = `${clientId}:${clientSecret}`;
+    const encoded = Buffer.from(credentials, 'utf-8').toString('base64');
+    const basicAuthHeader = `Basic ${encoded}`;
+  
+    bru.setVar("authorization", basicAuthHeader);
+  } else {
+    throw new Error("hipClientId and hipClientSecret must be set in environment");
+  }
 }
 
 script:post-response {
@@ -32,6 +45,6 @@ script:post-response {
     const authToken = res.getHeader('authorization');
     bru.setEnvVar('authorization', authToken);
   } else {
-      throw new Error('Authentication failed');
+    throw new Error('Authentication failed');
   }
 }

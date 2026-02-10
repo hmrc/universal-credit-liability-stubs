@@ -1,5 +1,5 @@
 meta {
-  name: Missing Header - GovUkOriginatorId
+  name: Invalid Start Date
   type: http
   seq: 2
 }
@@ -14,20 +14,20 @@ headers {
   Authorization: {{authorization}}
   Content-Type: application/json
   correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
   {
     "ucLiabilityTerminationDetails": {
-      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
-      "liabilityStartDate": "2025-08-19",
+      "universalCreditRecordType": "UC",
+      "liabilityStartDate": "2015-18-19",
       "liabilityEndDate": "2026-06-30"
     }
   }
 }
 
 assert {
-  res.status: eq 403
-  res.body.code: eq '403.2'
+  res.status: eq 400
   res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
 }

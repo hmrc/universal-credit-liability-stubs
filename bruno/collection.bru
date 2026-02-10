@@ -1,6 +1,20 @@
 script:pre-request {
   const helpers = require('./_lib/helpers');
-  
-  const nino = helpers.randomNino();
-  bru.setEnvVar("nino", nino);
+
+  const randomNino = helpers.randomNino();
+  bru.setEnvVar("nino", randomNino);
+
+  const randomInvalidNino = helpers.randomInvalidNino();
+  bru.setEnvVar("invalidNino", randomInvalidNino);
+
+  const randomUniversalCreditRecordType = helpers.randomUniversalCreditRecordType();
+  bru.setEnvVar("universalCreditRecordType", randomUniversalCreditRecordType);
+
+  bru.setVar('correlationId', bru.interpolate('{{$guid}}'));
+}
+
+docs {
+
+  # Universal Credit Liability Stubs
+
 }

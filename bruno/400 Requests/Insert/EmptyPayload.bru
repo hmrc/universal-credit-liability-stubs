@@ -1,0 +1,31 @@
+meta {
+  name: Empty Payload
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
+}
+
+body:json {
+  {}
+}
+
+assert {
+  res.status: eq 400
+  res.headers.correlationid: eq {{correlationId}}
+  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+  res.body: isJson
+  res.body.code: eq '400.1'
+  res.body.message: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditAction'
+}

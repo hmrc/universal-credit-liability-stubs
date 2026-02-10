@@ -1,0 +1,53 @@
+meta {
+  name: Staging
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://api.{{ENVIRONMENT}}.tax.service.gov.uk/oauth/token
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  content-type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  client_secret: {{totp}}{{clientSecret}}
+  client_id: {{clientId}}
+  grant_type: client_credentials
+}
+
+script:pre-request {
+  if (!['development', 'qa'].includes(bru.getEnvVar("ENVIRONMENT"))) {
+    throw new Error('Environment must be set to Dev or QA');
+  }
+
+  let TOTP;
+  try {
+    TOTP = require("totp-generator").TOTP;
+  } catch (e) {
+    throw new Error("Missing dependency: totp-generator\nRun 'npm install' in the collection folder. See README for details.");
+  }
+
+  const totpSecret = bru.getEnvVar("TOTP_SECRET");
+
+  if (!totpSecret) {
+    throw new Error("TOTP_SECRET not set in environment variables");
+  }
+
+  const { otp } = await TOTP.generate(totpSecret, { digits: 8, algorithm: "SHA-512" });
+
+  bru.setEnvVar("totp", otp);
+}
+
+script:post-response {
+  if (res.status === 200) {
+    const authToken = `Bearer ${res.body.access_token}`;
+    bru.setEnvVar('authorization', authToken);
+  } else {
+    throw new Error('Authentication failed: ' + res.status);
+  }
+}

@@ -1,25 +1,28 @@
 meta {
-  name: Missing Correlation Id
+  name: Invalid Header - Correlation Id
   type: http
-  seq: 7
+  seq: 3
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
   body: json
   auth: none
 }
 
 headers {
-  gov-uk-originator-id: 
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: INVALID_CORRELATION_ID
+  gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
   {
     "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "UC",
-      "dateOfBirth": "2002-10-10",
-      "liabilityStartDate": "2015-08-19",
+      "dateOfBirth": "2002-04-27",
+      "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }
   }

@@ -1,27 +1,29 @@
 meta {
   name: Invalid Start Date and End Date
   type: http
-  seq: 5
+  seq: 8
 }
 
 post {
-  url: http://localhost:16108/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
   body: json
   auth: none
 }
 
 headers {
-  gov-uk-originator-id:
-  correlationId: {{$guid}}
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
   {
     "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "UC",
-      "dateOfBirth": "2002-10-10",
-      "liabilityStartDate": "2015-08-39",
-      "liabilityEndDate": "2025-17-04"
+      "dateOfBirth": "2002-04-27",
+      "liabilityStartDate": "INVALID",
+      "liabilityEndDate": "INVALID"
     }
   }
 }
