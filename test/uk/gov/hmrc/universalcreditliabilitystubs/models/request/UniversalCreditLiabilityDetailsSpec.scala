@@ -65,7 +65,5 @@ class UniversalCreditLiabilityDetailsSpec
           parsed.isError mustBe true
         }
       }
-
   }
-
 }

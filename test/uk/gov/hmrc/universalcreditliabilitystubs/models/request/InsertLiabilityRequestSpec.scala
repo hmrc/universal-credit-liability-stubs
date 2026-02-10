@@ -18,6 +18,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.libs.json.JsSuccess
 import play.api.libs.json.Json
 
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
@@ -37,7 +38,10 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |}
           |""".stripMargin
 
-      Json.parse(jsonString).as[InsertLiabilityRequest] mustBe InsertLiabilityRequest(
+      val parsed = Json.parse(jsonString).validate[InsertLiabilityRequest]
+
+      parsed mustBe a[JsSuccess[_]]
+      parsed.get mustBe InsertLiabilityRequest(
         universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
           dateOfBirth = Some("2002-04-27"),
