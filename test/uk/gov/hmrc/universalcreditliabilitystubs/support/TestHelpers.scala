@@ -17,9 +17,7 @@
 package uk.gov.hmrc.universalcreditliabilitystubs.support
 
 import org.scalacheck.Gen
-import org.scalatest.Assertions.fail
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
@@ -59,47 +57,47 @@ trait TestHelpers {
 
   val validInsertLiabilityRequest: JsValue =
     Json.parse("""
-                 |{
-                 |  "universalCreditLiabilityDetails": {
-                 |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "dateOfBirth": "2002-04-27",
-                 |    "liabilityStartDate": "2015-08-19",
-                 |    "liabilityEndDate": "2025-01-04"
-                 |  }
-                 |}
-                 |""".stripMargin)
+        |{
+        |  "universalCreditLiabilityDetails": {
+        |    "universalCreditRecordType": "LCW/LCWRA",
+        |    "dateOfBirth": "2002-04-27",
+        |    "liabilityStartDate": "2015-08-19",
+        |    "liabilityEndDate": "2025-01-04"
+        |  }
+        |}
+        |""".stripMargin)
 
   val invalidInsertLiabilityRequest: JsValue =
     Json.parse("""
-                 |{
-                 |  "universalCreditLiabilityDetails": {
-                 |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "dateOfBirth": "2002-04-27",
-                 |    "liabilityEndDate": "2025-01-04"
-                 |  }
-                 |}
-                 |""".stripMargin)
+        |{
+        |  "universalCreditLiabilityDetails": {
+        |    "universalCreditRecordType": "LCW/LCWRA",
+        |    "dateOfBirth": "2002-10-10",
+        |    "liabilityEndDate": "2025-01-04"
+        |  }
+        |}
+        |""".stripMargin)
 
   val validTerminateLiabilityRequest: JsValue =
     Json.parse("""
-                 |{
-                 |  "ucLiabilityTerminationDetails": {
-                 |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "liabilityStartDate": "2015-08-19",
-                 |    "liabilityEndDate": "2025-01-04"
-                 |  }
-                 |}
-                 |""".stripMargin)
+        |{
+        |  "ucLiabilityTerminationDetails": {
+        |    "universalCreditRecordType": "LCW/LCWRA",
+        |    "liabilityStartDate": "2015-08-19",
+        |    "liabilityEndDate": "2025-01-04"
+        |  }
+        |}
+        |""".stripMargin)
 
   val inValidTerminateLiabilityRequest: JsValue =
     Json.parse("""
-                 |{
-                 |  "ucLiabilityTerminationDetails": {
-                 |    "universalCreditRecordType": "LCW/LCWRA",
-                 |    "liabilityStartDate": "2015-08-19"
-                 |  }
-                 |}
-                 |""".stripMargin)
+        |{
+        |  "ucLiabilityTerminationDetails": {
+        |    "universalCreditRecordType": "LCW/LCWRA",
+        |    "liabilityStartDate": "2015-08-19"
+        |  }
+        |}
+        |""".stripMargin)
 
   val validHeaders: Seq[(String, String)] =
     Seq(
@@ -143,11 +141,6 @@ trait TestHelpers {
     val number = f"${Random.nextInt(1000)}%03d"
     val nino   = s"$prefix$number"
     nino
-  }
-
-  def extractLeftOrFail(result: Either[Result, _]): Result = result match {
-    case Left(error)    => error
-    case Right(success) => fail(s"Expected Left (Failure), but got Right: $success")
   }
 
   def generateFakeRequest(requestBody: JsValue, headers: Seq[(String, String)]): FakeRequest[JsValue] =
