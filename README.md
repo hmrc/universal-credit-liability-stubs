@@ -13,7 +13,7 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
   * [Endpoints](#endpoints)
     * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
     * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
-  * [422 Unprocessable Entity Errors](#422-unprocessable-entity-errors)
+  * [422 UnprocessableEntity Errors](#422-unprocessable-entity-errors)
   * [Other Error Responses](#other-error-responses)
   * [Scalafmt](#scalafmt)
   * [Testing](#testing-1)
@@ -89,35 +89,34 @@ endpoint requires Mutual Authentication over TLS 1.2
 
 ---
 
-## 422 Unprocessable Entity Errors
+## 422 UnprocessableEntity Errors
 
-To get an Unprocessable Entity Error (422) use a National Insurance Number (NINO) with any of the following 5-character
+To get an UnprocessableEntity Error (422) use a National Insurance Number (NINO) with any of the following 5-character
 prefixes.
 
-| NINO PREFIX | HTTP Status              | Code  | Description                                                                                                   |
-|:------------|--------------------------|-------|---------------------------------------------------------------------------------------------------------------|
-| BW130       | 422 Unprocessable Entity | 55006 | Start Date and End Date must be earlier than Date of Death                                                    |
-| EZ200       | 422 Unprocessable Entity | 55008 | End Date must be earlier than State Pension Age                                                               |
-| BK190       | 422 Unprocessable Entity | 55027 | End Date later than Date of Death                                                                             |
-| ET060       | 422 Unprocessable Entity | 55029 | Start Date later than SPA                                                                                     |
-| GE100       | 422 Unprocessable Entity | 55038 | A conflicting or identical Liability is already recorded                                                      |
-| GP050       | 422 Unprocessable Entity | 55039 | NO corresponding liability found                                                                              |
-| EK310       | 422 Unprocessable Entity | 64996 | Start Date is not before date of death                                                                        |
-| HS260       | 422 Unprocessable Entity | 64997 | LCW/LCWRA not within a period of UC                                                                           |
-| CE150       | 422 Unprocessable Entity | 64998 | LCW/LCWRA Override not within a period of LCW/LCWRA                                                           |
-| HC210       | 422 Unprocessable Entity | 65026 | Start date must not be before 16th birthday                                                                   |
-| GX240       | 422 Unprocessable Entity | 65536 | Start date before 29/04/2013                                                                                  |
-| HT230       | 422 Unprocessable Entity | 65537 | End date before start date                                                                                    |
-| EA040       | 422 Unprocessable Entity | 65538 | End date missing but the input was a Termination                                                              |
-| BX100       | 422 Unprocessable Entity | 65541 | The NINO input matches a Pseudo Account                                                                       |
-| HZ310       | 422 Unprocessable Entity | 65542 | The NINO input matches a non-live account (including redundant, amalgamated and administrative account types) |
-| BZ230       | 422 Unprocessable Entity | 65543 | The NINO input matches an account that has been transferred to the Isle of Man                                |
-| AB150       | 422 Unprocessable Entity | 99999 | Start Date after Death                                                                                        |
+| NINO PREFIX | HTTP Status             | Code  | Description                                                                                                   |
+|:------------|-------------------------|-------|---------------------------------------------------------------------------------------------------------------|
+| BW130       | 422 UnprocessableEntity | 55006 | Start Date and End Date must be earlier than Date of Death                                                    |
+| EZ200       | 422 UnprocessableEntity | 55008 | End Date must be earlier than State Pension Age                                                               |
+| BK190       | 422 UnprocessableEntity | 55027 | End Date later than Date of Death                                                                             |
+| ET060       | 422 UnprocessableEntity | 55029 | Start Date later than SPA                                                                                     |
+| GE100       | 422 UnprocessableEntity | 55038 | A conflicting or identical Liability is already recorded                                                      |
+| GP050       | 422 UnprocessableEntity | 55039 | NO corresponding liability found                                                                              |
+| EK310       | 422 UnprocessableEntity | 64996 | Start Date is not before date of death                                                                        |
+| HS260       | 422 UnprocessableEntity | 64997 | LCW/LCWRA not within a period of UC                                                                           |
+| CE150       | 422 UnprocessableEntity | 64998 | LCW/LCWRA Override not within a period of LCW/LCWRA                                                           |
+| HC210       | 422 UnprocessableEntity | 65026 | Start date must not be before 16th birthday                                                                   |
+| GX240       | 422 UnprocessableEntity | 65536 | Start date before 29/04/2013                                                                                  |
+| HT230       | 422 UnprocessableEntity | 65537 | End date before start date                                                                                    |
+| EA040       | 422 UnprocessableEntity | 65538 | End date missing but the input was a Termination                                                              |
+| BX100       | 422 UnprocessableEntity | 65541 | The NINO input matches a Pseudo Account                                                                       |
+| HZ310       | 422 UnprocessableEntity | 65542 | The NINO input matches a non-live account (including redundant, amalgamated and administrative account types) |
+| BZ230       | 422 UnprocessableEntity | 65543 | The NINO input matches an account that has been transferred to the Isle of Man                                |
+| AB150       | 422 UnprocessableEntity | 99999 | Start Date after Death                                                                                        |
 
 ## Other Error Responses
 
-To get a system error use a National Insurance Number (NINO) with any of the following 5-character
-prefixes.
+To get a system error use a National Insurance Number (NINO) with any of the following 5-character prefixes.
 
 | NINO PREFIX | HTTP Status               |
 |:------------|---------------------------|
@@ -125,6 +124,7 @@ prefixes.
 | XY401       | 401 Unauthorized          |
 | XY403       | 403 Forbidden             |
 | XY404       | 404 NotFound              |
+| CM110       | 404 NotFound              |
 | XY500       | 500 Internal Server Error |
 | XY503       | 503 Service Unavailable   |
 
