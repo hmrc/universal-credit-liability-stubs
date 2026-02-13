@@ -18,36 +18,38 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.JsSuccess
 import play.api.libs.json.Json
+import play.api.libs.json.{JsSuccess, JsValue}
 
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
 
     "parse request jsons correctly" in {
-      val jsonString =
-        """
+      val testJson: JsValue = Json.parse("""
           |{
           |  "universalCreditLiabilityDetails": {
           |    "universalCreditRecordType": "LCW/LCWRA",
           |    "dateOfBirth": "2002-04-27",
           |    "liabilityStartDate": "2015-08-19",
-          |    "liabilityEndDate": "2025-01-04"
+          |    "liabilityEndDate": "2026-06-30"
           |  }
           |}
-          |""".stripMargin
+          |""".stripMargin)
 
-      Json.parse(jsonString).validate[InsertLiabilityRequest] mustBe JsSuccess(
+      val expectedInsertLiabilityRequest: InsertLiabilityRequest =
         InsertLiabilityRequest(
           universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
             dateOfBirth = Some("2002-04-27"),
             liabilityStartDate = "2015-08-19",
-            liabilityEndDate = Some("2025-01-04")
+            liabilityEndDate = Some("2026-06-30")
           )
         )
-      )
+
+      val result = testJson.validate[InsertLiabilityRequest]
+
+      result mustBe JsSuccess(expectedInsertLiabilityRequest)
     }
 
     "must write to correct json" in {
