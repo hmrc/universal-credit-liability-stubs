@@ -1,17 +1,17 @@
 meta {
-  name: Missing Authorization Header
+  name: Invalid Authorization Header
   type: http
   seq: 1
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/{{randomNino}}/liability/universal-credit
   body: json
   auth: none
 }
 
 headers {
-  Authorization: {{authorization}}
+  Authorization: INVALID_AUTHORIZATION_TOKEN
   Content-Type: application/json
   correlationId: {{correlationId}}
   gov-uk-originator-id: {{govUkOriginatorId}}
@@ -29,7 +29,9 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 401
   res.headers.correlationid: eq {{correlationId}}
-  res.body: isEmpty
+  res.body: isJson
+  res.body.code: eq '401.1'
+  res.body.reason: eq 'Invalid or missing Authorization header'
 }

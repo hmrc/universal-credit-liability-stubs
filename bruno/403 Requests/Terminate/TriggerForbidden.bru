@@ -1,31 +1,30 @@
 meta {
-  name: Invalid Header - GovUkOriginatorId
+  name: Trigger Forbidden
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
-  url: {{api-host}}/ni/person/:nino/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
   body: json
   auth: none
 }
 
 params:path {
-  nino: {{randomNino}}
+  nino: XY403000
 }
 
 headers {
   Authorization: {{authorization}}
   Content-Type: application/json
   correlationId: {{correlationId}}
-  gov-uk-originator-id: 1nV@L!d-0r!g!n4t0r-1D
+  gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
   {
-    "universalCreditLiabilityDetails": {
+    "ucLiabilityTerminationDetails": {
       "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
-      "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }

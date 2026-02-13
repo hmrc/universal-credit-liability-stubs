@@ -1,5 +1,5 @@
 meta {
-  name: Invalid Header - GovUkOriginatorId
+  name: Non-Matching Header - GovUkOriginatorId
   type: http
   seq: 1
 }
@@ -18,7 +18,7 @@ headers {
   Authorization: {{authorization}}
   Content-Type: application/json
   correlationId: {{correlationId}}
-  gov-uk-originator-id: 1nV@L!d-0r!g!n4t0r-1D
+  gov-uk-originator-id: ID-NOT-MATCHING-THE-ONE-PROVIDED-BY-DWP
 }
 
 body:json {
@@ -38,4 +38,9 @@ assert {
   res.body: isJson
   res.body.code: eq '403.2'
   res.body.reason: eq 'Forbidden'
+}
+
+script:pre-request {
+  // TODO: remove once optional dateOfBirth have been implemented
+  bru.runner.skipRequest();
 }

@@ -1,19 +1,24 @@
 meta {
-  name: Missing Header - GovUkOriginatorId
+  name: Empty Header - GovUkOriginatorId
   type: http
   seq: 1
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
 }
 
 headers {
   Authorization: {{authorization}}
   Content-Type: application/json
   correlationId: {{correlationId}}
+  gov-uk-originator-id: 
 }
 
 body:json {
@@ -29,6 +34,8 @@ body:json {
 
 assert {
   res.status: eq 403
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isJson
   res.body.code: eq '403.2'
-  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+  res.body.reason: eq 'Forbidden'
 }

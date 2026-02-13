@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
 }
 
 headers {
@@ -29,6 +33,8 @@ body:json {
 
 assert {
   res.status: eq 403
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isJson
   res.body.code: eq '403.2'
-  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+  res.body.reason: eq 'Forbidden'
 }
