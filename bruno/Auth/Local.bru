@@ -4,23 +4,6 @@ meta {
   seq: 1
 }
 
-post {
-  url: http://localhost:8585/application/session/login
-  body: json
-  auth: none
-}
-
-body:json {
-  {
-    "clientId": "{{$guid}}",
-    "authProvider": "PrivilegedApplication",
-    "applicationId": "{{$guid}}",
-    "applicationName": "Universal Credit Liability Stubs",
-    "enrolments": [],
-    "ttl": 5000
-  }
-}
-
 script:pre-request {
   if (bru.getEnvVar("ENVIRONMENT") !== 'local') {
     throw new Error('Environment must be set to Local');

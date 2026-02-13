@@ -7,11 +7,11 @@ meta {
 post {
   url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
   body: json
-  auth: inherit
+  auth: none
 }
 
 params:path {
-  nino: {{nino}}
+  nino: {{randomNino}}
 }
 
 headers {

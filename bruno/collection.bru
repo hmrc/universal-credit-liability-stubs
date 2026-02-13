@@ -2,15 +2,33 @@ script:pre-request {
   const helpers = require('./_lib/helpers');
 
   const randomNino = helpers.randomNino();
-  bru.setEnvVar("nino", randomNino);
+  bru.setEnvVar("randomNino", randomNino);
 
   const randomInvalidNino = helpers.randomInvalidNino();
-  bru.setEnvVar("invalidNino", randomInvalidNino);
+  bru.setEnvVar("randomInvalidNino", randomInvalidNino);
 
   const randomUniversalCreditRecordType = helpers.randomUniversalCreditRecordType();
-  bru.setEnvVar("universalCreditRecordType", randomUniversalCreditRecordType);
+  bru.setEnvVar("randomUniversalCreditRecordType", randomUniversalCreditRecordType);
 
   bru.setVar('correlationId', bru.interpolate('{{$guid}}'));
+
+  const clientId = bru.getEnvVar("hipClientId");
+  const clientSecret = bru.getEnvVar("hipClientSecret");
+
+  if (!clientId || !clientSecret) {
+    throw new Error("hipClientId and hipClientSecret must be set in environment");
+  }
+
+  const credentials = `${clientId}:${clientSecret}`;
+  const encoded = Buffer.from(credentials, 'utf-8').toString('base64');
+  bru.setVar("authorization", `Basic ${encoded}`);
+}
+
+script:post-response {
+  if (res.status === 403) {
+    const body = res.getBody();
+    throw new Error(`Authentication failed: ${body.code} - ${body.reason}`);
+  }
 }
 
 docs {
