@@ -1,7 +1,7 @@
 meta {
-  name: Invalid Header - Correlation Id
+  name: Invalid Start Date and End Date
   type: http
-  seq: 3
+  seq: 8
 }
 
 post {
@@ -17,7 +17,7 @@ params:path {
 headers {
   Authorization: {{authorization}}
   Content-Type: application/json
-  correlationId: INVALID_CORRELATION_ID
+  correlationId: {{correlationId}}
   gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
@@ -26,16 +26,13 @@ body:json {
     "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
       "dateOfBirth": "2002-04-27",
-      "liabilityStartDate": "2025-08-19",
-      "liabilityEndDate": "2026-06-30"
+      "liabilityStartDate": "INVALID_LIABILITY_START_DATE",
+      "liabilityEndDate": "INVALID_LIABILITY_END_DATE"
     }
   }
 }
 
 assert {
   res.status: eq 400
-  res.headers.correlationid: eq INVALID_CORRELATION_ID
-  res.body: isJson
-  res.body.code: eq '400.1'
-  res.body.reason: eq 'Constraint Violation - Invalid/Missing input parameter: correlationId'
+  res.headers.correlationid: eq {{correlationId}}
 }

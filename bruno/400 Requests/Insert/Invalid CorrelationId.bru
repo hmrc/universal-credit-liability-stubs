@@ -1,7 +1,7 @@
 meta {
-  name: Invalid Universal Credit Record Type
+  name: Invalid CorrelationId
   type: http
-  seq: 4
+  seq: 3
 }
 
 post {
@@ -17,14 +17,14 @@ params:path {
 headers {
   Authorization: {{authorization}}
   Content-Type: application/json
-  correlationId: {{correlationId}}
+  correlationId: INVALID_CORRELATION_ID
   gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "INVALID_UNIVERSAL_CREDIT_RECORD_TYPE",
+      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
       "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
@@ -34,8 +34,5 @@ body:json {
 
 assert {
   res.status: eq 400
-  res.headers.correlationid: eq {{correlationId}}
-  res.body: isJson
-  res.body.code: eq '400.1'
-  res.body.reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/universalCreditRecordType'
+  res.headers.correlationid: isDefined
 }

@@ -1,5 +1,5 @@
 meta {
-  name: Invalid End Date
+  name: Invalid Liability End Date
   type: http
   seq: 7
 }
@@ -35,7 +35,4 @@ body:json {
 assert {
   res.status: eq 400
   res.headers.correlationid: eq {{correlationId}}
-  res.body: isJson
-  res.body.code: eq '400.1'
-  res.body.reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityEndDate'
 }

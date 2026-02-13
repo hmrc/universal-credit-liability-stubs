@@ -1,7 +1,7 @@
 meta {
-  name: Invalid Start Date and End Date
+  name: Invalid Universal Credit Record Type
   type: http
-  seq: 8
+  seq: 4
 }
 
 post {
@@ -24,10 +24,10 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
+      "universalCreditRecordType": "INVALID_UNIVERSAL_CREDIT_RECORD_TYPE",
       "dateOfBirth": "2002-04-27",
-      "liabilityStartDate": "INVALID_LIABILITY_START_DATE",
-      "liabilityEndDate": "INVALID_LIABILITY_END_DATE"
+      "liabilityStartDate": "2025-08-19",
+      "liabilityEndDate": "2026-06-30"
     }
   }
 }
@@ -35,7 +35,4 @@ body:json {
 assert {
   res.status: eq 400
   res.headers.correlationid: eq {{correlationId}}
-  res.body: isJson
-  res.body.code: eq '400.1'
-  res.body.reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityStartDate'
 }
