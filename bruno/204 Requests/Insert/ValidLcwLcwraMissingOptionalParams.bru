@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
+}
+
+params:path {
+  nino: {{nino}}
 }
 
 headers {

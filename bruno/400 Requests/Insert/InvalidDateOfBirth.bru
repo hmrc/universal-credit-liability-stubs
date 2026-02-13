@@ -1,13 +1,17 @@
 meta {
-  name: Invalid DOB
+  name: Invalid Date of Birth
   type: http
   seq: 5
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
 }
 
 headers {
@@ -20,8 +24,8 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "LCW/LCWRA",
-      "dateOfBirth": "2002-15-10",
+      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
+      "dateOfBirth": "INVALID_DATE_OF_BIRTH",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }
@@ -30,5 +34,8 @@ body:json {
 
 assert {
   res.status: eq 400
-  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isJson
+  res.body.code: eq '400.1'
+  res.body.reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/dateOfBirth'
 }

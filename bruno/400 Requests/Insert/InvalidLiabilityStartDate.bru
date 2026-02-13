@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
 }
 
 headers {
@@ -20,9 +24,9 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "UC",
+      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
       "dateOfBirth": "2002-04-27",
-      "liabilityStartDate": "2015-08-39",
+      "liabilityStartDate": "INVALID_LIABILITY_START_DATE",
       "liabilityEndDate": "2026-06-30"
     }
   }
@@ -30,5 +34,8 @@ body:json {
 
 assert {
   res.status: eq 400
-  res.headers['correlationid']: matches ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isJson
+  res.body.code: eq '400.1'
+  res.body.reason: eq 'Constraint Violation - Invalid/Missing input parameter: universalCreditLiabilityDetails/liabilityStartDate'
 }

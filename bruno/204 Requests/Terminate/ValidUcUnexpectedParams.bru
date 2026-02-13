@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{api-host}}/ni/person/{{nino}}/liability/universal-credit/termination
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
   body: json
   auth: inherit
+}
+
+params:path {
+  nino: {{nino}}
 }
 
 headers {
