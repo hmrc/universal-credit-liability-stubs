@@ -33,9 +33,9 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 422
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
-  res.body.code: eq '64998'
-  res.body.message: eq 'LCW/LCWRA Override not within a period of LCW/LCWRA'
+  res.body.failures[0].code: eq '64998'
+  res.body.failures[0].reason: eq 'LCW/LCWRA Override not within a period of LCW/LCWRA'
 }

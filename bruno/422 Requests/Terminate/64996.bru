@@ -23,7 +23,7 @@ headers {
 
 body:json {
   {
-    "universalCreditLiabilityDetails": {
+    "ucLiabilityTerminationDetails": {
       "universalCreditRecordType": "{{universalCreditRecordType}}",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
@@ -32,9 +32,9 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 422
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
-  res.body.code: eq '64996'
-  res.body.message: eq 'Start Date is not before date of death'
+  res.body.failures[0].code: eq '64996'
+  res.body.failures[0].reason: eq 'Start Date is not before date of death'
 }

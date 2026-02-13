@@ -33,9 +33,9 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 422
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
-  res.body.code: eq '65536'
-  res.body.message: eq 'Start date before 29/04/2013'
+  res.body.failures[0].code: eq '65536'
+  res.body.failures[0].reason: eq 'Start date before 29/04/2013'
 }
