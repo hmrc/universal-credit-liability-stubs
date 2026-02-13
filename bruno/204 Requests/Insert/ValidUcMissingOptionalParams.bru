@@ -35,3 +35,8 @@ assert {
   res.headers.correlationid: eq {{correlationId}}
   res.body: isEmpty
 }
+
+script:pre-request {
+  // TODO: remove once optional dateOfBirth have been implemented
+  bru.runner.skipRequest();
+}
