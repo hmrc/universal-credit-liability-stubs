@@ -53,26 +53,27 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
     }
 
     "must write to correct json" in {
+      val expectedInsertLiabilityRequest: JsValue = Json.parse("""
+          |{
+          |  "universalCreditLiabilityDetails": {
+          |    "universalCreditRecordType": "LCW/LCWRA",
+          |    "dateOfBirth": "2002-04-27",
+          |    "liabilityStartDate": "2015-08-19",
+          |    "liabilityEndDate": "2026-06-30"
+          |  }
+          |}
+          |""".stripMargin)
 
       val model = InsertLiabilityRequest(
         universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
           dateOfBirth = Some("2002-04-27"),
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2025-01-04")
+          liabilityEndDate = Some("2026-06-30")
         )
       )
 
-      val expectedJson = Json.obj(
-        "universalCreditLiabilityDetails" -> Json.obj(
-          "universalCreditRecordType" -> "LCW/LCWRA",
-          "dateOfBirth"               -> "2002-04-27",
-          "liabilityStartDate"        -> "2015-08-19",
-          "liabilityEndDate"          -> "2025-01-04"
-        )
-      )
-
-      Json.toJson(model) mustBe expectedJson
+      Json.toJson(model) mustBe expectedInsertLiabilityRequest
     }
   }
 }
