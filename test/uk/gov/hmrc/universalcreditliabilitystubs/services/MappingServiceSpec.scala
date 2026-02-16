@@ -18,6 +18,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.libs.json.Json
 import play.api.mvc.Results.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
@@ -37,7 +38,7 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
     "return a Forbidden (403) when NINO starts with XY403" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("XY403"))
-      result mustBe Some(Forbidden)
+      result mustBe Some(Forbidden(Json.toJson(Failure(reason = "Forbidden", code = "403.2"))))
     }
 
     "return a Forbidden (403) when NINO starts with HJ120" in {

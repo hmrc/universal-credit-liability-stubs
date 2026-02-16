@@ -19,7 +19,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.filters
 import jakarta.inject.Inject
 import org.apache.pekko.stream.Materializer
 import play.api.mvc.*
-import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.CorrelationIdPattern
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.CorrelationIdPattern
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 
 import java.util.UUID
@@ -39,4 +39,5 @@ class CorrelationIdFilter @Inject() (implicit val mat: Materializer, ec: Executi
       result.withHeaders(HeaderNames.CorrelationId -> finalCorrelationId)
     }
   }
+
 }

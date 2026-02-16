@@ -19,13 +19,14 @@ package uk.gov.hmrc.universalcreditliabilitystubs
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, SERVICE_UNAVAILABLE, UNAUTHORIZED, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.{WSClient, readableAsJson, readableAsString}
 import uk.gov.hmrc.universalcreditliabilitystubs.helpers.{OpenApiValidator, ValidationError}
-import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.CorrelationIdPattern
+import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.CorrelationIdPattern
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 
 class UcLiabilityIntegrationSpec
@@ -41,6 +42,7 @@ class UcLiabilityIntegrationSpec
   private val faultyInsertionNino: String   = generateNinoWithPrefix("BW130")
   private val faultyTerminationNino: String = generateNinoWithPrefix("BZ230")
 
+  private val forbiddenErrorNino: String      = generateNinoWithPrefix("XY403")
   private val notFoundErrorNino: String       = generateNinoWithPrefix("XY404")
   private val internalServerErrorNino: String = generateNinoWithPrefix("XY500")
   private val serviceUnavailableNino: String  = generateNinoWithPrefix("XY503")
@@ -53,6 +55,9 @@ class UcLiabilityIntegrationSpec
 
   private def insertionUrlWithFaultyNino   = buildInsertionUrl(faultyInsertionNino)
   private def terminationUrlWithFaultyNino = buildTerminationUrl(faultyTerminationNino)
+
+  private def insertionUrlWith403Nino   = buildInsertionUrl(forbiddenErrorNino)
+  private def terminationUrlWith403Nino = buildInsertionUrl(forbiddenErrorNino)
 
   private def insertionUrlWith404Nino   = buildInsertionUrl(notFoundErrorNino)
   private def terminationUrlWith404Nino = buildTerminationUrl(notFoundErrorNino)
@@ -159,6 +164,29 @@ class UcLiabilityIntegrationSpec
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
+    "respond with 401 status when Authorization credentials are invalid" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(invalidAuthorizationHeader: _*)
+        .withBody(validInsertLiabilityRequest)
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response = request
+        .execute()
+        .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe UNAUTHORIZED
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
     "respond with 403 status when originator id is missing" in {
       val insertionPathValidator = openApiValidator.forPath("POST", insertionUrl)
 
@@ -177,6 +205,36 @@ class UcLiabilityIntegrationSpec
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe FORBIDDEN
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = insertionPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
+    }
+
+    "respond with 403 Forbidden when NINO matches the criteria for a 403 case" in {
+      val insertionPathValidator = openApiValidator.forPath("POST", insertionUrlWith403Nino)
+
+      val request = insertionPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(validHeaders: _*)
+        .withBody(validInsertLiabilityRequest)
+
+      val requestValidationErrors = insertionPathValidator.validateRequest(request)
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response =
+        request
+          .execute()
+          .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe FORBIDDEN
+
+      println(response.body[String])
+      response.body[String] mustBe Json.toJson(Failure(reason = "Forbidden", code = "403.2")).toString
+
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
@@ -395,6 +453,57 @@ class UcLiabilityIntegrationSpec
       response.status mustBe UNAUTHORIZED
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 401 status when Authorization credentials are invalid" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
+
+      val request = terminationPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(invalidAuthorizationHeader: _*)
+        .withBody(validTerminateLiabilityRequest)
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response = request
+        .execute()
+        .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe UNAUTHORIZED
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+    }
+
+    "respond with 403 Forbidden when NINO matches the criteria for a 403 case" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrlWith403Nino)
+
+      val request = terminationPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(validHeaders: _*)
+        .withBody(validInsertLiabilityRequest)
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors mustBe List.empty[ValidationError]
+
+      val response =
+        request
+          .execute()
+          .futureValue
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+
+      response.status mustBe FORBIDDEN
+      response.body[String] mustBe Json.toJson(Failure(reason = "Forbidden", code = "403.2")).toString
+
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = terminationPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
     }
 
     "respond with 403 status when originator id is missing" in {

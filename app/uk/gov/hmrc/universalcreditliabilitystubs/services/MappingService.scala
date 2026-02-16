@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.services
 
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
