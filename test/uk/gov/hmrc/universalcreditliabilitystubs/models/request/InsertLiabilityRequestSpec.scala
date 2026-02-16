@@ -18,8 +18,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.Json
-import play.api.libs.json.{JsSuccess, JsValue}
+import play.api.libs.json.JsValue
 import play.api.libs.json.{JsSuccess, Json}
 
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {

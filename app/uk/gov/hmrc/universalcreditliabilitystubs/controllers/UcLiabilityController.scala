@@ -24,9 +24,10 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, InvalidAuth}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, UnauthorizedCode}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, UnauthorizedReason}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.isValidGovUkOriginatorId
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.{ForbiddenReason, InvalidAuthReason, isExpectedGovUkOriginatorId}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.isExpectedGovUkOriginatorId
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, GovUkOriginatorId}
 
 import java.util.Base64
@@ -76,15 +77,9 @@ class UcLiabilityController @Inject() (
       .get(Authorization)
       .filter(_ == expectedAuth)
       .toRight(
-        Unauthorized(Json.toJson(Failure(reason = InvalidAuthReason, code = InvalidAuth)))
+        Unauthorized(Json.toJson(Failure(reason = UnauthorizedReason, code = UnauthorizedCode)))
       )
   }
-
-//  def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
-//    request.headers
-//      .get(GovUkOriginatorId)
-//      .filter(isValidGovUkOriginatorId)
-//      .toRight(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
 
   def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
     request.headers.get(GovUkOriginatorId) match {

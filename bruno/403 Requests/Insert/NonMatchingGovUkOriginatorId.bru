@@ -39,8 +39,3 @@ assert {
   res.body.code: eq '403.2'
   res.body.reason: eq 'Forbidden'
 }
-
-script:pre-request {
-  // TODO: remove once optional dateOfBirth have been implemented
-  bru.runner.skipRequest();
-}

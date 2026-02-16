@@ -22,6 +22,8 @@ import play.api.libs.json.Json
 import play.api.mvc.Results.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, UnauthorizedCode}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, UnauthorizedReason}
 
 class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
@@ -33,17 +35,17 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
     "return a Unauthorized (401) when NINO starts with XY401" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("XY401"))
-      result mustBe Some(Unauthorized)
+      result mustBe Some(Unauthorized(Json.toJson(Failure(reason = UnauthorizedReason, code = UnauthorizedCode))))
     }
 
     "return a Forbidden (403) when NINO starts with XY403" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("XY403"))
-      result mustBe Some(Forbidden(Json.toJson(Failure(reason = "Forbidden", code = "403.2"))))
+      result mustBe Some(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
     }
 
     "return a Forbidden (403) when NINO starts with HJ120" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("HJ120"))
-      result mustBe Some(Forbidden)
+      result mustBe Some(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
     }
 
     "return a NotFound (404) when NINO starts with XY404" in {

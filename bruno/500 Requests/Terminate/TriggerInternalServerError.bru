@@ -1,17 +1,17 @@
 meta {
-  name: Trigger BadRequest
+  name: Trigger InternalServerError
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
-  url: {{api-host}}/ni/person/:nino/liability/universal-credit
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
   body: json
   auth: none
 }
 
 params:path {
-  nino: XY400000
+  nino: XY500000
 }
 
 headers {
@@ -23,9 +23,8 @@ headers {
 
 body:json {
   {
-    "universalCreditLiabilityDetails": {
+    "ucLiabilityTerminationDetails": {
       "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
-      "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }
@@ -33,7 +32,7 @@ body:json {
 }
 
 assert {
-  res.status: eq 400
+  res.status: eq 500
   res.headers.correlationid: eq {{correlationId}}
   res.body: isEmpty
 }

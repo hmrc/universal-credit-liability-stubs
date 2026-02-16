@@ -28,6 +28,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityControll
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.ForbiddenReason
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.GovUkOriginatorId
 
 import scala.concurrent.Future
@@ -54,7 +55,7 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
 
     val body = contentAsJson(Future.successful(actualResult))
     (body \ "code").as[String] mustBe ApplicationConstants.ErrorCodes.ForbiddenCode
-    (body \ "reason").as[String] mustBe ApplicationConstants.ForbiddenReason
+    (body \ "reason").as[String] mustBe ForbiddenReason
   }
 
   "UcLiabilityNotificationController" must {

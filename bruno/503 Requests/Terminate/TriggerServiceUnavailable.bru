@@ -1,7 +1,7 @@
 meta {
-  name: 55027 - End Date later than Date of Death
+  name: Trigger ServiceUnavailable
   type: http
-  seq: 3
+  seq: 1
 }
 
 post {
@@ -11,7 +11,7 @@ post {
 }
 
 params:path {
-  nino: BK190000
+  nino: XY503000
 }
 
 headers {
@@ -32,9 +32,7 @@ body:json {
 }
 
 assert {
-  res.status: eq 422
+  res.status: eq 503
   res.headers.correlationid: eq {{correlationId}}
-  res.body: isJson
-  res.body.failures[0].code: eq '55027'
-  res.body.failures[0].reason: eq 'End Date later than Date of Death'
+  res.body: isEmpty
 }
