@@ -24,13 +24,6 @@ script:pre-request {
   bru.setVar("authorization", `Basic ${encoded}`);
 }
 
-script:post-response {
-  if (res.status === 403) {
-    const body = res.getBody();
-    throw new Error(`Authentication failed: ${body.code} - ${body.reason}`);
-  }
-}
-
 docs {
 
   # Universal Credit Liability Stubs

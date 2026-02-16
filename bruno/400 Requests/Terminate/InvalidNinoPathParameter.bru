@@ -1,7 +1,7 @@
 meta {
-  name: Invalid Header - Correlation Id
+  name: Invalid NINO Path Parameter
   type: http
-  seq: 12
+  seq: 1
 }
 
 post {
@@ -11,13 +11,13 @@ post {
 }
 
 params:path {
-  nino: {{randomNino}}
+  nino: INVALID_NINO
 }
 
 headers {
   Authorization: {{authorization}}
   Content-Type: application/json
-  correlationId: INVALID_CORRELATION_ID
+  correlationId: {{correlationId}}
   gov-uk-originator-id: {{govUkOriginatorId}}
 }
 
@@ -33,5 +33,6 @@ body:json {
 
 assert {
   res.status: eq 400
-  res.headers.correlationid: isDefined
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isEmpty
 }

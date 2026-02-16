@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{api-host}}/invalid/endpoint/{{randomNino}}/invalid/endpoint
+  url: {{api-host}}/ni/person/:nino/liability/universal-creditX
   body: json
   auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
 }
 
 headers {
@@ -20,7 +24,7 @@ headers {
 body:json {
   {
     "universalCreditLiabilityDetails": {
-      "universalCreditRecordType": "UC",
+      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
       "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
@@ -29,7 +33,7 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 404
   res.headers.correlationid: eq {{correlationId}}
   res.body: isEmpty
 }
