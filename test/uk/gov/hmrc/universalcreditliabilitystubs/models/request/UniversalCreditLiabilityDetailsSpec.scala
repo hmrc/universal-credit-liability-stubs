@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, Json}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 
@@ -47,9 +47,7 @@ class UniversalCreditLiabilityDetailsSpec
         ) {
           val json   = Json.toJson(uclDetails)
           val parsed = json.validate[UniversalCreditLiabilityDetails]
-
-          parsed.isSuccess mustBe true
-          parsed.get mustEqual uclDetails
+          parsed mustBe JsSuccess(uclDetails)
         }
       }
 
@@ -61,8 +59,7 @@ class UniversalCreditLiabilityDetailsSpec
         ) {
           val json   = Json.toJson(uclDetails)
           val parsed = json.validate[UniversalCreditLiabilityDetails]
-
-          parsed.isError mustBe true
+          parsed mustBe a[JsError]
         }
       }
   }
