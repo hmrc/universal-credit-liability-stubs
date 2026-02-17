@@ -31,7 +31,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |"ucLiabilityTerminationDetails": {
           |"universalCreditRecordType": "LCW/LCWRA",
           |"liabilityStartDate": "2015-08-19",
-          |"liabilityEndDate": "2025-01-04"
+          |"liabilityEndDate": "2026-06-30"
           |}
           |}
           |""".stripMargin
@@ -40,7 +40,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
         ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = "2025-01-04"
+          liabilityEndDate = "2026-06-30"
         )
       )
     }
@@ -51,7 +51,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
         ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = "2025-01-04"
+          liabilityEndDate = "2026-06-30"
         )
       )
 
@@ -59,7 +59,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
         "ucLiabilityTerminationDetails" -> Json.obj(
           "universalCreditRecordType" -> "LCW/LCWRA",
           "liabilityStartDate"        -> "2015-08-19",
-          "liabilityEndDate"          -> "2025-01-04"
+          "liabilityEndDate"          -> "2026-06-30"
         )
       )
 

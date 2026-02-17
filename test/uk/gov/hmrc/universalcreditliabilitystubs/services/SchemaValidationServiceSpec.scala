@@ -42,7 +42,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
             dateOfBirth = "2002-10-10",
             liabilityStartDate = "2015-08-19",
-            liabilityEndDate = Some("2025-01-04")
+            liabilityEndDate = Some("2026-06-30")
           )
         )
       )
@@ -111,7 +111,7 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
           ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
             liabilityStartDate = "2015-08-19",
-            liabilityEndDate = "2025-01-04"
+            liabilityEndDate = "2026-06-30"
           )
         )
       )
