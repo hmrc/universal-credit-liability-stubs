@@ -48,6 +48,7 @@ class UniversalCreditLiabilityDetailsSpec
         ) {
           val testJson = Json.toJson(uclDetails)
           val result   = testJson.validate[UniversalCreditLiabilityDetails]
+
           result mustBe JsSuccess(uclDetails)
         }
       }
@@ -61,6 +62,7 @@ class UniversalCreditLiabilityDetailsSpec
         ) {
           val testJson = Json.toJson(uclDetails)
           val result   = testJson.validate[UniversalCreditLiabilityDetails]
+
           result mustBe a[JsError]
         }
       }
