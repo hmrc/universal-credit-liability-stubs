@@ -42,11 +42,12 @@ class UniversalCreditLiabilityDetailsSpec
     "Serialize/deserialize valid dates correctly" in
       forAll(ucDetailsGen, minSuccessful(1000)) { uclDetails =>
         whenever(
-          uclDetails.dateOfBirth.forall(DatePattern.matches) && DatePattern.matches(uclDetails.liabilityStartDate) &&
+          uclDetails.dateOfBirth.forall(DatePattern.matches) &&
+            DatePattern.matches(uclDetails.liabilityStartDate) &&
             uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
-          val json   = Json.toJson(uclDetails)
-          val parsed = json.validate[UniversalCreditLiabilityDetails]
+          val testJson = Json.toJson(uclDetails)
+          val parsed   = testJson.validate[UniversalCreditLiabilityDetails]
           parsed mustBe JsSuccess(uclDetails)
         }
       }
@@ -54,11 +55,12 @@ class UniversalCreditLiabilityDetailsSpec
     "Fail deserialization for invalid dates" in
       forAll(ucDetailsGen, minSuccessful(1000)) { uclDetails =>
         whenever(
-          !uclDetails.dateOfBirth.forall(DatePattern.matches) || !DatePattern.matches(uclDetails.liabilityStartDate) ||
+          !uclDetails.dateOfBirth.forall(DatePattern.matches) ||
+            !DatePattern.matches(uclDetails.liabilityStartDate) ||
             !uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
-          val json   = Json.toJson(uclDetails)
-          val parsed = json.validate[UniversalCreditLiabilityDetails]
+          val testJson = Json.toJson(uclDetails)
+          val parsed   = testJson.validate[UniversalCreditLiabilityDetails]
           parsed mustBe a[JsError]
         }
       }

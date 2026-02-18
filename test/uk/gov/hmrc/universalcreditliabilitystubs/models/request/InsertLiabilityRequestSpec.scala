@@ -53,7 +53,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
     }
 
     "must write to correct json" in {
-      val testInsertLiabilityRequest: JsValue = Json.parse("""
+      val testJson: JsValue = Json.parse("""
           |{
           |  "universalCreditLiabilityDetails": {
           |    "universalCreditRecordType": "LCW/LCWRA",
@@ -73,7 +73,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
         )
       )
 
-      Json.toJson(model) mustBe testInsertLiabilityRequest
+      Json.toJson(model) mustBe testJson
     }
   }
 }
