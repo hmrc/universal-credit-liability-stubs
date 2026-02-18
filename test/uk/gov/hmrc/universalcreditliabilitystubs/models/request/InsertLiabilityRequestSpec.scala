@@ -24,8 +24,17 @@ import play.api.libs.json.{JsSuccess, JsValue}
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
-
     "parse request jsons correctly" in {
+      val expectedInsertLiabilityRequest: InsertLiabilityRequest =
+        InsertLiabilityRequest(
+          universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
+            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
+            dateOfBirth = Some("2002-04-27"),
+            liabilityStartDate = "2015-08-19",
+            liabilityEndDate = Some("2026-06-30")
+          )
+        )
+
       val testJson: JsValue = Json.parse("""
           |{
           |  "universalCreditLiabilityDetails": {
@@ -37,22 +46,20 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |}
           |""".stripMargin)
 
-      val expectedInsertLiabilityRequest: InsertLiabilityRequest =
-        InsertLiabilityRequest(
-          universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
-            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-            dateOfBirth = Some("2002-04-27"),
-            liabilityStartDate = "2015-08-19",
-            liabilityEndDate = Some("2026-06-30")
-          )
-        )
-
       val result = testJson.validate[InsertLiabilityRequest]
-
       result mustBe JsSuccess(expectedInsertLiabilityRequest)
     }
 
     "must write to correct json" in {
+      val testInsertLiabilityRequest = InsertLiabilityRequest(
+        universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
+          universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
+          dateOfBirth = Some("2002-04-27"),
+          liabilityStartDate = "2015-08-19",
+          liabilityEndDate = Some("2026-06-30")
+        )
+      )
+
       val expectedJson: JsValue = Json.parse("""
           |{
           |  "universalCreditLiabilityDetails": {
@@ -63,15 +70,6 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |  }
           |}
           |""".stripMargin)
-
-      val testInsertLiabilityRequest = InsertLiabilityRequest(
-        universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
-          universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          dateOfBirth = Some("2002-04-27"),
-          liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2026-06-30")
-        )
-      )
 
       Json.toJson(testInsertLiabilityRequest) mustBe expectedJson
     }
