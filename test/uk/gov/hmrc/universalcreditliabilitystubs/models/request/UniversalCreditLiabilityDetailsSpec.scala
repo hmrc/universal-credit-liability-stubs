@@ -47,8 +47,8 @@ class UniversalCreditLiabilityDetailsSpec
             uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
           val testJson = Json.toJson(uclDetails)
-          val parsed   = testJson.validate[UniversalCreditLiabilityDetails]
-          parsed mustBe JsSuccess(uclDetails)
+          val result   = testJson.validate[UniversalCreditLiabilityDetails]
+          result mustBe JsSuccess(uclDetails)
         }
       }
 
@@ -60,8 +60,8 @@ class UniversalCreditLiabilityDetailsSpec
             !uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
           val testJson = Json.toJson(uclDetails)
-          val parsed   = testJson.validate[UniversalCreditLiabilityDetails]
-          parsed mustBe a[JsError]
+          val result   = testJson.validate[UniversalCreditLiabilityDetails]
+          result mustBe a[JsError]
         }
       }
   }
