@@ -25,7 +25,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
     "parse request jsons correctly" in {
-      val expectedInsertLiabilityRequest: InsertLiabilityRequest =
+      val testInsertLiabilityRequest: InsertLiabilityRequest =
         InsertLiabilityRequest(
           universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
@@ -35,7 +35,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           )
         )
 
-      val testJson: JsValue = Json.parse("""
+      val expectedJson: JsValue = Json.parse("""
           |{
           |  "universalCreditLiabilityDetails": {
           |    "universalCreditRecordType": "LCW/LCWRA",
@@ -46,8 +46,8 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |}
           |""".stripMargin)
 
-      val result = testJson.validate[InsertLiabilityRequest]
-      result mustBe JsSuccess(expectedInsertLiabilityRequest)
+      val result = expectedJson.validate[InsertLiabilityRequest]
+      result mustBe JsSuccess(testInsertLiabilityRequest)
     }
 
     "must write to correct json" in {
