@@ -47,6 +47,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |""".stripMargin)
 
       val result = expectedJson.validate[InsertLiabilityRequest]
+
       result mustBe JsSuccess(testInsertLiabilityRequest)
     }
 
