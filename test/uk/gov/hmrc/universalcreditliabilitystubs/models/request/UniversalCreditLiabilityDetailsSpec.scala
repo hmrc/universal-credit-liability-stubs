@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, Json}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
 
@@ -32,40 +32,39 @@ class UniversalCreditLiabilityDetailsSpec
 
   val ucDetailsGen: Gen[UniversalCreditLiabilityDetails] = for {
     recordType  <- ucRecordTypeGen
-    dateOfBirth <- mixedDateGen
+    dateOfBirth <- Gen.option(mixedDateGen)
     startDate   <- mixedDateGen
-    endDate     <- mixedDateGen
-  } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, Some(endDate))
+    endDate     <- Gen.option(mixedDateGen)
+  } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, endDate)
 
   "UniversalCreditLiabilityDetails" must {
 
     "Serialize/deserialize valid dates correctly" in
-      forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
+      forAll(ucDetailsGen, minSuccessful(1000)) { uclDetails =>
         whenever(
-          DatePattern.matches(detail.dateOfBirth) && DatePattern.matches(detail.liabilityStartDate) &&
-            detail.liabilityEndDate.exists(DatePattern.matches)
+          uclDetails.dateOfBirth.forall(DatePattern.matches) &&
+            DatePattern.matches(uclDetails.liabilityStartDate) &&
+            uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
-          val json   = Json.toJson(detail)
-          val parsed = json.validate[UniversalCreditLiabilityDetails]
+          val testJson = Json.toJson(uclDetails)
+          val result   = testJson.validate[UniversalCreditLiabilityDetails]
 
-          parsed.isSuccess mustBe true
-          parsed.get mustEqual detail
+          result mustBe JsSuccess(uclDetails)
         }
       }
 
     "Fail deserialization for invalid dates" in
-      forAll(ucDetailsGen, minSuccessful(1000)) { detail =>
+      forAll(ucDetailsGen, minSuccessful(1000)) { uclDetails =>
         whenever(
-          !DatePattern.matches(detail.dateOfBirth) || !DatePattern.matches(detail.liabilityStartDate) ||
-            !detail.liabilityEndDate.exists(DatePattern.matches)
+          !uclDetails.dateOfBirth.forall(DatePattern.matches) ||
+            !DatePattern.matches(uclDetails.liabilityStartDate) ||
+            !uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
-          val json   = Json.toJson(detail)
-          val parsed = json.validate[UniversalCreditLiabilityDetails]
+          val testJson = Json.toJson(uclDetails)
+          val result   = testJson.validate[UniversalCreditLiabilityDetails]
 
-          parsed.isError mustBe true
+          result mustBe a[JsError]
         }
       }
-
   }
-
 }

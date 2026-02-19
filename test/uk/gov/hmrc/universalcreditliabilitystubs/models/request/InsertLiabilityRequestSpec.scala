@@ -19,55 +19,60 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
+import play.api.libs.json.{JsSuccess, JsValue}
 
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
   "SubmitLiabilityRequest" must {
-
     "parse request jsons correctly" in {
-      val jsonString =
-        """
+      val testInsertLiabilityRequest: InsertLiabilityRequest =
+        InsertLiabilityRequest(
+          universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
+            universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
+            dateOfBirth = Some("2002-04-27"),
+            liabilityStartDate = "2015-08-19",
+            liabilityEndDate = Some("2026-06-30")
+          )
+        )
+
+      val expectedJson: JsValue = Json.parse("""
           |{
           |  "universalCreditLiabilityDetails": {
           |    "universalCreditRecordType": "LCW/LCWRA",
-          |    "dateOfBirth": "2002-10-10",
+          |    "dateOfBirth": "2002-04-27",
           |    "liabilityStartDate": "2015-08-19",
-          |    "liabilityEndDate": "2025-01-04"
+          |    "liabilityEndDate": "2026-06-30"
           |  }
           |}
-          |""".stripMargin
+          |""".stripMargin)
 
-      Json.parse(jsonString).as[InsertLiabilityRequest] mustBe InsertLiabilityRequest(
-        universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
-          universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          dateOfBirth = "2002-10-10",
-          liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2025-01-04")
-        )
-      )
+      val result = expectedJson.validate[InsertLiabilityRequest]
+
+      result mustBe JsSuccess(testInsertLiabilityRequest)
     }
 
     "must write to correct json" in {
-
-      val model = InsertLiabilityRequest(
+      val testInsertLiabilityRequest = InsertLiabilityRequest(
         universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          dateOfBirth = "2002-10-10",
+          dateOfBirth = Some("2002-04-27"),
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2025-01-04")
+          liabilityEndDate = Some("2026-06-30")
         )
       )
 
-      val expectedJson = Json.obj(
-        "universalCreditLiabilityDetails" -> Json.obj(
-          "universalCreditRecordType" -> "LCW/LCWRA",
-          "dateOfBirth"               -> "2002-10-10",
-          "liabilityStartDate"        -> "2015-08-19",
-          "liabilityEndDate"          -> "2025-01-04"
-        )
-      )
+      val expectedJson: JsValue = Json.parse("""
+          |{
+          |  "universalCreditLiabilityDetails": {
+          |    "universalCreditRecordType": "LCW/LCWRA",
+          |    "dateOfBirth": "2002-04-27",
+          |    "liabilityStartDate": "2015-08-19",
+          |    "liabilityEndDate": "2026-06-30"
+          |  }
+          |}
+          |""".stripMargin)
 
-      Json.toJson(model) mustBe expectedJson
+      Json.toJson(testInsertLiabilityRequest) mustBe expectedJson
     }
   }
 }
