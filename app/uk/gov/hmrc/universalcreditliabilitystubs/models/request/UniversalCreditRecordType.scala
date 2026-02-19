@@ -24,9 +24,9 @@ enum UniversalCreditRecordType(val code: String) {
 }
 
 object UniversalCreditRecordType {
-  implicit val writes: Writes[UniversalCreditRecordType] = Writes(recordType => JsString(recordType.code))
+  given writes: Writes[UniversalCreditRecordType] = Writes(recordType => JsString(recordType.code))
 
-  implicit val reads: Reads[UniversalCreditRecordType] = Reads {
+  given reads: Reads[UniversalCreditRecordType] = Reads {
     case JsString("UC")        => JsSuccess(UniversalCreditRecordType.UC)
     case JsString("LCW/LCWRA") => JsSuccess(UniversalCreditRecordType.LCW_LCWRA)
     case _                     => JsError("Unknown RecordType")

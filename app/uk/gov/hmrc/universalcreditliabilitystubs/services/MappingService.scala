@@ -24,13 +24,13 @@ class MappingService {
 
   def mapSystemErrors(nino: String): Option[Result] =
     nino.take(5) match {
-      case "XY400" => Some(BadRequest)
-      case "XY401" => Some(Unauthorized)
-      case "XY403" => Some(Forbidden)
-      case "XY404" => Some(NotFound)
-      case "XY500" => Some(InternalServerError)
-      case "XY503" => Some(ServiceUnavailable)
-      case _       => None
+      case "XY400"           => Some(BadRequest)
+      case "XY401"           => Some(Unauthorized)
+      case "XY403"           => Some(Forbidden)
+      case "XY404" | "CM110" => Some(NotFound)
+      case "XY500"           => Some(InternalServerError)
+      case "XY503"           => Some(ServiceUnavailable)
+      case _                 => None
     }
 
   def map422ErrorResponses(nino: String): Option[Failure] =
@@ -47,7 +47,7 @@ class MappingService {
       case "HC210" => Some(Failure("Start date must not be before 16th birthday", "65026"))
       case "GX240" => Some(Failure("Start date before 29/04/2013", "65536"))
       case "HT230" => Some(Failure("End date before start date", "65537"))
-      case "EA040" => Some(Failure("End date missing but the input was a Termination", "65538")) // TODO: add
+      case "EA040" => Some(Failure("End date missing but the input was a Termination", "65538"))
       case "BX100" => Some(Failure("The NINO input matches a Pseudo Account", "65541"))
       case "HZ310" =>
         Some(

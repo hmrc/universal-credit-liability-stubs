@@ -32,11 +32,11 @@ object UcLiabilityTerminationDetails {
 
   private val validDate: Reads[String] = Reads.verifying[String](isValidDate)
 
-  implicit val reads: Reads[UcLiabilityTerminationDetails] = (
+  given reads: Reads[UcLiabilityTerminationDetails] = (
     (JsPath \ "universalCreditRecordType").read[UniversalCreditRecordType] and
       (JsPath \ "liabilityStartDate").read(validDate) and
       (JsPath \ "liabilityEndDate").read(validDate)
   )(UcLiabilityTerminationDetails.apply _)
 
-  implicit val writes: OWrites[UcLiabilityTerminationDetails] = Json.writes[UcLiabilityTerminationDetails]
+  given writes: OWrites[UcLiabilityTerminationDetails] = Json.writes[UcLiabilityTerminationDetails]
 }
