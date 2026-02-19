@@ -29,7 +29,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
         InsertLiabilityRequest(
           universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-            dateOfBirth = "2002-04-27",
+            dateOfBirth = Some("2002-04-27"),
             liabilityStartDate = "2015-08-19",
             liabilityEndDate = Some("2026-06-30")
           )
@@ -55,7 +55,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
       val testInsertLiabilityRequest = InsertLiabilityRequest(
         universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          dateOfBirth = "2002-04-27",
+          dateOfBirth = Some("2002-04-27"),
           liabilityStartDate = "2015-08-19",
           liabilityEndDate = Some("2026-06-30")
         )
