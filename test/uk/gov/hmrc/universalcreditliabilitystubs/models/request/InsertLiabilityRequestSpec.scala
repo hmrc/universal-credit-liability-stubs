@@ -36,15 +36,16 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
         )
 
       val expectedJson: JsValue = Json.parse("""
-        |{
-        |  "universalCreditLiabilityDetails": {
-        |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "dateOfBirth": "2002-04-27",
-        |    "liabilityStartDate": "2015-08-19",
-        |    "liabilityEndDate": "2026-06-30"
-        |  }
-        |}
-        |""".stripMargin)
+          |{
+          |  "universalCreditLiabilityDetails": {
+          |    "universalCreditRecordType": "LCW/LCWRA",
+          |    "dateOfBirth": "2002-04-27",
+          |    "liabilityStartDate": "2015-08-19",
+          |    "liabilityEndDate": "2026-06-30"
+          |  }
+          |}
+          |""".stripMargin)
+
 
       val result = expectedJson.validate[InsertLiabilityRequest]
 
@@ -62,15 +63,15 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
       )
 
       val expectedJson: JsValue = Json.parse("""
-        |{
-        |  "universalCreditLiabilityDetails": {
-        |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "dateOfBirth": "2002-04-27",
-        |    "liabilityStartDate": "2015-08-19",
-        |    "liabilityEndDate": "2026-06-30"
-        |  }
-        |}
-        |""".stripMargin)
+          |{
+          |  "universalCreditLiabilityDetails": {
+          |    "universalCreditRecordType": "LCW/LCWRA",
+          |    "dateOfBirth": "2002-04-27",
+          |    "liabilityStartDate": "2015-08-19",
+          |    "liabilityEndDate": "2026-06-30"
+          |  }
+          |}
+          |""".stripMargin)
 
       Json.toJson(testInsertLiabilityRequest) mustBe expectedJson
     }
