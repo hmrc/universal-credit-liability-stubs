@@ -77,7 +77,7 @@ paths:
                     universalCreditRecordType: LCW/LCWRA
                     dateOfBirth: 2002-10-10
                     liabilityStartDate: 2015-08-19
-                    liabilityEndDate: 2026-06-30
+                    liabilityEndDate: 2025-01-04
         required: true
       responses:
         "204":
@@ -263,7 +263,7 @@ paths:
                   ucLiabilityTerminationDetails:
                     universalCreditRecordType: LCW/LCWRA
                     liabilityStartDate: 2015-08-19
-                    liabilityEndDate: 2026-06-30
+                    liabilityEndDate: 2025-01-04
         required: true
       responses:
         "204":
