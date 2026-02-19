@@ -19,6 +19,7 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
+import play.api.libs.json.{JsSuccess, JsValue}
 
 class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
 
@@ -32,7 +33,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |    "universalCreditRecordType": "LCW/LCWRA",
           |    "dateOfBirth": "2002-10-10",
           |    "liabilityStartDate": "2015-08-19",
-          |    "liabilityEndDate": "2026-06-30"
+          |    "liabilityEndDate": "2025-01-04"
           |  }
           |}
           |""".stripMargin
@@ -42,7 +43,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
           dateOfBirth = "2002-10-10",
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2026-06-30")
+          liabilityEndDate = Some("2025-01-04")
         )
       )
     }
@@ -54,7 +55,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
           dateOfBirth = "2002-10-10",
           liabilityStartDate = "2015-08-19",
-          liabilityEndDate = Some("2026-06-30")
+          liabilityEndDate = Some("2025-01-04")
         )
       )
 
@@ -63,7 +64,7 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           "universalCreditRecordType" -> "LCW/LCWRA",
           "dateOfBirth"               -> "2002-10-10",
           "liabilityStartDate"        -> "2015-08-19",
-          "liabilityEndDate"          -> "2026-06-30"
+          "liabilityEndDate"          -> "2025-01-04"
         )
       )
 
