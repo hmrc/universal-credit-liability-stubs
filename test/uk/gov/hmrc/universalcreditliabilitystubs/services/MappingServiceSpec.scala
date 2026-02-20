@@ -40,6 +40,11 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
       result mustBe Some(Forbidden)
     }
 
+    "return a Forbidden (403) when NINO starts with HJ120" in {
+      val result = mappingService.mapSystemErrors(generateNinoWithPrefix("HJ120"))
+      result mustBe Some(Forbidden)
+    }
+
     "return a NotFound (404) when NINO starts with XY404" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("XY404"))
       result mustBe Some(NotFound)
@@ -52,6 +57,11 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
     "return a InternalServerError (500) when NINO starts with XY500" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("XY500"))
+      result mustBe Some(InternalServerError)
+    }
+
+    "return a InternalServerError (500) when NINO starts with HZ020" in {
+      val result = mappingService.mapSystemErrors(generateNinoWithPrefix("HZ020"))
       result mustBe Some(InternalServerError)
     }
 
