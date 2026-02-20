@@ -26,9 +26,9 @@ class MappingService {
     nino.take(5) match {
       case "XY400"           => Some(BadRequest)
       case "XY401"           => Some(Unauthorized)
-      case "XY403"           => Some(Forbidden)
+      case "XY403" | "HJ120" => Some(Forbidden)
       case "XY404" | "CM110" => Some(NotFound)
-      case "XY500"           => Some(InternalServerError)
+      case "XY500" | "HZ020" => Some(InternalServerError)
       case "XY503"           => Some(ServiceUnavailable)
       case _                 => None
     }
