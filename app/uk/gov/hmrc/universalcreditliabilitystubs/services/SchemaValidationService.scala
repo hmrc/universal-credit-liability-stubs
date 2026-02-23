@@ -24,11 +24,9 @@ import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest}
-import uk.gov.hmrc.universalcreditliabilitystubs.services.SchemaValidationService.*
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.*
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
-
-import scala.util.matching.Regex
 
 class SchemaValidationService {
 
@@ -110,12 +108,4 @@ class SchemaValidationService {
     Logger(this.getClass).warn(Json.stringify(Json.toJson(Failures(allFailures))))
     BadRequest
   }
-}
-
-object SchemaValidationService {
-  val CorrelationIdPattern: Regex =
-    "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$".r
-
-  private val NinoPattern: Regex =
-    "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}$".r
 }

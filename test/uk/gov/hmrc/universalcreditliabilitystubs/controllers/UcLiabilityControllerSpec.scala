@@ -28,6 +28,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityControll
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.ForbiddenReason
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.GovUkOriginatorId
 
 import scala.concurrent.Future
@@ -37,6 +38,8 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   private val mockSchemaValidationService = mock[SchemaValidationService]
   private val mockMappingService          = mock[MappingService]
   private val mockAppConfig               = mock[AppConfig]
+
+  private val govUkOriginatorIdProvidedByDwp: String = "TEST-GOV-UK-ORIGINATOR-ID"
 
   private val testUcLiabilityController = new UcLiabilityController(
     stubControllerComponents(),
@@ -52,29 +55,42 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
 
     val body = contentAsJson(Future.successful(actualResult))
     (body \ "code").as[String] mustBe ApplicationConstants.ErrorCodes.ForbiddenCode
-    (body \ "reason").as[String] mustBe ApplicationConstants.ForbiddenReason
+    (body \ "reason").as[String] mustBe ForbiddenReason
   }
 
   "UcLiabilityNotificationController" must {
 
     "return right" when {
-      "given a valid originatorId" in {
-        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 3)))
+      "given a valid originatorId provided by DWP" in {
+        val request = generateFakeRequest(
+          requestBody = Json.obj(),
+          headers = Seq(GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp)
+        )
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
-        result mustBe Right("A" * 3)
+        result mustBe Right(govUkOriginatorIdProvidedByDwp)
       }
     }
 
     "return Left (403 Forbidden)" when {
-      "given an originatorId shorter than 3 characters" in {
+      "given an originatorId that does not match the one provided by DWP" in {
+        val request = generateFakeRequest(
+          requestBody = Json.obj(),
+          headers = Seq(GovUkOriginatorId -> "NON-MATCHING-GOV-UK-ORIGINATOR-ID")
+        )
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        assertForbidden(result)
+      }
+
+      "given an originatorId shorter than the minimum length of 3 characters" in {
         val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 2)))
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
         assertForbidden(result)
       }
 
-      "given an originatorId longer than 40 characters" in {
+      "given an originatorId longer than the maximum length of 40 characters" in {
         val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 41)))
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 

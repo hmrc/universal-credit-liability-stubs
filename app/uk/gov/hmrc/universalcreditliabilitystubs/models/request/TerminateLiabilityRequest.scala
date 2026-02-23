@@ -18,7 +18,9 @@ package uk.gov.hmrc.universalcreditliabilitystubs.models.request
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class TerminateLiabilityRequest(ucLiabilityTerminationDetails: UcLiabilityTerminationDetails)
+final case class TerminateLiabilityRequest(
+  ucLiabilityTerminationDetails: UcLiabilityTerminationDetails
+)
 
 object TerminateLiabilityRequest {
   given format: OFormat[TerminateLiabilityRequest] = Json.format[TerminateLiabilityRequest]

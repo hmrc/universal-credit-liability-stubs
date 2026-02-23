@@ -1,0 +1,40 @@
+meta {
+  name: 65536 - Start date before 29/04/2013
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
+  body: json
+  auth: none
+}
+
+params:path {
+  nino: GX240000
+}
+
+headers {
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
+      "liabilityStartDate": "2025-08-19",
+      "liabilityEndDate": "2026-06-30"
+    }
+  }
+}
+
+assert {
+  res.status: eq 422
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isJson
+  res.body.failures[0].code: eq '65536'
+  res.body.failures[0].reason: eq 'Start date before 29/04/2013'
+}

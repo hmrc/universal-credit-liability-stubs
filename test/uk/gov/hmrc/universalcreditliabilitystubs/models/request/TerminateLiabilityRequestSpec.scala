@@ -30,7 +30,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |{
           |"ucLiabilityTerminationDetails": {
           |"universalCreditRecordType": "LCW/LCWRA",
-          |"liabilityStartDate": "2015-08-19",
+          |"liabilityStartDate": "2025-08-19",
           |"liabilityEndDate": "2026-06-30"
           |}
           |}
@@ -39,7 +39,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
       Json.parse(jsonString).as[TerminateLiabilityRequest] mustBe TerminateLiabilityRequest(
         ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          liabilityStartDate = "2015-08-19",
+          liabilityStartDate = "2025-08-19",
           liabilityEndDate = "2026-06-30"
         )
       )
@@ -50,7 +50,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
       val model = TerminateLiabilityRequest(
         ucLiabilityTerminationDetails = UcLiabilityTerminationDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          liabilityStartDate = "2015-08-19",
+          liabilityStartDate = "2025-08-19",
           liabilityEndDate = "2026-06-30"
         )
       )
@@ -58,7 +58,7 @@ class TerminateLiabilityRequestSpec extends AnyWordSpec with Matchers {
       val expectedJson = Json.obj(
         "ucLiabilityTerminationDetails" -> Json.obj(
           "universalCreditRecordType" -> "LCW/LCWRA",
-          "liabilityStartDate"        -> "2015-08-19",
+          "liabilityStartDate"        -> "2025-08-19",
           "liabilityEndDate"          -> "2026-06-30"
         )
       )

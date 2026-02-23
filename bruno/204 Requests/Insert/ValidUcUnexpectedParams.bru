@@ -1,0 +1,41 @@
+meta {
+  name: Valid UC with unexpected parameters
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
+  body: json
+  auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
+}
+
+headers {
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
+}
+
+body:json {
+  {
+    "universalCreditLiabilityDetails": {
+      "universalCreditRecordType": "UC",
+      "dateOfBirth": "2002-04-27",
+      "liabilityStartDate": "2025-08-19",
+      "liabilityEndDate": "2026-06-30",
+      "extraField1": "Extra Field 1",
+      "extraField2": "Extra Field 2"
+    }
+  }
+}
+
+assert {
+  res.status: eq 204
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isEmpty
+}

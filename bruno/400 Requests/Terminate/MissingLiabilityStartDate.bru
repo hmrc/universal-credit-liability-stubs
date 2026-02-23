@@ -1,0 +1,36 @@
+meta {
+  name: Missing Liability Start Date
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
+  body: json
+  auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
+}
+
+headers {
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
+      "liabilityEndDate": "2026-06-30"
+    }
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.headers.correlationid: eq {{correlationId}}
+}
