@@ -35,5 +35,8 @@ body:json {
 assert {
   res.status: eq 404
   res.headers.correlationid: eq {{correlationId}}
-  res.body: isEmpty
+  res.body: isNotEmpty
+  res.body: isJson
+  res.body.code: eq '404'
+  res.body.reason: eq 'Not found'
 }

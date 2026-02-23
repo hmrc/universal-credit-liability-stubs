@@ -56,12 +56,14 @@ object ApplicationConstants {
     val InvalidInputCode: String = "400.1"
     val UnauthorizedCode: String = "401.1"
     val ForbiddenCode: String    = "403.2"
+    val NotFoundCode: String     = "404"
   }
 
   object ErrorMessages {
     def invalidInputReason(field: String): String = s"Constraint Violation - Invalid/Missing input parameter: $field"
     val ForbiddenReason: String                   = "Forbidden"
     val UnauthorizedReason: String                = "Invalid or missing Authorization header"
+    val NotFoundReason: String                    = "Not found"
   }
 }
 
