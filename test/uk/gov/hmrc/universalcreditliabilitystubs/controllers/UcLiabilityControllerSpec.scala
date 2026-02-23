@@ -64,6 +64,16 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
 
         result mustBe Right("A" * 3)
       }
+
+      "given a valid GovUkOriginatorId for Special characters: '{}, [], (), @, !, *, -, ?'" in {
+        val request = generateFakeRequest(
+          requestBody = Json.obj(),
+          headers = Seq(GovUkOriginatorId -> "{[(V@l!d-0r!g!n4t*r-1D?)]}")
+        )
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        result mustBe Right("{[(V@l!d-0r!g!n4t*r-1D?)]}")
+      }
     }
 
     "return Left (403 Forbidden)" when {
@@ -76,6 +86,21 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
 
       "given an originatorId longer than 40 characters" in {
         val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 41)))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        assertForbidden(result)
+      }
+
+      "given an originatorId contains a space" in {
+        val request =
+          generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> "contains space"))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        assertForbidden(result)
+      }
+
+      "given an originatorId contains a tab" in {
+        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> "tab\tchar"))
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
         assertForbidden(result)
