@@ -86,7 +86,7 @@ class UcLiabilityController @Inject() (
       case Some(id) if isValidGovUkOriginatorId(id) && isExpectedGovUkOriginatorId(id) =>
         Right(id)
       case _                                                                           =>
-        logger.warn("gov-uk-originator-id validation failed")
+        logger.warn("GovUkOriginatorId validation failed")
         Left(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
     }
 
