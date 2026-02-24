@@ -24,11 +24,6 @@ import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 
 object ApplicationConstants {
 
-  val govUkOriginatorIdProvidedByDwp: String = "TEST-GOV-UK-ORIGINATOR-ID"
-
-  def isExpectedGovUkOriginatorId(id: String): Boolean =
-    id == govUkOriginatorIdProvidedByDwp
-
   object PathParameter {
     val Nino = "nino"
   }
