@@ -40,7 +40,7 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   private val mockMappingService          = mock[MappingService]
   private val mockAppConfig               = mock[AppConfig]
 
-  private val govUkOriginatorIdProvidedByDwp: String = "TEST-GOV-UK-ORIGINATOR-ID"
+  private val hipGovUkOriginatorId: String = mockAppConfig.hipGovUkOriginatorId
 
   private val testUcLiabilityController = new UcLiabilityController(
     stubControllerComponents(),
@@ -65,23 +65,23 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
       "given a valid originatorId provided by DWP" in {
         val request = generateFakeRequest(
           requestBody = Json.obj(),
-          headers = Seq(GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp)
+          headers = Seq(GovUkOriginatorId -> hipGovUkOriginatorId)
         )
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
-        result mustBe Right(govUkOriginatorIdProvidedByDwp)
+        result mustBe Right(hipGovUkOriginatorId)
       }
 
-//      "given a valid GovUkOriginatorId for Special characters: '{}, [], (), @, !, *, -, ?'" in {
-//        when(mockAppConfig.govUkOriginatorIdProvidedByDwp).thenReturn("{[(V@l!d-0r!g!n4t*r-1D?)]}")
-//
-//        val validGovUkOriginatorId = "{[(V@l!d-0r!g!n4t*r-1D?)]}"
-//        val request           =
-//          generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> validGovUkOriginatorId))
-//        val result = testUcLiabilityController.validateGovUkOriginatorId(request)
-//        println(result)
-//        result mustBe Right(validGovUkOriginatorId)
-//      }
+      "given a valid GovUkOriginatorId for Special characters: '{}, [], (), @, !, *, -, ?'" in {
+        val validGovUkOriginatorId = "{[(V@l!d-0r!g!n4t*r-1D?)]}"
+        when(mockAppConfig.hipGovUkOriginatorId).thenReturn(validGovUkOriginatorId)
+
+        val request =
+          generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> validGovUkOriginatorId))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+        println(result)
+        result mustBe Right(validGovUkOriginatorId)
+      }
     }
 
     "return Left (403 Forbidden)" when {

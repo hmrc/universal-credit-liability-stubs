@@ -24,11 +24,12 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.govUkOriginatorIdProvidedByDwp
+import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 import wolfendale.scalacheck.regexp.RegexpGen
 
 import java.util.Base64
+import javax.inject.Inject
 import scala.util.Random
 import scala.util.matching.Regex
 
@@ -107,13 +108,13 @@ trait TestHelpers {
     Seq(
       HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=", // Base64 for local-client-id:local-client-secret
       HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> appConfig.hipGovUkOriginatorId
     )
 
   val missingAuthorizationHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> appConfig.hipGovUkOriginatorId
     )
 
   private val invalidCredentials =
@@ -123,7 +124,7 @@ trait TestHelpers {
     Seq(
       HeaderNames.Authorization     -> s"Basic $invalidCredentials",
       HeaderNames.CorrelationId     -> java.util.UUID.randomUUID().toString,
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> appConfig.hipGovUkOriginatorId
     )
 
   val missingOriginatorIdHeader: Seq[(String, String)] =
@@ -135,7 +136,7 @@ trait TestHelpers {
   val missingCorrelationIdHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> appConfig.hipGovUkOriginatorId
     )
 
   def generateNino(): String = {
