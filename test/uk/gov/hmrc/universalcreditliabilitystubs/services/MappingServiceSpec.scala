@@ -140,6 +140,11 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
       result mustBe Some(Failure("End date before start date", "65537"))
     }
 
+    "return a 422 with code '65538' when NINO starts with EA040" in {
+      val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("EA040"))
+      result mustBe Some(Failure("End date missing but the input was a Termination", "65538"))
+    }
+
     "return a 422 with code '65541' when NINO starts with BX100" in {
       val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("BX100"))
       result mustBe Some(Failure("The NINO input matches a Pseudo Account", "65541"))
