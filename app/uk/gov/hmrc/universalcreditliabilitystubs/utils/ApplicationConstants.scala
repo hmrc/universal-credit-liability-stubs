@@ -22,8 +22,10 @@ import scala.util.matching.Regex
 
 object ApplicationConstants {
 
-  val ForbiddenReason: String   = "Forbidden"
-  val InvalidAuthReason: String = "Invalid or missing Authorization header"
+  val govUkOriginatorIdProvidedByDwp: String = "TEST-GOV-UK-ORIGINATOR-ID"
+
+  def isExpectedGovUkOriginatorId(id: String): Boolean =
+    id == govUkOriginatorIdProvidedByDwp
 
   object PathParameter {
     val Nino = "nino"
@@ -40,19 +42,22 @@ object ApplicationConstants {
 
   def invalidInputFailure(field: String): Failure =
     Failure(
-      reason = ErrorMessages.invalidInput(field),
-      code = ErrorCodes.InvalidInput
+      reason = ErrorMessages.invalidInputReason(field),
+      code = ErrorCodes.InvalidInputCode
     )
 
   object ErrorCodes {
-    val InvalidInput: String  = "400.1"
-    val InvalidAuth: String   = "401.1"
-    val ForbiddenCode: String = "403.2"
+    val InvalidInputCode: String = "400.1"
+    val UnauthorizedCode: String = "401.1"
+    val ForbiddenCode: String    = "403.2"
+    val NotFoundCode: String     = "404"
   }
 
-  private object ErrorMessages {
-    def invalidInput(field: String): String =
-      s"Constraint Violation - Invalid/Missing input parameter: $field"
+  object ErrorMessages {
+    def invalidInputReason(field: String): String = s"Constraint Violation - Invalid/Missing input parameter: $field"
+    val ForbiddenReason: String                   = "Forbidden"
+    val UnauthorizedReason: String                = "Invalid or missing Authorization header"
+    val NotFoundReason: String                    = "Not found"
   }
 }
 

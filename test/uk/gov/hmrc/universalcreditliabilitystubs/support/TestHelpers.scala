@@ -24,9 +24,11 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.govUkOriginatorIdProvidedByDwp
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 import wolfendale.scalacheck.regexp.RegexpGen
 
+import java.util.Base64
 import scala.util.Random
 import scala.util.matching.Regex
 
@@ -63,7 +65,7 @@ trait TestHelpers {
         |  "universalCreditLiabilityDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
         |    "dateOfBirth": "2002-04-27",
-        |    "liabilityStartDate": "2015-08-19",
+        |    "liabilityStartDate": "2025-08-19",
         |    "liabilityEndDate": "2026-06-30"
         |  }
         |}
@@ -74,7 +76,7 @@ trait TestHelpers {
         |{
         |  "universalCreditLiabilityDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "dateOfBirth": "2002-10-10",
+        |    "dateOfBirth": "2002-04-27",
         |    "liabilityEndDate": "2026-06-30"
         |  }
         |}
@@ -85,7 +87,7 @@ trait TestHelpers {
         |{
         |  "ucLiabilityTerminationDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "liabilityStartDate": "2015-08-19",
+        |    "liabilityStartDate": "2025-08-19",
         |    "liabilityEndDate": "2026-06-30"
         |  }
         |}
@@ -96,7 +98,7 @@ trait TestHelpers {
         |{
         |  "ucLiabilityTerminationDetails": {
         |    "universalCreditRecordType": "LCW/LCWRA",
-        |    "liabilityStartDate": "2015-08-19"
+        |    "liabilityStartDate": "2025-08-19"
         |  }
         |}
         |""".stripMargin)
@@ -105,13 +107,23 @@ trait TestHelpers {
     Seq(
       HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=", // Base64 for local-client-id:local-client-secret
       HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
     )
 
   val missingAuthorizationHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+    )
+
+  private val invalidCredentials =
+    Base64.getEncoder.encodeToString("invalid-client-id:invalid-client-secret".getBytes("UTF-8"))
+
+  val invalidAuthorizationHeader: Seq[(String, String)] =
+    Seq(
+      HeaderNames.Authorization     -> s"Basic $invalidCredentials",
+      HeaderNames.CorrelationId     -> java.util.UUID.randomUUID().toString,
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
     )
 
   val missingOriginatorIdHeader: Seq[(String, String)] =
@@ -123,7 +135,7 @@ trait TestHelpers {
   val missingCorrelationIdHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
-      HeaderNames.GovUkOriginatorId -> "gov-uk-originator-id"
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
     )
 
   def generateNino(): String = {

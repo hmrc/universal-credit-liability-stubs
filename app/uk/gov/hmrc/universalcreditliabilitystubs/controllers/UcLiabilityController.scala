@@ -17,15 +17,17 @@
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
 import jakarta.inject.Singleton
+import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, InvalidAuth}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, UnauthorizedCode}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, UnauthorizedReason}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.isValidGovUkOriginatorId
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.{ForbiddenReason, InvalidAuthReason}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.isExpectedGovUkOriginatorId
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, GovUkOriginatorId}
 
 import java.util.Base64
@@ -37,7 +39,8 @@ class UcLiabilityController @Inject() (
   schemaValidationService: SchemaValidationService,
   mappingService: MappingService,
   appConfig: AppConfig
-) extends BackendController(cc) {
+) extends BackendController(cc)
+    with Logging {
 
   def insertLiabilityDetails(nino: String): Action[JsValue] = Action(parse.json) { request =>
     (for {
@@ -74,13 +77,17 @@ class UcLiabilityController @Inject() (
       .get(Authorization)
       .filter(_ == expectedAuth)
       .toRight(
-        Unauthorized(Json.toJson(Failure(reason = InvalidAuthReason, code = InvalidAuth)))
+        Unauthorized(Json.toJson(Failure(reason = UnauthorizedReason, code = UnauthorizedCode)))
       )
   }
 
   def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
-    request.headers
-      .get(GovUkOriginatorId)
-      .filter(isValidGovUkOriginatorId)
-      .toRight(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
+    request.headers.get(GovUkOriginatorId) match {
+      case Some(id) if isValidGovUkOriginatorId(id) && isExpectedGovUkOriginatorId(id) =>
+        Right(id)
+      case _                                                                           =>
+        logger.warn("GovUkOriginatorId validation failed")
+        Left(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
+    }
+
 }

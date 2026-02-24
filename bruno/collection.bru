@@ -1,6 +1,31 @@
 script:pre-request {
   const helpers = require('./_lib/helpers');
-  
-  const nino = helpers.randomNino();
-  bru.setEnvVar("nino", nino);
+
+  const randomNino = helpers.randomNino();
+  bru.setEnvVar("randomNino", randomNino);
+
+  const randomInvalidNino = helpers.randomInvalidNino();
+  bru.setEnvVar("randomInvalidNino", randomInvalidNino);
+
+  const randomUniversalCreditRecordType = helpers.randomUniversalCreditRecordType();
+  bru.setEnvVar("randomUniversalCreditRecordType", randomUniversalCreditRecordType);
+
+  bru.setVar('correlationId', bru.interpolate('{{$guid}}'));
+
+  const clientId = bru.getEnvVar("hipClientId");
+  const clientSecret = bru.getEnvVar("hipClientSecret");
+
+  if (!clientId || !clientSecret) {
+    throw new Error("hipClientId and hipClientSecret must be set in environment");
+  }
+
+  const credentials = `${clientId}:${clientSecret}`;
+  const encoded = Buffer.from(credentials, 'utf-8').toString('base64');
+  bru.setVar("authorization", `Basic ${encoded}`);
+}
+
+docs {
+
+  # Universal Credit Liability Stubs
+
 }

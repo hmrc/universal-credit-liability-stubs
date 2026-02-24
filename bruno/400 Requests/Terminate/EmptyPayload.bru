@@ -1,0 +1,31 @@
+meta {
+  name: Empty Payload
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
+  body: json
+  auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
+}
+
+headers {
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
+}
+
+body:json {
+  {}
+}
+
+assert {
+  res.status: eq 400
+  res.headers.correlationid: eq {{correlationId}}
+}

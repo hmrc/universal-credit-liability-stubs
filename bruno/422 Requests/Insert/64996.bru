@@ -1,0 +1,41 @@
+meta {
+  name: 64996 - Start Date not before date of death
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
+  body: json
+  auth: none
+}
+
+params:path {
+  nino: EK310000
+}
+
+headers {
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
+}
+
+body:json {
+  {
+    "universalCreditLiabilityDetails": {
+      "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
+      "dateOfBirth": "2002-04-27",
+      "liabilityStartDate": "2025-08-19",
+      "liabilityEndDate": "2026-06-30"
+    }
+  }
+}
+
+assert {
+  res.status: eq 422
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isJson
+  res.body.failures[0].code: eq '64996'
+  res.body.failures[0].reason: eq 'Start Date is not before date of death'
+}

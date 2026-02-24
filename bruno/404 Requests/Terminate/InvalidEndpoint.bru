@@ -1,0 +1,42 @@
+meta {
+  name: Invalid Endpoint
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit/terminationX
+  body: json
+  auth: none
+}
+
+params:path {
+  nino: {{randomNino}}
+}
+
+headers {
+  Authorization: {{authorization}}
+  Content-Type: application/json
+  correlationId: {{correlationId}}
+  gov-uk-originator-id: {{govUkOriginatorId}}
+}
+
+body:json {
+  {
+    "ucLiabilityTerminationDetails": {
+      "universalCreditRecordType": "UC",
+      "liabilityStartDate": "2025-08-19",
+      "liabilityEndDate": "2026-06-30"
+    }
+  }
+}
+
+assert {
+  res.status: eq 404
+  res.headers.correlationid: eq {{correlationId}}
+  res.body: isNotEmpty
+  res.body: isJson
+  res.body.statusCode: eq 404
+  res.body.message: eq 'URI not found'
+  res.body.requested: isNotEmpty
+}
