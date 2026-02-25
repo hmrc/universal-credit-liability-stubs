@@ -76,10 +76,11 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
         val validGovUkOriginatorId = "{[(V@l!d-0r!g!n4t*r-1D?)]}"
         when(mockAppConfig.hipGovUkOriginatorId).thenReturn(validGovUkOriginatorId)
 
-        val request =
-          generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> validGovUkOriginatorId))
+        val request = generateFakeRequest(
+          requestBody = Json.obj(),
+          headers = Seq(GovUkOriginatorId -> validGovUkOriginatorId)
+        )
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
-        println(result)
         result mustBe Right(validGovUkOriginatorId)
       }
     }
