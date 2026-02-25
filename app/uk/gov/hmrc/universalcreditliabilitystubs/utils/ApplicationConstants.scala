@@ -20,8 +20,6 @@ import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
 
 import scala.util.matching.Regex
 
-import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
-
 object ApplicationConstants {
 
   object PathParameter {

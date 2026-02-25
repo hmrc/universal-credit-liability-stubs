@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.support
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import org.scalacheck.Gen
 import org.scalatest.Assertions.fail
 import play.api.libs.json.{JsValue, Json}
@@ -34,8 +34,8 @@ import scala.util.matching.Regex
 
 trait TestHelpers {
 
-  val config            = ConfigFactory.load()
-  val govUkOriginatorId = config.getString("hip.govUkOriginatorId")
+  val config: Config            = ConfigFactory.load()
+  val govUkOriginatorId: String = config.getString("hip.govUkOriginatorId")
 
   val validDateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
 
