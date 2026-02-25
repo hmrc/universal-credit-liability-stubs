@@ -40,8 +40,6 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   private val mockMappingService          = mock[MappingService]
   private val mockAppConfig               = mock[AppConfig]
 
-  private val hipGovUkOriginatorId: String = mockAppConfig.hipGovUkOriginatorId
-
   private val testUcLiabilityController = new UcLiabilityController(
     stubControllerComponents(),
     schemaValidationService = mockSchemaValidationService,
