@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -39,8 +40,6 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   private val mockMappingService          = mock[MappingService]
   private val mockAppConfig               = mock[AppConfig]
 
-  private val govUkOriginatorIdProvidedByDwp: String = "TEST-GOV-UK-ORIGINATOR-ID"
-
   private val testUcLiabilityController = new UcLiabilityController(
     stubControllerComponents(),
     schemaValidationService = mockSchemaValidationService,
@@ -61,19 +60,34 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   "UcLiabilityNotificationController" must {
 
     "return right" when {
-      "given a valid originatorId provided by DWP" in {
+      "given a valid GovUkOriginatorId provided by HIP" in {
+        when(mockAppConfig.hipGovUkOriginatorId).thenReturn("TEST-GOV-UK-ORIGINATOR-ID")
+
         val request = generateFakeRequest(
           requestBody = Json.obj(),
-          headers = Seq(GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp)
+          headers = Seq(GovUkOriginatorId -> mockAppConfig.hipGovUkOriginatorId)
         )
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
-        result mustBe Right(govUkOriginatorIdProvidedByDwp)
+        result mustBe Right(mockAppConfig.hipGovUkOriginatorId)
+      }
+
+      "given a valid GovUkOriginatorId with special characters: '{}, [], (), @, !, *, -, ?'" in {
+        val validGovUkOriginatorId = "{[(V@l!d-0r!g!n4t*r-1D?)]}"
+        when(mockAppConfig.hipGovUkOriginatorId).thenReturn(validGovUkOriginatorId)
+
+        val request = generateFakeRequest(
+          requestBody = Json.obj(),
+          headers = Seq(GovUkOriginatorId -> validGovUkOriginatorId)
+        )
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        result mustBe Right(validGovUkOriginatorId)
       }
     }
 
     "return Left (403 Forbidden)" when {
-      "given an originatorId that does not match the one provided by DWP" in {
+      "given an GovUkOriginatorId that does not match the one provided by DWP" in {
         val request = generateFakeRequest(
           requestBody = Json.obj(),
           headers = Seq(GovUkOriginatorId -> "NON-MATCHING-GOV-UK-ORIGINATOR-ID")
@@ -83,15 +97,37 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
         assertForbidden(result)
       }
 
-      "given an originatorId shorter than the minimum length of 3 characters" in {
+      "given an GovUkOriginatorId shorter than the minimum length of 3 characters" in {
         val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 2)))
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
         assertForbidden(result)
       }
 
-      "given an originatorId longer than the maximum length of 40 characters" in {
+      "given an GovUkOriginatorId longer than the maximum length of 40 characters" in {
         val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 41)))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        assertForbidden(result)
+      }
+
+      "given an GovUkOriginatorId contains a space" in {
+        val request =
+          generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> "contains space"))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        assertForbidden(result)
+      }
+
+      "given an GovUkOriginatorId contains a tab" in {
+        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> "tab\tchar"))
+        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+
+        assertForbidden(result)
+      }
+
+      "given an GovUkOriginatorId contains a new line" in {
+        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> "new\nline"))
         val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
 
         assertForbidden(result)

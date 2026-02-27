@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.support
 
+import com.typesafe.config.{Config, ConfigFactory}
 import org.scalacheck.Gen
 import org.scalatest.Assertions.fail
 import play.api.libs.json.{JsValue, Json}
@@ -24,7 +25,6 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.UniversalCreditRecordType
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.DatePattern
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.govUkOriginatorIdProvidedByDwp
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 import wolfendale.scalacheck.regexp.RegexpGen
 
@@ -33,6 +33,9 @@ import scala.util.Random
 import scala.util.matching.Regex
 
 trait TestHelpers {
+
+  val config: Config            = ConfigFactory.load()
+  val govUkOriginatorId: String = config.getString("hip.govUkOriginatorId")
 
   val validDateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
 
@@ -107,13 +110,13 @@ trait TestHelpers {
     Seq(
       HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=", // Base64 for local-client-id:local-client-secret
       HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
   val missingAuthorizationHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
   private val invalidCredentials =
@@ -123,7 +126,7 @@ trait TestHelpers {
     Seq(
       HeaderNames.Authorization     -> s"Basic $invalidCredentials",
       HeaderNames.CorrelationId     -> java.util.UUID.randomUUID().toString,
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
   val missingOriginatorIdHeader: Seq[(String, String)] =
@@ -135,7 +138,7 @@ trait TestHelpers {
   val missingCorrelationIdHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
-      HeaderNames.GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp
+      HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
   def generateNino(): String = {

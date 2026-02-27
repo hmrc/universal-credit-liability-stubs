@@ -22,11 +22,6 @@ import scala.util.matching.Regex
 
 object ApplicationConstants {
 
-  val govUkOriginatorIdProvidedByDwp: String = "TEST-GOV-UK-ORIGINATOR-ID"
-
-  def isExpectedGovUkOriginatorId(id: String): Boolean =
-    id == govUkOriginatorIdProvidedByDwp
-
   object PathParameter {
     val Nino = "nino"
   }
@@ -41,7 +36,8 @@ object ApplicationConstants {
     val NinoPattern: Regex =
       "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}$".r
 
-    private val GovUkOriginatorIdPattern: Regex = "^.{3,40}$".r
+    private val GovUkOriginatorIdPattern: Regex =
+      """^[\S]{3,40}$""".r
 
     def isValidGovUkOriginatorId(id: String): Boolean = GovUkOriginatorIdPattern.matches(id)
   }
