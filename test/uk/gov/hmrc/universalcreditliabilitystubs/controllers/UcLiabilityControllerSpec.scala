@@ -60,7 +60,7 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   "UcLiabilityNotificationController" must {
 
     "return right" when {
-      "given a valid originatorId provided by DWP" in {
+      "given a valid GovUkOriginatorId provided by DWP" in {
         when(mockAppConfig.hipGovUkOriginatorId).thenReturn("TEST-GOV-UK-ORIGINATOR-ID")
 
         val request = generateFakeRequest(
@@ -72,7 +72,7 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
         result mustBe Right(mockAppConfig.hipGovUkOriginatorId)
       }
 
-      "given a valid GovUkOriginatorId for Special characters: '{}, [], (), @, !, *, -, ?'" in {
+      "given a valid GovUkOriginatorId for special characters: '{}, [], (), @, !, *, -, ?'" in {
         val validGovUkOriginatorId = "{[(V@l!d-0r!g!n4t*r-1D?)]}"
         when(mockAppConfig.hipGovUkOriginatorId).thenReturn(validGovUkOriginatorId)
 
