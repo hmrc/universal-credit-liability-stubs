@@ -60,7 +60,7 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
   "UcLiabilityNotificationController" must {
 
     "return right" when {
-      "given a valid GovUkOriginatorId provided by DWP" in {
+      "given a valid GovUkOriginatorId provided by HIP" in {
         when(mockAppConfig.hipGovUkOriginatorId).thenReturn("TEST-GOV-UK-ORIGINATOR-ID")
 
         val request = generateFakeRequest(
