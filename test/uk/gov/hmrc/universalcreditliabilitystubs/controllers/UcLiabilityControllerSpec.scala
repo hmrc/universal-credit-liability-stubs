@@ -72,7 +72,7 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
         result mustBe Right(mockAppConfig.hipGovUkOriginatorId)
       }
 
-      "given a valid GovUkOriginatorId for special characters: '{}, [], (), @, !, *, -, ?'" in {
+      "given a valid GovUkOriginatorId with special characters: '{}, [], (), @, !, *, -, ?'" in {
         val validGovUkOriginatorId = "{[(V@l!d-0r!g!n4t*r-1D?)]}"
         when(mockAppConfig.hipGovUkOriginatorId).thenReturn(validGovUkOriginatorId)
 
