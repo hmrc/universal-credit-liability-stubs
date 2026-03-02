@@ -80,6 +80,11 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
   }
 
   "MappingService.map422ErrorResponses" must {
+    "return a 422 with code '00000' when NINO starts with HG200" in { // FIXME: waiting on code and reason
+      val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("HG200"))
+      result mustBe Some(Failure("NINO exists but has no adult registration", "00000"))
+    }
+
     "return a 422 with code '55006' when NINO starts with BW130" in {
       val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("BW130"))
       result mustBe Some(Failure("Start Date and End Date must be earlier than Date of Death", "55006"))
