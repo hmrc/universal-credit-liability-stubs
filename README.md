@@ -96,7 +96,6 @@ prefixes.
 
 | NINO PREFIX | HTTP Status             | Code  | Description                                                                                                   |
 |:------------|-------------------------|-------|---------------------------------------------------------------------------------------------------------------|
-| HG200       | 422 UnprocessableEntity | 00000 | The NINO input exists but has no adult registration                                                           |
 | BW130       | 422 UnprocessableEntity | 55006 | Start Date and End Date must be earlier than Date of Death                                                    |
 | EZ200       | 422 UnprocessableEntity | 55008 | End Date must be earlier than State Pension Age                                                               |
 | BK190       | 422 UnprocessableEntity | 55027 | End Date later than Date of Death                                                                             |
@@ -113,6 +112,7 @@ prefixes.
 | BX100       | 422 UnprocessableEntity | 65541 | The NINO input matches a Pseudo Account                                                                       |
 | HZ310       | 422 UnprocessableEntity | 65542 | The NINO input matches a non-live account (including redundant, amalgamated and administrative account types) |
 | BZ230       | 422 UnprocessableEntity | 65543 | The NINO input matches an account that has been transferred to the Isle of Man                                |
+| HG200       | 422 UnprocessableEntity | 65544 | Account held on NPS, but has not gone through adult registration.                                             |
 | AB150       | 422 UnprocessableEntity | 99999 | Start Date after Death                                                                                        |
 
 ## Other Error Responses

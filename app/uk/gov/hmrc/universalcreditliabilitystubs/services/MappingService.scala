@@ -38,7 +38,6 @@ class MappingService {
 
   def map422ErrorResponses(nino: String): Option[Failure] =
     nino.take(5) match {
-      case "HG200" => Some(Failure("The NINO input exists but has no adult registration", "00000"))
       case "BW130" => Some(Failure("Start Date and End Date must be earlier than Date of Death", "55006"))
       case "EZ200" => Some(Failure("End Date must be earlier than State Pension Age", "55008"))
       case "BK190" => Some(Failure("End Date later than Date of Death", "55027"))
@@ -62,6 +61,7 @@ class MappingService {
         )
       case "BZ230" =>
         Some(Failure("The NINO input matches an account that has been transferred to the Isle of Man", "65543"))
+      case "HG200" => Some(Failure("Account held on NPS, but has not gone through adult registration.", "65544"))
       case "AB150" => Some(Failure("Start Date after Death", "99999"))
       case _       => None
     }
