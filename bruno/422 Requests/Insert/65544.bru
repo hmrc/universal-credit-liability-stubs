@@ -1,17 +1,17 @@
 meta {
-  name: 99999 - Start Date after Death
+  name: 65544 - Account on NPS not gone through adult registration
   type: http
-  seq: 17
+  seq: 16
 }
 
 post {
-  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
 }
 
 params:path {
-  nino: AB150000
+  nino: HG200000
 }
 
 headers {
@@ -23,8 +23,9 @@ headers {
 
 body:json {
   {
-    "ucLiabilityTerminationDetails": {
+    "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
+      "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }
@@ -35,6 +36,6 @@ assert {
   res.status: eq 422
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
-  res.body.failures[0].code: eq '99999'
-  res.body.failures[0].reason: eq 'Start Date after Death'
+  res.body.failures[0].code: eq '65544'
+  res.body.failures[0].reason: eq 'Account held on NPS, but has not gone through adult registration.'
 }

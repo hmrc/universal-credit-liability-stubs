@@ -13,7 +13,7 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
   * [Endpoints](#endpoints)
     * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
     * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
-  * [422 UnprocessableEntity Errors](#422-unprocessable-entity-errors)
+  * [422 UnprocessableEntity Errors](#422-unprocessableentity-errors)
   * [Other Error Responses](#other-error-responses)
   * [Scalafmt](#scalafmt)
   * [Testing](#testing-1)
@@ -71,7 +71,7 @@ sbt clean coverage test it/test coverageReport
 
 ### Insert Universal Credit Liability Details
 
-**Endpoint**: `POST /person/{nino}/liability/universal-credit`
+**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit`
 
 **Description**: Provides the capability to insert Universal Credit Liability details for a given individual. This
 endpoint requires Mutual Authentication over TLS 1.2
@@ -80,7 +80,7 @@ endpoint requires Mutual Authentication over TLS 1.2
 
 ### Terminate Universal Credit Liability Details
 
-**Endpoint**: `POST /person/{nino}/liability/universal-credit/termination`
+**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit/termination`
 
 **Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This
 endpoint requires Mutual Authentication over TLS 1.2
@@ -112,6 +112,7 @@ prefixes.
 | BX100       | 422 UnprocessableEntity | 65541 | The NINO input matches a Pseudo Account                                                                       |
 | HZ310       | 422 UnprocessableEntity | 65542 | The NINO input matches a non-live account (including redundant, amalgamated and administrative account types) |
 | BZ230       | 422 UnprocessableEntity | 65543 | The NINO input matches an account that has been transferred to the Isle of Man                                |
+| HG200       | 422 UnprocessableEntity | 65544 | Account held on NPS, but has not gone through adult registration.                                             |
 | AB150       | 422 UnprocessableEntity | 99999 | Start Date after Death                                                                                        |
 
 ## Other Error Responses

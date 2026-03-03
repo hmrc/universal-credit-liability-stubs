@@ -61,6 +61,7 @@ class MappingService {
         )
       case "BZ230" =>
         Some(Failure("The NINO input matches an account that has been transferred to the Isle of Man", "65543"))
+      case "HG200" => Some(Failure("Account held on NPS, but has not gone through adult registration.", "65544"))
       case "AB150" => Some(Failure("Start Date after Death", "99999"))
       case _       => None
     }

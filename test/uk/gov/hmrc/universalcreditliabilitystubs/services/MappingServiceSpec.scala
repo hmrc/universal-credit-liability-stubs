@@ -162,6 +162,11 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
       )
     }
 
+    "return a 422 with code '65544' when NINO starts with HG200" in {
+      val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("HG200"))
+      result mustBe Some(Failure("Account held on NPS, but has not gone through adult registration.", "65544"))
+    }
+
     "return a 422 with code '99999' when NINO starts with AB150" in {
       val result = mappingService.map422ErrorResponses(generateNinoWithPrefix("AB150"))
       result mustBe Some(Failure("Start Date after Death", "99999"))
