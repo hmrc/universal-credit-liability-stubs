@@ -96,7 +96,7 @@ prefixes.
 
 | NINO PREFIX | HTTP Status             | Code  | Description                                                                                                   |
 |:------------|-------------------------|-------|---------------------------------------------------------------------------------------------------------------|
-| HG200       | 422 UnprocessableEntity | 00000 | NINO exists but has no adult registration                                                                     |
+| HG200       | 422 UnprocessableEntity | 00000 | The NINO input exists but has no adult registration                                                           |
 | BW130       | 422 UnprocessableEntity | 55006 | Start Date and End Date must be earlier than Date of Death                                                    |
 | EZ200       | 422 UnprocessableEntity | 55008 | End Date must be earlier than State Pension Age                                                               |
 | BK190       | 422 UnprocessableEntity | 55027 | End Date later than Date of Death                                                                             |

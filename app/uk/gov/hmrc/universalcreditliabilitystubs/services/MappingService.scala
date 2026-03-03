@@ -38,7 +38,7 @@ class MappingService {
 
   def map422ErrorResponses(nino: String): Option[Failure] =
     nino.take(5) match {
-      case "HG200" => Some(Failure("NINO exists but has no adult registration", "00000"))
+      case "HG200" => Some(Failure("The NINO input exists but has no adult registration", "00000"))
       case "BW130" => Some(Failure("Start Date and End Date must be earlier than Date of Death", "55006"))
       case "EZ200" => Some(Failure("End Date must be earlier than State Pension Age", "55008"))
       case "BK190" => Some(Failure("End Date later than Date of Death", "55027"))

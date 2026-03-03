@@ -37,5 +37,5 @@ assert {
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
   res.body.failures[0].code: eq '00000'
-  res.body.failures[0].reason: eq 'NINO exists but has no adult registration'
+  res.body.failures[0].reason: eq 'The NINO input exists but has no adult registration'
 }
