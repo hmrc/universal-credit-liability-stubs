@@ -137,15 +137,15 @@ trait TestHelpers {
 
   val invalidGovUkOriginatorIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
-      HeaderNames.CorrelationId -> UUID.randomUUID().toString,
+      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> "invalid gov uk originator id"
     )
 
   val nonMatchingGovUkOriginatorIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
-      HeaderNames.CorrelationId -> UUID.randomUUID().toString,
+      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> "NOT-MATCHING-THE-PROVIDED-GOV-UK-ORIGINATOR-ID"
     )
 
@@ -180,6 +180,6 @@ trait TestHelpers {
   }
 
   def generateFakeRequest(requestBody: JsValue, headers: Seq[(String, String)]): FakeRequest[JsValue] =
-    FakeRequest("POST", "/").withBody(Json.toJson(requestBody)).withHeaders(headers: _*)
+    FakeRequest("POST", "/").withBody(requestBody).withHeaders(headers: _*)
 
 }
