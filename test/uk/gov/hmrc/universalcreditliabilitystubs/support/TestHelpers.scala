@@ -34,8 +34,17 @@ import scala.util.matching.Regex
 
 trait TestHelpers {
 
-  val config: Config            = ConfigFactory.load()
-  val govUkOriginatorId: String = config.getString("hip.govUkOriginatorId")
+  val config: Config = ConfigFactory.load()
+
+  private val hipClientId: String       = config.getString("hip.clientId")
+  private val hipClientSecret: String   = config.getString("hip.clientSecret")
+  private val govUkOriginatorId: String = config.getString("hip.govUkOriginatorId")
+
+  private val validAuthCredentials =
+    Base64.getEncoder.encodeToString(s"$hipClientId:$hipClientSecret".getBytes("UTF-8"))
+
+  private val invalidAuthCredentials =
+    Base64.getEncoder.encodeToString("invalid-client-id:invalid-client-secret".getBytes("UTF-8"))
 
   val validDateGen: Gen[String] = RegexpGen.from(DatePattern.toString())
 
@@ -108,8 +117,8 @@ trait TestHelpers {
 
   val validHeaders: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=", // Base64 for local-client-id:local-client-secret
-      HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
+      HeaderNames.Authorization     -> s"Basic $validAuthCredentials",
+      HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
@@ -119,39 +128,36 @@ trait TestHelpers {
       HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
-  private val invalidCredentials =
-    Base64.getEncoder.encodeToString("invalid-client-id:invalid-client-secret".getBytes("UTF-8"))
-
   val invalidAuthorizationHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization     -> s"Basic $invalidCredentials",
+      HeaderNames.Authorization     -> s"Basic $invalidAuthCredentials",
       HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
   val missingGovUkOriginatorIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.Authorization -> s"Basic $validAuthCredentials",
       HeaderNames.CorrelationId -> UUID.randomUUID().toString
     )
 
   val invalidGovUkOriginatorIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.Authorization     -> s"Basic $validAuthCredentials",
       HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> "invalid gov uk originator id"
     )
 
   val nonMatchingGovUkOriginatorIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.Authorization     -> s"Basic $validAuthCredentials",
       HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> "NOT-MATCHING-THE-PROVIDED-GOV-UK-ORIGINATOR-ID"
     )
 
   val missingCorrelationIdHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.Authorization     -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.Authorization     -> s"Basic $validAuthCredentials",
       HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
