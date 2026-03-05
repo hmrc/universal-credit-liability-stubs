@@ -192,7 +192,7 @@ class UcLiabilityIntegrationSpec
 
       val request = insertionPathValidator
         .newRequestBuilder()
-        .withHttpHeaders(missingOriginatorIdHeader: _*)
+        .withHttpHeaders(missingGovUkOriginatorIdHeader: _*)
         .withBody(invalidInsertLiabilityRequest)
 
       val requestValidationErrors = insertionPathValidator.validateRequest(request)
@@ -512,7 +512,7 @@ class UcLiabilityIntegrationSpec
 
       val request = terminationPathValidator
         .newRequestBuilder()
-        .withHttpHeaders(missingOriginatorIdHeader: _*)
+        .withHttpHeaders(missingGovUkOriginatorIdHeader: _*)
         .withBody(inValidTerminateLiabilityRequest)
 
       val requestValidationErrors = terminationPathValidator.validateRequest(request)

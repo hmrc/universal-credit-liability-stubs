@@ -80,7 +80,7 @@ class UcLiabilityController @Inject() (
       )
   }
 
-  def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
+  private def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
     request.headers.get(GovUkOriginatorId) match {
       case Some(id) if isValidGovUkOriginatorId(id) && (appConfig.hipGovUkOriginatorId == id) =>
         Right(id)

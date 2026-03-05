@@ -28,7 +28,7 @@ import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.Vali
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 import wolfendale.scalacheck.regexp.RegexpGen
 
-import java.util.Base64
+import java.util.{Base64, UUID}
 import scala.util.Random
 import scala.util.matching.Regex
 
@@ -115,7 +115,7 @@ trait TestHelpers {
 
   val missingAuthorizationHeader: Seq[(String, String)] =
     Seq(
-      HeaderNames.CorrelationId     -> "3e8dae97-b586-4cef-8511-68ac12da9028",
+      HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
@@ -125,14 +125,28 @@ trait TestHelpers {
   val invalidAuthorizationHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.Authorization     -> s"Basic $invalidCredentials",
-      HeaderNames.CorrelationId     -> java.util.UUID.randomUUID().toString,
+      HeaderNames.CorrelationId     -> UUID.randomUUID().toString,
       HeaderNames.GovUkOriginatorId -> govUkOriginatorId
     )
 
-  val missingOriginatorIdHeader: Seq[(String, String)] =
+  val missingGovUkOriginatorIdHeader: Seq[(String, String)] =
     Seq(
       HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
-      HeaderNames.CorrelationId -> "3e8dae97-b586-4cef-8511-68ac12da9028"
+      HeaderNames.CorrelationId -> UUID.randomUUID().toString
+    )
+
+  val invalidGovUkOriginatorIdHeader: Seq[(String, String)] =
+    Seq(
+      HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.CorrelationId -> UUID.randomUUID().toString,
+      HeaderNames.GovUkOriginatorId -> "invalid gov uk originator id"
+    )
+
+  val nonMatchingGovUkOriginatorIdHeader: Seq[(String, String)] =
+    Seq(
+      HeaderNames.Authorization -> "Basic bG9jYWwtY2xpZW50LWlkOmxvY2FsLWNsaWVudC1zZWNyZXQ=",
+      HeaderNames.CorrelationId -> UUID.randomUUID().toString,
+      HeaderNames.GovUkOriginatorId -> "NOT-MATCHING-THE-PROVIDED-GOV-UK-ORIGINATOR-ID"
     )
 
   val missingCorrelationIdHeader: Seq[(String, String)] =
