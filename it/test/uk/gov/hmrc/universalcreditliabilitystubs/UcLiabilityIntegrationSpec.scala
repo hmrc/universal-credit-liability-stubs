@@ -24,7 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.{WSClient, readableAsJson, readableAsString}
 import uk.gov.hmrc.universalcreditliabilitystubs.helpers.{OpenApiValidator, ValidationError}
-import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
+import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.CorrelationIdPattern
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
@@ -68,7 +68,7 @@ class UcLiabilityIntegrationSpec
   private def insertionUrlWith503Nino   = buildInsertionUrl(serviceUnavailableNino)
   private def terminationUrlWith503Nino = buildTerminationUrl(serviceUnavailableNino)
 
-  private val openApiValidator = OpenApiValidator.fromResource("openapi.hip.jf18645.2.0.1.yaml")
+  private val openApiValidator = OpenApiValidator.fromResource("openapi.hip.2.4.2.yaml")
 
   "Insert UC Liability endpoint" must {
     "respond with 204 status when the request is valid" in {
@@ -140,6 +140,10 @@ class UcLiabilityIntegrationSpec
       response.body[String] mustBe ""
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
+
+
+      val responseValidationErrors = insertionPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
     }
 
     "respond with 401 status when Authorization header is missing" in {
@@ -261,14 +265,13 @@ class UcLiabilityIntegrationSpec
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
 
       response.status mustBe NOT_FOUND
-      response.body[String] mustBe Json.toJson(Failure(reason = "Not found", code = "404")).toString
+      response.body[String] mustBe Json.toJson(Failures(Seq(Failure(reason = "Not found", code = "404")))).toString
 
       correlationId mustBe defined
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
-      // TODO: enable them when UCAPI-160 is implemented
-      // val responseValidationErrors = insertionPathValidator.validateResponse(response)
-      // responseValidationErrors mustBe List.empty
+      val responseValidationErrors = insertionPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
     }
 
     "respond with 422 status when NINO matches the criteria any of the 422 cases" in {
@@ -328,6 +331,10 @@ class UcLiabilityIntegrationSpec
       correlationId.get must fullyMatch regex CorrelationIdPattern
 
       val responseValidationErrors = insertionPathValidator.validateResponse(response)
+      println("~~~~~~~~~~")
+      println(response.body[String])
+      println(responseValidationErrors)
+      println("~~~~~~~~~~")
       responseValidationErrors mustBe List.empty
     }
 

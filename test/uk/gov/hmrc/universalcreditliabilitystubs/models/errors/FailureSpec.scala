@@ -24,7 +24,7 @@ class FailureSpec extends AnyWordSpec with Matchers {
 
   "Failure must write to correct json" in {
 
-    val model = Failure(
+    val testFailure = Failure(
       reason = "Forbidden",
       code = "403.2"
     )
@@ -34,7 +34,7 @@ class FailureSpec extends AnyWordSpec with Matchers {
       "code"   -> "403.2"
     )
 
-    Json.toJson(model) mustBe expectedJson
+    Json.toJson(testFailure) mustBe expectedJson
   }
 
 }
