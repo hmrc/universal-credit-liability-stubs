@@ -25,9 +25,9 @@ import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, UnauthorizedCode}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, UnauthorizedReason}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorReasons.{ForbiddenReason, UnauthorizedReason}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.HeaderNames.{Authorization, GovUkOriginatorId}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.isValidGovUkOriginatorId
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, GovUkOriginatorId}
 
 import java.util.Base64
 import javax.inject.Inject

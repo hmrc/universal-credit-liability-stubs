@@ -21,8 +21,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.mvc.Results.BadRequest
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.*
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.HeaderNames
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 
 class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 

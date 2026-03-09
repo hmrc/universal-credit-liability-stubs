@@ -21,7 +21,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, NotFoundCode, UnauthorizedCode}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, NotFoundReason, UnauthorizedReason}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorReasons.{ForbiddenReason, NotFoundReason, UnauthorizedReason}
 
 class MappingService {
 
