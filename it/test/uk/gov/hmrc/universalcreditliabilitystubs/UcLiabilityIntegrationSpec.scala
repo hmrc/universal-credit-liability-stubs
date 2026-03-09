@@ -20,9 +20,9 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status.*
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.libs.ws.{WSClient, readableAsJson, readableAsString}
+import play.api.libs.ws.{WSClient, readableAsString}
 import uk.gov.hmrc.universalcreditliabilitystubs.helpers.{OpenApiValidator, ValidationError}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
@@ -39,6 +39,8 @@ class UcLiabilityIntegrationSpec
     with TestHelpers {
 
   private given WSClient = app.injector.instanceOf[WSClient]
+
+  private val openApiValidator = OpenApiValidator.fromResource("openapi.hip.2.4.2.yaml")
 
   private val validNino: String             = generateNino()
   private val faultyInsertionNino: String   = generateNinoWithPrefix("BW130")
@@ -69,8 +71,6 @@ class UcLiabilityIntegrationSpec
 
   private def insertionUrlWith503Nino   = buildInsertionUrl(serviceUnavailableNino)
   private def terminationUrlWith503Nino = buildTerminationUrl(serviceUnavailableNino)
-
-  private val openApiValidator = OpenApiValidator.fromResource("openapi.hip.2.4.2.yaml")
 
   "Insert UC Liability endpoint" must {
     "respond with 204 status when the request is valid" in {
@@ -278,16 +278,11 @@ class UcLiabilityIntegrationSpec
 
       val response = request.execute().futureValue
       response.status mustBe UNPROCESSABLE_ENTITY
-      response.body[JsValue] mustBe Json.parse("""
-          |{
-          |  "failures": [
-          |    {
-          |      "reason": "Start Date and End Date must be earlier than Date of Death",
-          |      "code": "55006"
-          |    }
-          |  ]
-          |}
-          |""".stripMargin)
+      response.body[String] mustBe Json
+        .toJson(
+          Failures(Seq(Failure("Start Date and End Date must be earlier than Date of Death", "55006")))
+        )
+        .toString
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
       correlationId mustBe defined
@@ -440,16 +435,16 @@ class UcLiabilityIntegrationSpec
       correlationId.get must fullyMatch regex CorrelationIdPattern
     }
 
-    "respond with 403 Forbidden when NINO matches the criteria for a 403 case" in {
-      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrlWith403Nino)
+    "respond with 403 status when GovUkOriginatorId is missing" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
 
       val request = terminationPathValidator
         .newRequestBuilder()
-        .withHttpHeaders(validHeaders: _*)
-        .withBody(validTerminateLiabilityRequest)
+        .withHttpHeaders(missingGovUkOriginatorIdHeader: _*)
+        .withBody(inValidTerminateLiabilityRequest)
 
       val requestValidationErrors = terminationPathValidator.validateRequest(request)
-      requestValidationErrors mustBe List.empty[ValidationError]
+      requestValidationErrors must not be List.empty[ValidationError]
 
       val response = request.execute().futureValue
       response.status mustBe FORBIDDEN
@@ -463,16 +458,39 @@ class UcLiabilityIntegrationSpec
       responseValidationErrors mustBe List.empty
     }
 
-    "respond with 403 status when GovUkOriginatorId is missing" in {
+    "respond with 403 status when GovUkOriginatorId does not match the expected value" in {
       val terminationPathValidator = openApiValidator.forPath("POST", terminationUrl)
 
       val request = terminationPathValidator
         .newRequestBuilder()
-        .withHttpHeaders(missingGovUkOriginatorIdHeader: _*)
-        .withBody(inValidTerminateLiabilityRequest)
+        .withHttpHeaders(nonMatchingGovUkOriginatorIdHeader: _*)
+        .withBody(validTerminateLiabilityRequest)
 
       val requestValidationErrors = terminationPathValidator.validateRequest(request)
       requestValidationErrors must not be List.empty[ValidationError]
+
+      val response = request.execute().futureValue
+      response.status mustBe FORBIDDEN
+      response.body[String] mustBe Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode)).toString
+
+      val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
+      correlationId mustBe defined
+      correlationId.get must fullyMatch regex CorrelationIdPattern
+
+      val responseValidationErrors = terminationPathValidator.validateResponse(response)
+      responseValidationErrors mustBe List.empty
+    }
+
+    "respond with 403 Forbidden when NINO matches the criteria for a 403 case" in {
+      val terminationPathValidator = openApiValidator.forPath("POST", terminationUrlWith403Nino)
+
+      val request = terminationPathValidator
+        .newRequestBuilder()
+        .withHttpHeaders(validHeaders: _*)
+        .withBody(validTerminateLiabilityRequest)
+
+      val requestValidationErrors = terminationPathValidator.validateRequest(request)
+      requestValidationErrors mustBe List.empty[ValidationError]
 
       val response = request.execute().futureValue
       response.status mustBe FORBIDDEN
@@ -523,16 +541,13 @@ class UcLiabilityIntegrationSpec
 
       val response = request.execute().futureValue
       response.status mustBe UNPROCESSABLE_ENTITY
-      response.body[JsValue] mustBe Json.parse("""
-          |{
-          |  "failures": [
-          |    {
-          |      "reason": "The NINO input matches an account that has been transferred to the Isle of Man",
-          |      "code": "65543"
-          |    }
-          |  ]
-          |}
-          |""".stripMargin)
+      response.body[String] mustBe Json
+        .toJson(
+          Failures(
+            Seq(Failure("The NINO input matches an account that has been transferred to the Isle of Man", "65543"))
+          )
+        )
+        .toString
 
       val correlationId = response.headers.get(HeaderNames.CorrelationId).flatMap(_.headOption)
       correlationId mustBe defined
