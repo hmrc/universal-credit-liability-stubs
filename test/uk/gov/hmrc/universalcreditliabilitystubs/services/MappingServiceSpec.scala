@@ -20,7 +20,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.mvc.Results.*
-import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
+import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, NotFoundCode, UnauthorizedCode}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, NotFoundReason, UnauthorizedReason}
@@ -50,12 +50,12 @@ class MappingServiceSpec extends AnyWordSpec with Matchers with TestHelpers {
 
     "return a NotFound (404) when NINO starts with XY404" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("XY404"))
-      result mustBe Some(NotFound(Json.toJson(Failure(reason = NotFoundReason, code = NotFoundCode))))
+      result mustBe Some(NotFound(Json.toJson(Failures(Seq(Failure(reason = NotFoundReason, code = NotFoundCode))))))
     }
 
     "return a NotFound (404) when NINO starts with CM110" in {
       val result = mappingService.mapSystemErrors(generateNinoWithPrefix("CM110"))
-      result mustBe Some(NotFound(Json.toJson(Failure(reason = NotFoundReason, code = NotFoundCode))))
+      result mustBe Some(NotFound(Json.toJson(Failures(Seq(Failure(reason = NotFoundReason, code = NotFoundCode))))))
     }
 
     "return a InternalServerError (500) when NINO starts with XY500" in {

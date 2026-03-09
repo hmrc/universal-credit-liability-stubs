@@ -30,7 +30,6 @@ class MappingService {
       case "XY400"           => Some(BadRequest)
       case "XY401"           => Some(Unauthorized(Json.toJson(Failure(UnauthorizedReason, UnauthorizedCode))))
       case "XY403" | "HJ120" => Some(Forbidden(Json.toJson(Failure(ForbiddenReason, ForbiddenCode))))
-      //case "XY404" | "CM110" => Some(NotFound(Json.toJson(Failure(NotFoundReason, NotFoundCode))))
       case "XY404" | "CM110" => Some(NotFound(Json.toJson(Failures(Seq(Failure(NotFoundReason, NotFoundCode))))))
       case "XY500" | "HZ020" => Some(InternalServerError)
       case "XY503"           => Some(ServiceUnavailable)
