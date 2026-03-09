@@ -84,7 +84,7 @@ class SchemaValidationService {
         )
     }
 
-  private def validateJson[T](request: Request[JsValue])(implicit reads: Reads[T]): EitherNec[Failures, T] =
+  private def validateJson[T](request: Request[JsValue])(using reads: Reads[T]): EitherNec[Failures, T] =
     request.body.validate[T] match {
       case JsSuccess(validatedRequest, _) =>
         Right(validatedRequest)
