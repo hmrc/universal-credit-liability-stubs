@@ -16,30 +16,32 @@
 
 package uk.gov.hmrc.universalcreditliabilitystubs.controllers
 
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
+import play.api.mvc.Results.{BadRequest, InternalServerError}
 import play.api.test.Helpers.*
 import uk.gov.hmrc.universalcreditliabilitystubs.config.AppConfig
 import uk.gov.hmrc.universalcreditliabilitystubs.controllers.UcLiabilityController
+import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
+import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest}
 import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, SchemaValidationService}
 import uk.gov.hmrc.universalcreditliabilitystubs.support.TestHelpers
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.ForbiddenReason
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.GovUkOriginatorId
-
-import scala.concurrent.Future
 
 class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpers with ScalaFutures {
+
+  private val nino = generateNino()
 
   private val mockSchemaValidationService = mock[SchemaValidationService]
   private val mockMappingService          = mock[MappingService]
   private val mockAppConfig               = mock[AppConfig]
 
-  private val govUkOriginatorIdProvidedByDwp: String = "TEST-GOV-UK-ORIGINATOR-ID"
+  when(mockAppConfig.hipClientId).thenReturn("local-client-id")
+  when(mockAppConfig.hipClientSecret).thenReturn("local-client-secret")
+  when(mockAppConfig.hipGovUkOriginatorId).thenReturn("TEST-GOV-UK-ORIGINATOR-ID")
 
   private val testUcLiabilityController = new UcLiabilityController(
     stubControllerComponents(),
@@ -48,54 +50,245 @@ class UcLiabilityControllerSpec extends AnyWordSpec with Matchers with TestHelpe
     appConfig = mockAppConfig
   )
 
-  private def assertForbidden(result: Either[Result, _]): Unit = {
-    val actualResult = extractLeftOrFail(result)
+  "UcLiabilityNotificationController.insertLiabilityDetails" must {
+    "return 204 No Content" when {
+      "given a valid Insert request" in {
+        when(mockSchemaValidationService.validateInsertLiabilityRequest(any(), any()))
+          .thenReturn(Right(validInsertLiabilityRequest.as[InsertLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
 
-    actualResult.header.status mustBe FORBIDDEN
+        val request = generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = validHeaders)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
 
-    val body = contentAsJson(Future.successful(actualResult))
-    (body \ "code").as[String] mustBe ApplicationConstants.ErrorCodes.ForbiddenCode
-    (body \ "reason").as[String] mustBe ForbiddenReason
-  }
-
-  "UcLiabilityNotificationController" must {
-
-    "return right" when {
-      "given a valid originatorId provided by DWP" in {
-        val request = generateFakeRequest(
-          requestBody = Json.obj(),
-          headers = Seq(GovUkOriginatorId -> govUkOriginatorIdProvidedByDwp)
-        )
-        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
-
-        result mustBe Right(govUkOriginatorIdProvidedByDwp)
+        status(result) mustBe NO_CONTENT
       }
     }
 
-    "return Left (403 Forbidden)" when {
-      "given an originatorId that does not match the one provided by DWP" in {
-        val request = generateFakeRequest(
-          requestBody = Json.obj(),
-          headers = Seq(GovUkOriginatorId -> "NON-MATCHING-GOV-UK-ORIGINATOR-ID")
-        )
-        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+    "return 400 BadRequest" when {
+      "schema validation fails" in {
+        when(mockSchemaValidationService.validateInsertLiabilityRequest(any(), any())).thenReturn(Left(BadRequest))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
 
-        assertForbidden(result)
+        val request = generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = validHeaders)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
+
+        status(result) mustBe BAD_REQUEST
+      }
+    }
+
+    "return 401 Unauthorized" when {
+      "Authorization header is missing" in {
+        val request =
+          generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = missingAuthorizationHeader)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
+
+        status(result) mustBe UNAUTHORIZED
       }
 
-      "given an originatorId shorter than the minimum length of 3 characters" in {
-        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 2)))
-        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+      "Authorization header has invalid credentials" in {
+        val request =
+          generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = invalidAuthorizationHeader)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
 
-        assertForbidden(result)
+        status(result) mustBe UNAUTHORIZED
+      }
+    }
+
+    "return 403 Forbidden" when {
+      "the gov-uk-originator-id header missing" in {
+        when(mockSchemaValidationService.validateInsertLiabilityRequest(any(), any()))
+          .thenReturn(Right(validInsertLiabilityRequest.as[InsertLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request =
+          generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = missingGovUkOriginatorIdHeader)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
+
+        status(result) mustBe FORBIDDEN
       }
 
-      "given an originatorId longer than the maximum length of 40 characters" in {
-        val request = generateFakeRequest(requestBody = Json.obj(), headers = Seq(GovUkOriginatorId -> ("A" * 41)))
-        val result  = testUcLiabilityController.validateGovUkOriginatorId(request)
+      "the gov-uk-originator-id header value is invalid" in {
+        when(mockSchemaValidationService.validateInsertLiabilityRequest(any(), any()))
+          .thenReturn(Right(validInsertLiabilityRequest.as[InsertLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
 
-        assertForbidden(result)
+        val request =
+          generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = invalidGovUkOriginatorIdHeader)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
+
+        status(result) mustBe FORBIDDEN
+      }
+
+      "the gov-uk-originator-id header value does not match the one provided" in {
+        when(mockSchemaValidationService.validateInsertLiabilityRequest(any(), any()))
+          .thenReturn(Right(validInsertLiabilityRequest.as[InsertLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request =
+          generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = nonMatchingGovUkOriginatorIdHeader)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
+
+        status(result) mustBe FORBIDDEN
+      }
+    }
+
+    "return 422 UnprocessableEntity" when {
+      "NINO triggers a 422 error response" in {
+        val test422Failure = Failure("End date before start date", "65537")
+
+        when(mockSchemaValidationService.validateInsertLiabilityRequest(any(), any()))
+          .thenReturn(Right(validInsertLiabilityRequest.as[InsertLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(Some(test422Failure))
+
+        val request = generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = validHeaders)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
+
+        status(result) mustBe UNPROCESSABLE_ENTITY
+      }
+    }
+
+    "return the mapped system error" when {
+      "NINO triggers a system error" in {
+        when(mockSchemaValidationService.validateInsertLiabilityRequest(any(), any()))
+          .thenReturn(Right(validInsertLiabilityRequest.as[InsertLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(Some(InternalServerError))
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request = generateFakeRequest(requestBody = validInsertLiabilityRequest, headers = validHeaders)
+        val result  = testUcLiabilityController.insertLiabilityDetails(nino)(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
   }
+
+  "UcLiabilityNotificationController.terminateLiabilityDetails" must {
+
+    "return 204 No Content" when {
+
+      "given a valid Terminate request" in {
+        when(mockSchemaValidationService.validateTerminateLiabilityRequest(any(), any()))
+          .thenReturn(Right(validTerminateLiabilityRequest.as[TerminateLiabilityRequest]))
+
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+        val request = generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = validHeaders)
+
+        val result = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe NO_CONTENT
+      }
+    }
+
+    "return 400 BadRequest" when {
+      "schema validation fails" in {
+        when(mockSchemaValidationService.validateTerminateLiabilityRequest(any(), any())).thenReturn(Left(BadRequest))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request = generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = validHeaders)
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe BAD_REQUEST
+      }
+    }
+
+    "return 401 Unauthorized" when {
+      "Authorization header is missing" in {
+        val request =
+          generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = missingAuthorizationHeader)
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe UNAUTHORIZED
+      }
+
+      "Authorization header has invalid credentials" in {
+        val request =
+          generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = invalidAuthorizationHeader)
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe UNAUTHORIZED
+      }
+    }
+
+    "return 403 Forbidden" when {
+      "the gov-uk-originator-id header missing" in {
+        when(mockSchemaValidationService.validateTerminateLiabilityRequest(any(), any()))
+          .thenReturn(Right(validTerminateLiabilityRequest.as[TerminateLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request =
+          generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = missingGovUkOriginatorIdHeader)
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe FORBIDDEN
+      }
+
+      "the gov-uk-originator-id header value is invalid" in {
+        when(mockSchemaValidationService.validateTerminateLiabilityRequest(any(), any()))
+          .thenReturn(Right(validTerminateLiabilityRequest.as[TerminateLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request =
+          generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = invalidGovUkOriginatorIdHeader)
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe FORBIDDEN
+      }
+
+      "the gov-uk-originator-id header value does not match the one provided" in {
+        when(mockSchemaValidationService.validateTerminateLiabilityRequest(any(), any()))
+          .thenReturn(Right(validTerminateLiabilityRequest.as[TerminateLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request = generateFakeRequest(
+          requestBody = validTerminateLiabilityRequest,
+          headers = nonMatchingGovUkOriginatorIdHeader
+        )
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe FORBIDDEN
+      }
+    }
+
+    "return 422 UnprocessableEntity" when {
+      "NINO triggers a 422 error response" in {
+        val test422Failure = Failure("End date before start date", "65537")
+
+        when(mockSchemaValidationService.validateTerminateLiabilityRequest(any(), any()))
+          .thenReturn(Right(validTerminateLiabilityRequest.as[TerminateLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(None)
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(Some(test422Failure))
+
+        val request = generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = validHeaders)
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe UNPROCESSABLE_ENTITY
+      }
+    }
+
+    "return the mapped system error" when {
+      "NINO triggers a system error" in {
+        when(mockSchemaValidationService.validateTerminateLiabilityRequest(any(), any()))
+          .thenReturn(Right(validTerminateLiabilityRequest.as[TerminateLiabilityRequest]))
+        when(mockMappingService.mapSystemErrors(nino)).thenReturn(Some(InternalServerError))
+        when(mockMappingService.map422ErrorResponses(nino)).thenReturn(None)
+
+        val request = generateFakeRequest(requestBody = validTerminateLiabilityRequest, headers = validHeaders)
+        val result  = testUcLiabilityController.terminateLiabilityDetails(nino)(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+      }
+    }
+  }
+
 }

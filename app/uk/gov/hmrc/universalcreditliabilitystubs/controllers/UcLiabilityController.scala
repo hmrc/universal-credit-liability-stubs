@@ -27,7 +27,6 @@ import uk.gov.hmrc.universalcreditliabilitystubs.services.{MappingService, Schem
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, UnauthorizedCode}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, UnauthorizedReason}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.isValidGovUkOriginatorId
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.isExpectedGovUkOriginatorId
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames.{Authorization, GovUkOriginatorId}
 
 import java.util.Base64
@@ -81,11 +80,11 @@ class UcLiabilityController @Inject() (
       )
   }
 
-  def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
+  private def validateGovUkOriginatorId[T](request: Request[T]): Either[Result, String] =
     request.headers.get(GovUkOriginatorId) match {
-      case Some(id) if isValidGovUkOriginatorId(id) && isExpectedGovUkOriginatorId(id) =>
+      case Some(id) if isValidGovUkOriginatorId(id) && (appConfig.hipGovUkOriginatorId == id) =>
         Right(id)
-      case _                                                                           =>
+      case _                                                                                  =>
         logger.warn("GovUkOriginatorId validation failed")
         Left(Forbidden(Json.toJson(Failure(reason = ForbiddenReason, code = ForbiddenCode))))
     }
