@@ -5,19 +5,21 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 ## Table of Contents
 
 <!-- TOC -->
+
 * [universal-credit-liability-stubs](#universal-credit-liability-stubs)
-  * [Table of Contents](#table-of-contents)
-  * [Running Locally](#running-locally)
-  * [Running with Service Manager](#running-with-service-manager)
-  * [Testing](#testing)
-  * [Endpoints](#endpoints)
-    * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
-    * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
-  * [422 UnprocessableEntity Errors](#422-unprocessableentity-errors)
-  * [Other Error Responses](#other-error-responses)
-  * [Scalafmt](#scalafmt)
-  * [Testing](#testing-1)
-  * [License](#license)
+    * [Table of Contents](#table-of-contents)
+    * [Running Locally](#running-locally)
+    * [Running with Service Manager](#running-with-service-manager)
+    * [Testing](#testing)
+    * [Endpoints](#endpoints)
+        * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
+        * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
+    * [422 UnprocessableEntity Errors](#422-unprocessableentity-errors)
+    * [Other Error Responses](#other-error-responses)
+    * [Scalafmt](#scalafmt)
+    * [Testing](#testing-1)
+    * [License](#license)
+
 <!-- TOC -->
 
 ## Running Locally
@@ -78,6 +80,18 @@ endpoint requires Mutual Authentication over TLS 1.2
 
 **Path Parameters**: National Insurance Number (NINO)
 
+**Payload**:
+
+```json
+{
+  "universalCreditLiabilityDetails": {
+    "universalCreditRecordType": "LCW/LCWRA",
+    "liabilityStartDate": "2015-08-19",
+    "liabilityEndDate": "2025-01-04"
+  }
+}
+```
+
 ### Terminate Universal Credit Liability Details
 
 **Endpoint**: `POST /ni/person/{nino}/liability/universal-credit/termination`
@@ -86,6 +100,18 @@ endpoint requires Mutual Authentication over TLS 1.2
 endpoint requires Mutual Authentication over TLS 1.2
 
 **Path Parameters**: National Insurance Number (NINO)
+
+**Payload**:
+
+```json
+{
+  "ucLiabilityTerminationDetails": {
+    "universalCreditRecordType": "LCW/LCWRA",
+    "liabilityStartDate": "2015-08-19",
+    "liabilityEndDate": "2025-01-04"
+  }
+}
+```
 
 ---
 
@@ -119,15 +145,14 @@ prefixes.
 
 To get a system error use a National Insurance Number (NINO) with any of the following 5-character prefixes.
 
-| NINO PREFIX | HTTP Status               |
-|:------------|---------------------------|
-| XY400       | 400 Bad Request           |
-| XY401       | 401 Unauthorized          |
-| XY403       | 403 Forbidden             |
-| XY404       | 404 NotFound              |
-| CM110       | 404 NotFound              |
-| XY500       | 500 Internal Server Error |
-| XY503       | 503 Service Unavailable   |
+| NINO PREFIX    | HTTP Status               |
+|:---------------|---------------------------|
+| XY400          | 400 Bad Request           |
+| XY401          | 401 Unauthorized          |
+| XY403 or HJ120 | 403 Forbidden             |
+| XY404 or CM110 | 404 NotFound              |
+| XY500 or HZ020 | 500 Internal Server Error |
+| XY503          | 503 Service Unavailable   |
 
 ## Scalafmt
 
