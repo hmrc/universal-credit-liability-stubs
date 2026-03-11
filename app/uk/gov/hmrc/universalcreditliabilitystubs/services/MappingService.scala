@@ -19,9 +19,9 @@ package uk.gov.hmrc.universalcreditliabilitystubs.services
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.*
-import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.Failure
+import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.{Failure, Failures}
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorCodes.{ForbiddenCode, NotFoundCode, UnauthorizedCode}
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorMessages.{ForbiddenReason, NotFoundReason, UnauthorizedReason}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ErrorReasons.{ForbiddenReason, NotFoundReason, UnauthorizedReason}
 
 class MappingService {
 
@@ -30,7 +30,7 @@ class MappingService {
       case "XY400"           => Some(BadRequest)
       case "XY401"           => Some(Unauthorized(Json.toJson(Failure(UnauthorizedReason, UnauthorizedCode))))
       case "XY403" | "HJ120" => Some(Forbidden(Json.toJson(Failure(ForbiddenReason, ForbiddenCode))))
-      case "XY404" | "CM110" => Some(NotFound(Json.toJson(Failure(NotFoundReason, NotFoundCode))))
+      case "XY404" | "CM110" => Some(NotFound(Json.toJson(Failures(Seq(Failure(NotFoundReason, NotFoundCode))))))
       case "XY500" | "HZ020" => Some(InternalServerError)
       case "XY503"           => Some(ServiceUnavailable)
       case _                 => None

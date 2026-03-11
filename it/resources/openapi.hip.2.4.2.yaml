@@ -15,7 +15,10 @@ info:
     | 1.1.0   | 24/04/2025 | NPS Development Team | Minor amendment to remove nps from summary, renamed response object to universalCreditLiabilityDetails |
     | 2.0.0   | 01/05/2025 | NPS Development Team | Baselined                                                                                              |
     | 2.0.1   | 08/05/2025 | NPS Development Team | Updated endpoints                                                                                      |
-  version: 2.0.1
+    | 2.4.0   | 09/01/2026 | NPS Development Team | Amended to make date of birth optional                                                                 |
+    | 2.4.1   | 16/01/2026 | NPS Development Team | Minor amendment to add additionalProperties: false to objects                                          |
+    | 2.4.2   | 13/02/2026 | GDS Remediation Team | Adding response samples 404 and 500 to spec                                                                   |
+  version: 2.4.2
   x-integration-catalogue:
     reviewed-date: 2025-04-25T15:10:20Z
     short-description: Universal Credit Liability Details
@@ -24,8 +27,8 @@ info:
     platform: HIP
     backends:
     - NI
-    domain: 2
-    sub-domain: 2.0
+    domain: 1
+    sub-domain: 1.5
 servers:
 - url: https://api.ipaas.prod.eis.ns2p.corp.hmrc.gov.uk/ni
   description: Corporate - Production
@@ -138,7 +141,19 @@ paths:
                     reason: Forbidden
                     code: "403.2"
         "404":
-          $ref: '#/components/responses/notFoundErrorResponse'
+          description: Bad Request
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/errorResponse_404'
+              examples:
+                Actual_Response:
+                  value:
+                    reason: Not found
+                    code: "404"
         "422":
           description: Unprocessable Entity
           headers:
@@ -222,7 +237,40 @@ paths:
                     - reason: NO corresponding liability found
                       code: "55039"
         "500":
-          $ref: '#/components/responses/internalServerErrorResponse'
+          description: Internal Server Error Response
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                required:
+                - origin
+                - response
+                type: object
+                properties:
+                  origin:
+                    $ref: '#/components/schemas/HIP-originEnum'
+                  response:
+                    oneOf:
+                    - $ref: '#/components/schemas/HIP-failureResponse'
+                    - $ref: '#/components/schemas/errorResponse_500'
+                additionalProperties: false
+              examples:
+                "500_InternalServerError":
+                  value:
+                    origin: HoD
+                    response:
+                      failures:
+                      - reason: Internal Server Error
+                        code: "123456"
+                HIP-originResponse:
+                  description: HIP-originResponse
+                  value:
+                    origin: HIP
+                    response:
+                    - type: Type of Failure
+                      reason: Reason for Failure
         "503":
           description: Service Unavailable
           content:
@@ -324,7 +372,19 @@ paths:
                     reason: Forbidden
                     code: "403.2"
         "404":
-          $ref: '#/components/responses/notFoundErrorResponse'
+          description: Bad Request
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/errorResponse_404'
+              examples:
+                Actual_Response:
+                  value:
+                    reason: Not found
+                    code: "404"
         "422":
           description: Unprocessable Entity
           headers:
@@ -413,7 +473,40 @@ paths:
                     - reason: NO corresponding liability found
                       code: "55039"
         "500":
-          $ref: '#/components/responses/internalServerErrorResponse'
+          description: Internal Server Error Response
+          headers:
+            correlationId:
+              $ref: '#/components/headers/correlationId'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                required:
+                - origin
+                - response
+                type: object
+                properties:
+                  origin:
+                    $ref: '#/components/schemas/HIP-originEnum'
+                  response:
+                    oneOf:
+                    - $ref: '#/components/schemas/HIP-failureResponse'
+                    - $ref: '#/components/schemas/errorResponse_500'
+                additionalProperties: false
+              examples:
+                "500_InternalServerError":
+                  value:
+                    origin: HoD
+                    response:
+                      failures:
+                      - reason: Internal Server Error
+                        code: "123456"
+                HIP-originResponse:
+                  description: HIP-originResponse
+                  value:
+                    origin: HIP
+                    response:
+                    - type: Type of Failure
+                      reason: Reason for Failure
         "503":
           description: Service Unavailable
           content:
@@ -431,7 +524,7 @@ components:
     govUkOriginatorId:
       description: Identity of the Originating System that made the API call
       maxLength: 40
-      minLength: 4
+      minLength: 3
       type: string
     PostUniversalCreditLiabilityRequest:
       required:
@@ -451,7 +544,6 @@ components:
       description: Request body for this API.
       required:
       - universalCreditRecordType
-      - dateOfBirth
       - liabilityStartDate
       type: object
       properties:
@@ -463,6 +555,7 @@ components:
           $ref: '#/components/schemas/liabilityStartDate'
         liabilityEndDate:
           $ref: '#/components/schemas/liabilityEndDate'
+      additionalProperties: false
     UCLiabilityTerminationDetails:
       description: Request body for this API.
       required:
@@ -477,6 +570,7 @@ components:
           $ref: '#/components/schemas/liabilityStartDate'
         liabilityEndDate:
           $ref: '#/components/schemas/liabilityEndDate'
+      additionalProperties: false
     errorResponse_400:
       title: Error Response
       description: Array of Error Response Failure Object in Error Response.
@@ -494,7 +588,7 @@ components:
       properties:
         reason:
           description: Displays the reason of the failure.
-          maxLength: 120
+          maxLength: 128
           minLength: 1
           type: string
         code:
@@ -523,6 +617,29 @@ components:
           enum:
           - "403.2"
           type: string
+    errorResponse_404:
+      title: Error Response
+      description: Array of Error Response Failure Object in Error Response.
+      type: object
+      properties:
+        failures:
+          type: array
+          items:
+            $ref: '#/components/schemas/errorResourceObj_404'
+    errorResourceObj_404:
+      required:
+      - code
+      - reason
+      type: object
+      properties:
+        reason:
+          description: Displays the reason of the failure.
+          maxLength: 128
+          minLength: 1
+          type: string
+        code:
+          description: The error code representing the Not Found Error.
+          type: string
     errorResponse_422:
       title: Error Response
       description: Error Response Payload for this API
@@ -544,7 +661,36 @@ components:
       properties:
         reason:
           description: Displays the reason of the failure.
-          maxLength: 120
+          maxLength: 128
+          minLength: 1
+          type: string
+        code:
+          description: The error code representing the error that has occurred.
+          maxLength: 10
+          minLength: 1
+          type: string
+    errorResponse_500:
+      title: Error Response
+      description: Error Response Payload for this API
+      type: object
+      properties:
+        failures:
+          $ref: '#/components/schemas/errorResponseFailure_500'
+    errorResponseFailure_500:
+      title: Failure Object in Error Response
+      description: Array of Error Response Failure Object in Error Response.
+      type: array
+      items:
+        $ref: '#/components/schemas/errorResourceObj_500'
+    errorResourceObj_500:
+      required:
+      - code
+      - reason
+      type: object
+      properties:
+        reason:
+          description: Displays the reason of the failure.
+          maxLength: 128
           minLength: 1
           type: string
         code:
@@ -618,17 +764,6 @@ components:
         response:
           $ref: '#/components/schemas/HIP-failureResponse'
       additionalProperties: false
-  responses:
-    internalServerErrorResponse:
-      description: Internal Server Error
-      headers:
-        correlationId:
-          $ref: '#/components/headers/correlationId'
-    notFoundErrorResponse:
-      description: The requested resource could not be found
-      headers:
-        correlationId:
-          $ref: '#/components/headers/correlationId'
   parameters:
     correlationId:
       name: correlationId

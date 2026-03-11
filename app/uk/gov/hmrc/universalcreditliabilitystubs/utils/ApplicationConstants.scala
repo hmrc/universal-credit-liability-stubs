@@ -41,11 +41,11 @@ object ApplicationConstants {
     def isValidGovUkOriginatorId(id: String): Boolean = GovUkOriginatorIdPattern.matches(id)
   }
 
-  def invalidInputFailure(field: String): Failure =
-    Failure(
-      reason = ErrorMessages.invalidInputReason(field),
-      code = ErrorCodes.InvalidInputCode
-    )
+  object HeaderNames {
+    val Authorization: String     = "Authorization"
+    val CorrelationId: String     = "correlationId"
+    val GovUkOriginatorId: String = "gov-uk-originator-id"
+  }
 
   object ErrorCodes {
     val InvalidInputCode: String = "400.1"
@@ -54,16 +54,18 @@ object ApplicationConstants {
     val NotFoundCode: String     = "404"
   }
 
-  object ErrorMessages {
-    def invalidInputReason(field: String): String = s"Constraint Violation - Invalid/Missing input parameter: $field"
-    val ForbiddenReason: String                   = "Forbidden"
-    val UnauthorizedReason: String                = "Invalid or missing Authorization header"
-    val NotFoundReason: String                    = "Not found"
-  }
-}
+  object ErrorReasons {
+    def invalidInputReason(field: String): String =
+      s"Constraint Violation - Invalid/Missing input parameter: $field"
 
-object HeaderNames {
-  val Authorization: String     = "Authorization"
-  val CorrelationId: String     = "correlationId"
-  val GovUkOriginatorId: String = "gov-uk-originator-id"
+    val ForbiddenReason: String    = "Forbidden"
+    val UnauthorizedReason: String = "Invalid or missing Authorization header"
+    val NotFoundReason: String     = "Not found"
+  }
+
+  def invalidInputFailure(field: String): Failure =
+    Failure(
+      reason = ErrorReasons.invalidInputReason(field),
+      code = ErrorCodes.InvalidInputCode
+    )
 }

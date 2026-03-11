@@ -24,9 +24,10 @@ import play.api.mvc.Results.BadRequest
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.universalcreditliabilitystubs.models.errors.*
 import uk.gov.hmrc.universalcreditliabilitystubs.models.request.{InsertLiabilityRequest, TerminateLiabilityRequest}
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.*
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.PathParameter.Nino
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.*
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.{ApplicationConstants, HeaderNames}
 
 class SchemaValidationService {
 
@@ -83,7 +84,7 @@ class SchemaValidationService {
         )
     }
 
-  private def validateJson[T](request: Request[JsValue])(implicit reads: Reads[T]): EitherNec[Failures, T] =
+  private def validateJson[T](request: Request[JsValue])(using reads: Reads[T]): EitherNec[Failures, T] =
     request.body.validate[T] match {
       case JsSuccess(validatedRequest, _) =>
         Right(validatedRequest)

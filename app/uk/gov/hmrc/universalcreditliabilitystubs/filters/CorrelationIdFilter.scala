@@ -19,23 +19,23 @@ package uk.gov.hmrc.universalcreditliabilitystubs.filters
 import jakarta.inject.Inject
 import org.apache.pekko.stream.Materializer
 import play.api.mvc.*
+import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.HeaderNames
 import uk.gov.hmrc.universalcreditliabilitystubs.utils.ApplicationConstants.ValidationPatterns.CorrelationIdPattern
-import uk.gov.hmrc.universalcreditliabilitystubs.utils.HeaderNames
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class CorrelationIdFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+class CorrelationIdFilter @Inject() (val mat: Materializer)(using ec: ExecutionContext) extends Filter {
 
-  override def apply(nextFilter: RequestHeader => Future[Result])(request: RequestHeader): Future[Result] = {
-    val optionalCorrelationId = request.headers.get(HeaderNames.CorrelationId)
+  override def apply(nextFilter: RequestHeader => Future[Result])(requestHeader: RequestHeader): Future[Result] = {
+    val optionalCorrelationId = requestHeader.headers.get(HeaderNames.CorrelationId)
 
     val finalCorrelationId = optionalCorrelationId match {
       case Some(id) if CorrelationIdPattern.matches(id) => id
       case _                                            => UUID.randomUUID().toString
     }
 
-    nextFilter(request).map { result =>
+    nextFilter(requestHeader).map { result =>
       result.withHeaders(HeaderNames.CorrelationId -> finalCorrelationId)
     }
   }
