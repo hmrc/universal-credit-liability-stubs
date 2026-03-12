@@ -1,7 +1,7 @@
 meta {
-  name: 65542 - NINO matches non-live account
+  name: 65538 - End date missing, input was Termination
   type: http
-  seq: 15
+  seq: 13
 }
 
 post {
@@ -11,7 +11,7 @@ post {
 }
 
 params:path {
-  nino: HZ310000
+  nino: EA040000
 }
 
 headers {
@@ -35,6 +35,6 @@ assert {
   res.status: eq 422
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
-  res.body.failures[0].code: eq '65542'
-  res.body.failures[0].reason: eq 'The NINO input matches a non-live account (including redundant, amalgamated and administrative account types)'
+  res.body.failures[0].code: eq '65538'
+  res.body.failures[0].reason: eq 'End date missing but the input was a Termination'
 }

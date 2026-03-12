@@ -1,17 +1,17 @@
 meta {
-  name: 65542 - NINO matches non-live account
+  name: 65538 - End date missing, input was Termination
   type: http
-  seq: 15
+  seq: 13
 }
 
 post {
-  url: {{api-host}}/ni/person/:nino/liability/universal-credit/termination
+  url: {{api-host}}/ni/person/:nino/liability/universal-credit
   body: json
   auth: none
 }
 
 params:path {
-  nino: HZ310000
+  nino: EA040000
 }
 
 headers {
@@ -23,8 +23,9 @@ headers {
 
 body:json {
   {
-    "ucLiabilityTerminationDetails": {
+    "universalCreditLiabilityDetails": {
       "universalCreditRecordType": "{{randomUniversalCreditRecordType}}",
+      "dateOfBirth": "2002-04-27",
       "liabilityStartDate": "2025-08-19",
       "liabilityEndDate": "2026-06-30"
     }
@@ -35,6 +36,6 @@ assert {
   res.status: eq 422
   res.headers.correlationid: eq {{correlationId}}
   res.body: isJson
-  res.body.failures[0].code: eq '65542'
-  res.body.failures[0].reason: eq 'The NINO input matches a non-live account (including redundant, amalgamated and administrative account types)'
+  res.body.failures[0].code: eq '65538'
+  res.body.failures[0].reason: eq 'End date missing but the input was a Termination'
 }
