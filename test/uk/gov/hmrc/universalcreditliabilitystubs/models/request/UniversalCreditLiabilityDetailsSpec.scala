@@ -31,19 +31,17 @@ class UniversalCreditLiabilityDetailsSpec
     with TestHelpers {
 
   val ucDetailsGen: Gen[UniversalCreditLiabilityDetails] = for {
-    recordType  <- ucRecordTypeGen
-    dateOfBirth <- Gen.option(mixedDateGen)
-    startDate   <- mixedDateGen
-    endDate     <- Gen.option(mixedDateGen)
-  } yield UniversalCreditLiabilityDetails(recordType, dateOfBirth, startDate, endDate)
+    recordType <- ucRecordTypeGen
+    startDate  <- mixedDateGen
+    endDate    <- Gen.option(mixedDateGen)
+  } yield UniversalCreditLiabilityDetails(recordType, startDate, endDate)
 
   "UniversalCreditLiabilityDetails" must {
 
-    "Serialize/deserialize valid dates correctly" in
+    "serialize/deserialize valid dates correctly" in
       forAll(ucDetailsGen, minSuccessful(1000)) { uclDetails =>
         whenever(
-          uclDetails.dateOfBirth.forall(DatePattern.matches) &&
-            DatePattern.matches(uclDetails.liabilityStartDate) &&
+          DatePattern.matches(uclDetails.liabilityStartDate) &&
             uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
           val testJson = Json.toJson(uclDetails)
@@ -53,11 +51,10 @@ class UniversalCreditLiabilityDetailsSpec
         }
       }
 
-    "Fail deserialization for invalid dates" in
+    "fail deserialization for invalid dates" in
       forAll(ucDetailsGen, minSuccessful(1000)) { uclDetails =>
         whenever(
-          !uclDetails.dateOfBirth.forall(DatePattern.matches) ||
-            !DatePattern.matches(uclDetails.liabilityStartDate) ||
+          !DatePattern.matches(uclDetails.liabilityStartDate) ||
             !uclDetails.liabilityEndDate.forall(DatePattern.matches)
         ) {
           val testJson = Json.toJson(uclDetails)

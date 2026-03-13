@@ -29,7 +29,6 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |{
           |  "universalCreditLiabilityDetails": {
           |    "universalCreditRecordType": "LCW/LCWRA",
-          |    "dateOfBirth": "2002-04-27",
           |    "liabilityStartDate": "2025-08-19",
           |    "liabilityEndDate": "2026-06-30"
           |  }
@@ -40,7 +39,6 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
         InsertLiabilityRequest(
           UniversalCreditLiabilityDetails(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-            dateOfBirth = Some("2002-04-27"),
             liabilityStartDate = "2025-08-19",
             liabilityEndDate = Some("2026-06-30")
           )
@@ -55,7 +53,6 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
       val testInsertLiabilityRequest: InsertLiabilityRequest = InsertLiabilityRequest(
         universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
           universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-          dateOfBirth = Some("2002-04-27"),
           liabilityStartDate = "2015-08-19",
           liabilityEndDate = Some("2026-06-30")
         )
@@ -65,7 +62,6 @@ class InsertLiabilityRequestSpec extends AnyWordSpec with Matchers {
           |{
           |  "universalCreditLiabilityDetails": {
           |    "universalCreditRecordType": "LCW/LCWRA",
-          |    "dateOfBirth": "2002-04-27",
           |    "liabilityStartDate": "2015-08-19",
           |    "liabilityEndDate": "2026-06-30"
           |  }

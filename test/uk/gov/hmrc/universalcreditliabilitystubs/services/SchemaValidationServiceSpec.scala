@@ -40,7 +40,6 @@ class SchemaValidationServiceSpec extends AnyWordSpec with Matchers with TestHel
         InsertLiabilityRequest(
           universalCreditLiabilityDetails = UniversalCreditLiabilityDetails(
             universalCreditRecordType = UniversalCreditRecordType.LCW_LCWRA,
-            dateOfBirth = Some("2002-04-27"),
             liabilityStartDate = "2025-08-19",
             liabilityEndDate = Some("2026-06-30")
           )
