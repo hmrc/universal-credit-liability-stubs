@@ -12,7 +12,7 @@ object AppDependencies {
   val test: Seq[ModuleID] = Seq(
     "io.github.wolfendale" %% "scalacheck-gen-regexp"  % "1.1.0",
     "org.scalatest"        %% "scalatest"              % "3.2.19",
-    "org.scalatestplus"    %% "scalacheck-1-18"        % "3.2.19.0",
+    "org.scalatestplus"    %% "scalacheck-1-19"        % "3.2.19.0",
     "uk.gov.hmrc"          %% "bootstrap-test-play-30" % bootstrapVersion
   ).map(_ % Test)
 
