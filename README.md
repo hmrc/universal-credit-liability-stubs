@@ -22,6 +22,50 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 
 <!-- TOC -->
 
+## Endpoint
+
+### Insert Universal Credit Liability Details
+
+**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit`
+
+**Description**: Provides the capability to insert Universal Credit Liability details for a given individual. This
+endpoint requires Mutual Authentication over TLS 1.2
+
+**Path Parameters**: National Insurance Number (NINO)
+
+**Payload**:
+
+```json
+{
+  "universalCreditLiabilityDetails": {
+    "universalCreditRecordType": "LCW/LCWRA",
+    "liabilityStartDate": "2015-08-19",
+    "liabilityEndDate": "2025-01-04"
+  }
+}
+```
+
+### Terminate Universal Credit Liability Details
+
+**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit/termination`
+
+**Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This
+endpoint requires Mutual Authentication over TLS 1.2
+
+**Path Parameters**: National Insurance Number (NINO)
+
+**Payload**:
+
+```json
+{
+  "ucLiabilityTerminationDetails": {
+    "universalCreditRecordType": "LCW/LCWRA",
+    "liabilityStartDate": "2015-08-19",
+    "liabilityEndDate": "2025-01-04"
+  }
+}
+```
+
 ## Running Locally
 
 Compile the project with:
@@ -69,50 +113,6 @@ Check code coverage with:
 sbt clean coverage test it/test coverageReport
 ```
 
-## Endpoints
-
-### Insert Universal Credit Liability Details
-
-**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit`
-
-**Description**: Provides the capability to insert Universal Credit Liability details for a given individual. This
-endpoint requires Mutual Authentication over TLS 1.2
-
-**Path Parameters**: National Insurance Number (NINO)
-
-**Payload**:
-
-```json
-{
-  "universalCreditLiabilityDetails": {
-    "universalCreditRecordType": "LCW/LCWRA",
-    "liabilityStartDate": "2015-08-19",
-    "liabilityEndDate": "2025-01-04"
-  }
-}
-```
-
-### Terminate Universal Credit Liability Details
-
-**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit/termination`
-
-**Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This
-endpoint requires Mutual Authentication over TLS 1.2
-
-**Path Parameters**: National Insurance Number (NINO)
-
-**Payload**:
-
-```json
-{
-  "ucLiabilityTerminationDetails": {
-    "universalCreditRecordType": "LCW/LCWRA",
-    "liabilityStartDate": "2015-08-19",
-    "liabilityEndDate": "2025-01-04"
-  }
-}
-```
-
 ---
 
 ## 422 UnprocessableEntity Errors
@@ -153,6 +153,26 @@ To get a system error use a National Insurance Number (NINO) with any of the fol
 | XY404 or CM110 | 404 NotFound              |
 | XY500 or HZ020 | 500 Internal Server Error |
 | XY503          | 503 Service Unavailable   |
+
+## sbt Aliases
+
+These aliases let you run multiple sbt tasks with a single command.
+
+Checks against the Scalafmt and Scalafix rules. This command is part of the PR Builder Jenkins job and fails the PR if the code is not formatted:
+```shell
+sbt prePrChecks
+```
+
+Checks code coverage (includes both unit and integration tests):
+
+```shell
+sbt checkCodeCoverage
+```
+Formats all project code. Applies Scalafix and Scalafmt rules:
+
+```shell
+sbt lintCode
+```
 
 ## Scalafmt
 
