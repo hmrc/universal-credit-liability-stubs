@@ -22,7 +22,7 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 
 <!-- TOC -->
 
-## Endpoint
+## Endpoints
 
 ### Insert Universal Credit Liability Details
 
