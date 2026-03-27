@@ -5,24 +5,26 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 ## Table of Contents
 
 <!-- TOC -->
-
 * [universal-credit-liability-stubs](#universal-credit-liability-stubs)
-    * [Table of Contents](#table-of-contents)
-    * [Running Locally](#running-locally)
-    * [Running with Service Manager](#running-with-service-manager)
-    * [Testing](#testing)
-    * [Endpoints](#endpoints)
-        * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
-        * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
-    * [422 UnprocessableEntity Errors](#422-unprocessableentity-errors)
-    * [Other Error Responses](#other-error-responses)
-    * [Scalafmt](#scalafmt)
-    * [Testing](#testing-1)
-    * [License](#license)
-
+  * [Table of Contents](#table-of-contents)
+  * [Endpoints](#endpoints)
+    * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
+    * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
+  * [Running Locally](#running-locally)
+  * [Running with Service Manager](#running-with-service-manager)
+  * [Testing](#testing)
+  * [422 UnprocessableEntity Errors](#422-unprocessableentity-errors)
+  * [Other Error Responses](#other-error-responses)
+  * [Bruno testing](#bruno-testing)
+  * [sbt Aliases](#sbt-aliases)
+  * [Scalafmt](#scalafmt)
+  * [License](#license)
 <!-- TOC -->
 
 ## Endpoints
+
+All requests require the `gov-uk-originator-id` header to be set to `TEST-GOV-UK-ORIGINATOR-ID`. 
+If missing or invalid, a `403 Forbidden` is returned.
 
 ### Insert Universal Credit Liability Details
 
@@ -113,8 +115,6 @@ Check code coverage with:
 sbt clean coverage test it/test coverageReport
 ```
 
----
-
 ## 422 UnprocessableEntity Errors
 
 To get an UnprocessableEntity Error (422) use a National Insurance Number (NINO) with any of the following 5-character
@@ -153,6 +153,16 @@ To get a system error use a National Insurance Number (NINO) with any of the fol
 | XY404 or CM110 | 404 NotFound              |
 | XY500 or HZ020 | 500 Internal Server Error |
 | XY503          | 503 Service Unavailable   |
+
+## Bruno testing
+
+A [Bruno](https://www.usebruno.com/) collection is set up for conducting manual tests and can be found under the `bruno` directory.
+
+It has been developed and tested for Bruno `v3.3.0`.
+To use, in Bruno just select "Open Collection", navigate to the `bruno` folder and open.
+
+The Bruno collection is pre-configured with the `clientId` and `clientSecret`, required for authentication. It also 
+comes with the `gov-uk-originator-id` header set to `TEST-GOV-UK-ORIGINATOR-ID`, required for valid requests. 
 
 ## sbt Aliases
 
@@ -193,52 +203,6 @@ Format all project files as follows:
 ```bash
 sbt scalafmtAll
 ```
-
-## Bruno testing
-Bruno collection is set up for conducting manual tests and can be found under `bruno`.
-It has been developed and tested for `Bruno v2.1.0`.
-To use, in Bruno just select open collection, navigate to the `bruno` folder and open.
-
-There are two configured environment profiles, Local and QA.
-There are also two auth requests, corresponding to the two environment profiles.
-
-For more info on environment variables in Bruno see https://docs.usebruno.com/get-started/variables/environment-variables
-
-Before you can make requests to the Universal Credit Liability Notification API, a valid auth token is required.
-This is obtained by triggering the auth requests corresponding to the environment profile selected (it will fail otherwise).
-
-After a successful authentication request, the obtained auth token will be stored as a secret environment variable and utilised by the Universal Credit Liability Notification API requests.
-The auth token may be valid for a different length of time depending on the environment. e.g. QA = 4 hours
-
-# QA auth
-For `Auth/QA`, a privileged application subscribing to the API needs to have already been preconfigured.
-The Bruno collection also has a dependency on an external JavaScript library `totp-generator` which will require `nodejs`.
-
-After installing node, execute:
-```
-cd bruno
-npm i
-```
-
-And then enable [Developer Mode](https://docs.usebruno.com/configure/javascript-sandbox) in Bruno.
-
-For more info on external libraries in Bruno see https://docs.usebruno.com/testing/script/external-libraries
-
-The QA environment is only semi configured, all the fields related to oauth 2.0 are specified as `secrets` which are not commited to the repo and will need to be manually set.
-This is done because these secrets can all expire and change.
-
-| Required QA Environment variables | Description                                             |
-|-----------------------------------|---------------------------------------------------------|
-| clientId                          | The client id to the QA application                     |
-| clientSecret                      | any valid client secret generated by the QA application |
-| TOTP_SECRET                       | The TOTP Secret for the given QA application            |
-
-The other secret variables are placeholders for temporary variables as part of the authentication process, they do not need to be configured.
-These are pre-specified so they also don't get commited to the repo.
-
-For more info on Bruno's secret variables see
-https://docs.usebruno.com/secrets-management/secret-variables
-
 
 ## License
 
