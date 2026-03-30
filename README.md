@@ -23,7 +23,7 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 
 ## Endpoints
 
-All requests require the `gov-uk-originator-id` header to be set to `TEST-GOV-UK-ORIGINATOR-ID`. 
+All valid requests require the `gov-uk-originator-id` header to be set to `TEST-GOV-UK-ORIGINATOR-ID`. 
 If missing or invalid, a `403 Forbidden` is returned.
 
 ### Insert Universal Credit Liability Details
