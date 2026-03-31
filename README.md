@@ -5,22 +5,68 @@ The Universal Credit Liability Stubs service provides stubs for the HIP/NPS down
 ## Table of Contents
 
 <!-- TOC -->
-
 * [universal-credit-liability-stubs](#universal-credit-liability-stubs)
-    * [Table of Contents](#table-of-contents)
-    * [Running Locally](#running-locally)
-    * [Running with Service Manager](#running-with-service-manager)
-    * [Testing](#testing)
-    * [Endpoints](#endpoints)
-        * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
-        * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
-    * [422 UnprocessableEntity Errors](#422-unprocessableentity-errors)
-    * [Other Error Responses](#other-error-responses)
-    * [Scalafmt](#scalafmt)
-    * [Testing](#testing-1)
-    * [License](#license)
-
+  * [Table of Contents](#table-of-contents)
+  * [Endpoints](#endpoints)
+    * [Insert Universal Credit Liability Details](#insert-universal-credit-liability-details)
+    * [Terminate Universal Credit Liability Details](#terminate-universal-credit-liability-details)
+  * [Running Locally](#running-locally)
+  * [Running with Service Manager](#running-with-service-manager)
+  * [Testing](#testing)
+  * [422 UnprocessableEntity Errors](#422-unprocessableentity-errors)
+  * [Other Error Responses](#other-error-responses)
+  * [Bruno testing](#bruno-testing)
+  * [sbt Aliases](#sbt-aliases)
+  * [Scalafmt](#scalafmt)
+  * [License](#license)
 <!-- TOC -->
+
+## Endpoints
+
+All valid requests require the `gov-uk-originator-id` header to be set to `TEST-GOV-UK-ORIGINATOR-ID`. 
+If missing or invalid, a `403 Forbidden` is returned.
+
+### Insert Universal Credit Liability Details
+
+**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit`
+
+**Description**: Provides the capability to insert Universal Credit Liability details for a given individual. This
+endpoint requires Mutual Authentication over TLS 1.2
+
+**Path Parameters**: National Insurance Number (NINO)
+
+**Payload**:
+
+```json
+{
+  "universalCreditLiabilityDetails": {
+    "universalCreditRecordType": "LCW/LCWRA",
+    "liabilityStartDate": "2015-08-19",
+    "liabilityEndDate": "2025-01-04"
+  }
+}
+```
+
+### Terminate Universal Credit Liability Details
+
+**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit/termination`
+
+**Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This
+endpoint requires Mutual Authentication over TLS 1.2
+
+**Path Parameters**: National Insurance Number (NINO)
+
+**Payload**:
+
+```json
+{
+  "ucLiabilityTerminationDetails": {
+    "universalCreditRecordType": "LCW/LCWRA",
+    "liabilityStartDate": "2015-08-19",
+    "liabilityEndDate": "2025-01-04"
+  }
+}
+```
 
 ## Running Locally
 
@@ -69,52 +115,6 @@ Check code coverage with:
 sbt clean coverage test it/test coverageReport
 ```
 
-## Endpoints
-
-### Insert Universal Credit Liability Details
-
-**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit`
-
-**Description**: Provides the capability to insert Universal Credit Liability details for a given individual. This
-endpoint requires Mutual Authentication over TLS 1.2
-
-**Path Parameters**: National Insurance Number (NINO)
-
-**Payload**:
-
-```json
-{
-  "universalCreditLiabilityDetails": {
-    "universalCreditRecordType": "LCW/LCWRA",
-    "liabilityStartDate": "2015-08-19",
-    "liabilityEndDate": "2025-01-04"
-  }
-}
-```
-
-### Terminate Universal Credit Liability Details
-
-**Endpoint**: `POST /ni/person/{nino}/liability/universal-credit/termination`
-
-**Description**: Provides the capability to terminate Universal Credit Liability details for a given individual. This
-endpoint requires Mutual Authentication over TLS 1.2
-
-**Path Parameters**: National Insurance Number (NINO)
-
-**Payload**:
-
-```json
-{
-  "ucLiabilityTerminationDetails": {
-    "universalCreditRecordType": "LCW/LCWRA",
-    "liabilityStartDate": "2015-08-19",
-    "liabilityEndDate": "2025-01-04"
-  }
-}
-```
-
----
-
 ## 422 UnprocessableEntity Errors
 
 To get an UnprocessableEntity Error (422) use a National Insurance Number (NINO) with any of the following 5-character
@@ -154,6 +154,36 @@ To get a system error use a National Insurance Number (NINO) with any of the fol
 | XY500 or HZ020 | 500 Internal Server Error |
 | XY503          | 503 Service Unavailable   |
 
+## Bruno testing
+
+A [Bruno](https://www.usebruno.com/) collection is set up for conducting manual tests and can be found under the `bruno` directory.
+
+It has been developed and tested for Bruno `v3.3.0`.
+To use, in Bruno just select "Open Collection", navigate to the `bruno` folder and open.
+
+The Bruno collection is pre-configured with the `clientId` and `clientSecret`, required for authentication. It also 
+comes with the `gov-uk-originator-id` header set to `TEST-GOV-UK-ORIGINATOR-ID`, required for valid requests. 
+
+## sbt Aliases
+
+These aliases let you run multiple sbt tasks with a single command.
+
+Checks against the Scalafmt and Scalafix rules. This command is part of the PR Builder Jenkins job and fails the PR if the code is not formatted:
+```shell
+sbt prePrChecks
+```
+
+Checks code coverage (includes both unit and integration tests):
+
+```shell
+sbt checkCodeCoverage
+```
+Formats all project code. Applies Scalafix and Scalafmt rules:
+
+```shell
+sbt lintCode
+```
+
 ## Scalafmt
 
 Check all project files are formatted as expected as follows:
@@ -173,10 +203,6 @@ Format all project files as follows:
 ```bash
 sbt scalafmtAll
 ```
-
-## Testing
-
-Bruno collection can be found in `bruno/SubmitLiabilityDetails.bru` for `Bruno v2.1.0`
 
 ## License
 
